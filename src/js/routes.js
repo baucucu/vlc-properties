@@ -12,9 +12,10 @@ import NotFoundPage from '../pages/404.jsx';
 import PropertyPage from '../pages/property.jsx';
 import PropertiesPage from '../pages/properties.jsx';
 import BookingsPage from '../pages/bookings.jsx';
+import BookingPage from '../pages/booking.jsx';
 import TenantsPage from '../pages/tenants.jsx';
 import TenantPage from '../pages/tenant.jsx';
-import ExpensesPage from '../pages/expenses.jsx'
+import ExpensesPage from '../pages/expenses.jsx';
 
 var routes = [
   {
@@ -54,6 +55,10 @@ var routes = [
   {
     path: '/bookings/',
     component: BookingsPage
+  },
+  {
+    path: '/bookings/:id',
+    component: BookingPage
   },
   {
     path: '/expenses/',

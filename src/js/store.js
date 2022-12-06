@@ -49,11 +49,9 @@ const store = createStore({
     },
     setSelected({state}, options){
       state.selected = options
-      console.log(state.selected)
     },
     getSelected({state}){
       state.selected = state.properties.map(property => property.id)
-      console.log(state.selected)
     },
     getUnits({ state,dispatch }) {
       f7.preloader.show()
@@ -92,16 +90,17 @@ const store = createStore({
       }).firstPage((err, records) =>{
           state.revenue = records.map(record => {return ({id:record.id, ...record.fields})})
           f7.preloader.hide()
-          dispatch('getSelected')
+          dispatch('getBookings')
       })
     },
-    getBookings({ state }) {
+    getBookings({ state,dispatch }) {
       f7.preloader.show()
       base("Bookings").select({
         view: "Grid view",
       }).firstPage((err, records) =>{
           state.bookings = records.map(record => {return ({id:record.id, ...record.fields})})
           f7.preloader.hide()
+          dispatch('getSelected')
       })
     }
   },
