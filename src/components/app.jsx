@@ -58,13 +58,13 @@ const MyApp = () => {
 
   useEffect(()=>{
     store.dispatch('getProperties');
-    store.dispatch('getUnits')
-    store.dispatch('getTenants')
-    store.dispatch('getExpenses')
-    store.dispatch('getRevenue')
-    store.dispatch('getBookings')
+    // store.dispatch('getUnits');
+    // store.dispatch('getTenants');
+    // store.dispatch('getExpenses');
+    // store.dispatch('getRevenue');
+    // store.dispatch('getBookings');
+    // store.dispatch('getSelected');
   },[])
-  const [selected, setSelected] = useState('properties')
   return (
     <App { ...f7params } light>
 

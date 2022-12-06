@@ -10,11 +10,15 @@ const store = createStore({
     tennants:[],
     expenses:[],
     revenue:[],
-    bookings:[]
+    bookings:[],
+    selected:[]
   },
   getters: {
     properties({state}) {
       return state.properties
+    },
+    selected({state}){
+      return state.selected
     },
     units({state}) {
       return state.units
@@ -33,49 +37,62 @@ const store = createStore({
     }
   },
   actions: {
-    getProperties({ state }) {
+    getProperties({ state,dispatch }) {
       f7.preloader.show()
       base("Properties").select({
         view: "Grid view",
       }).firstPage((err, records) =>{
           state.properties = records.map(record => {return ({id:record.id, ...record.fields})})
           f7.preloader.hide()
+          dispatch('getUnits')
       })
     },
-    getUnits({ state }) {
+    setSelected({state}, options){
+      state.selected = options
+      console.log(state.selected)
+    },
+    getSelected({state}){
+      state.selected = state.properties.map(property => property.id)
+      console.log(state.selected)
+    },
+    getUnits({ state,dispatch }) {
       f7.preloader.show()
       base("Units").select({
         view: "Grid view",
       }).firstPage((err, records) =>{
           state.units = records.map(record => {return ({id:record.id, ...record.fields})})
           f7.preloader.hide()
+          dispatch('getTenants')
       })
     },
-    getTenants({ state }) {
+    getTenants({ state,dispatch }) {
       f7.preloader.show()
       base("Tenants").select({
         view: "Grid view",
       }).firstPage((err, records) =>{
           state.tenants = records.map(record => {return ({id:record.id, ...record.fields})})
           f7.preloader.hide()
+          dispatch('getExpenses')
       })
     },
-    getExpenses({ state }) {
+    getExpenses({ state,dispatch }) {
       f7.preloader.show()
       base("Expenses").select({
         view: "Grid view",
       }).firstPage((err, records) =>{
           state.expenses = records.map(record => {return ({id:record.id, ...record.fields})})
           f7.preloader.hide()
+          dispatch('getRevenue')
       })
     },
-    getRevenue({ state }) {
+    getRevenue({ state,dispatch }) {
       f7.preloader.show()
       base("Revenue").select({
         view: "Grid view",
       }).firstPage((err, records) =>{
           state.revenue = records.map(record => {return ({id:record.id, ...record.fields})})
           f7.preloader.hide()
+          dispatch('getSelected')
       })
     },
     getBookings({ state }) {

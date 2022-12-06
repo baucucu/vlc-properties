@@ -3,13 +3,13 @@ import { Page, Navbar, Block, List, ListItem, useStore, Row, Col,f7 } from 'fram
 import FullCalendar from '@fullcalendar/react';
 import listPlugin from '@fullcalendar/list';
 import currency from 'currency.js';
+import store from '../js/store';
 
 const ExpensesPage = () => {
   const expenses = useStore('expenses');
   const properties = useStore('properties')
-  const [resources,setResources] = useState([])
   const [events,setEvents] = useState([])
-  const [selected,setSelected] = useState(properties.map(property => property.id))
+  const selected = useStore('selected');
   
 
   useEffect(() => {
@@ -17,24 +17,22 @@ const ExpensesPage = () => {
     ss.on('close', function(el){
       console.log("selected element: ",el.selectEl.selectedOptions)
       let options = Array.from(el.selectEl.selectedOptions).map(option => option.value)
-      console.log(options)
-      setSelected(options)
+      store.dispatch('setSelected',options)
     })
   },[])
 
   useEffect(() => {
-    let res = properties.map(property => ({id: property.id, name: property.Name}))
-    setResources(res)
+    
     let evs = expenses
     .filter(expense => selected.find(prop => prop === expense.Property[0]))
     .map(expense => {
-      let property =res.filter(item => item.id === expense.Property[0])[0] 
+      let property =properties.filter(item => item.id === expense.Property[0])[0] 
       return({
         id: expense.id,
         title: `${currency(expense.Amount, { symbol: '€', decimal: ',', separator: '.' }).format()} - ${expense.Expense}`,
         start: expense.Date, 
         extendedProps: {
-          property: property.name,
+          property: property.Name,
         }
       })
     })
