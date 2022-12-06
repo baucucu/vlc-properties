@@ -177,7 +177,8 @@ const PropertiesPage = () => {
           {
             group: true,
             field: 'property',
-            headerContent: 'Property'
+            headerContent: 'Property',
+            width:150
           },
           {
             group: true,
