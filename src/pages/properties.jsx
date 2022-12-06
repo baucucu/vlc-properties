@@ -113,7 +113,7 @@ const PropertiesPage = () => {
 
 
   useEffect(() => {
-    units && setResources(units.map(unit => {
+    bookings.length > 0 && setResources(units.map(unit => {
       let {property_revenue,property_expenses,property_profit,unit_revenue,booked_days} = getUnitData(unit.id, unit.Property[0])
       return({
         id: unit.id,
@@ -127,7 +127,7 @@ const PropertiesPage = () => {
         // occupancy
       })
     }))
-  },[month, units])
+  },[month, bookings])
 
   useEffect(() => {
     // console.log({properties})
