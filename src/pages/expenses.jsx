@@ -38,7 +38,6 @@ const ExpensesPage = () => {
         }
       })
     })
-    console.log("events have changed: ", evs)
     setEvents(evs)
   },[selected])
   
