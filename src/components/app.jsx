@@ -6,6 +6,7 @@ import {
   App,
   Panel,
   Views,
+  Icon,
   View,
   Popup,
   Page,
@@ -21,7 +22,9 @@ import {
   ListItem,
   ListInput,
   ListButton,
-  BlockFooter
+  BlockFooter,
+  useStore,
+  Preloader
 } from 'framework7-react';
 
 
@@ -32,14 +35,11 @@ const MyApp = () => {
   // Login screen demo data
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-
+  
   // Framework7 Parameters
   const f7params = {
     name: 'VLC Properties', // App name
       theme: 'auto', // Automatic theme detection
-
-
-
       // App store
       store: store,
       // App routes
@@ -51,29 +51,41 @@ const MyApp = () => {
     });
   }
   f7ready(() => {
-
-
     // Call F7 APIs here
   });
 
+  const [properties, setProperties] = useState([])
+
+  useEffect(()=>{
+    store.dispatch('getProperties');
+    store.dispatch('getUnits')
+    store.dispatch('getTenants')
+    store.dispatch('getExpenses')
+    store.dispatch('getRevenue')
+    store.dispatch('getBookings')
+  },[])
+  const [selected, setSelected] = useState('properties')
   return (
-    <App { ...f7params } dark>
+    <App { ...f7params } light>
 
         {/* Left panel with cover effect when hidden */}
-        <Panel left cover dark visibleBreakpoint={960}>
+        <Panel left cover light visibleBreakpoint={960}>
           <View>
             <Page>
-              <Navbar title="Left Panel"/>
-              <BlockTitle>Left View Navigation</BlockTitle>
+              <Navbar title="VLC Properties"/>
               <List>
-                <ListItem link="/left-page-1/" title="Left Page 1"/>
-                <ListItem link="/left-page-2/" title="Left Page 2"/>
-              </List>
-              <BlockTitle>Control Main View</BlockTitle>
-              <List>
-                <ListItem link="/about/" view=".view-main" panelClose title="About"/>
-                <ListItem link="/form/" view=".view-main" panelClose title="Form"/>
-                <ListItem link="#" view=".view-main" back panelClose title="Back in history"/>
+                <ListItem link="/" view=".view-main" title="Properties" noChevron>
+                  <Icon slot="media" material="home"></Icon>
+                </ListItem>
+                <ListItem link="/expenses/" view=".view-main" p title="Expenses" noChevron >
+                  <Icon slot="media" material="money_off"></Icon>
+                </ListItem>
+                <ListItem link="/bookings/" view=".view-main" p title="Bookings" noChevron >
+                  <Icon slot="media" material="card_travel"></Icon>
+                </ListItem>
+                <ListItem link="/tenants/" view=".view-main" p title="Tenants" noChevron>
+                  <Icon slot="media" material="person_search"></Icon>
+                </ListItem>
               </List>
             </Page>
           </View>

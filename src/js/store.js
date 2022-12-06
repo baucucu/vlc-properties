@@ -1,35 +1,92 @@
 
 import { createStore } from 'framework7/lite';
+import {f7} from 'framework7-react'
+import base from '../utils/airtable';
 
 const store = createStore({
   state: {
-    products: [
-      {
-        id: '1',
-        title: 'Apple iPhone 8',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nisi tempora similique reiciendis, error nesciunt vero, blanditiis pariatur dolor, minima sed sapiente rerum, dolorem corrupti hic modi praesentium unde saepe perspiciatis.'
-      },
-      {
-        id: '2',
-        title: 'Apple iPhone 8 Plus',
-        description: 'Velit odit autem modi saepe ratione totam minus, aperiam, labore quia provident temporibus quasi est ut aliquid blanditiis beatae suscipit odio vel! Nostrum porro sunt sint eveniet maiores, dolorem itaque!'
-      },
-      {
-        id: '3',
-        title: 'Apple iPhone X',
-        description: 'Expedita sequi perferendis quod illum pariatur aliquam, alias laboriosam! Vero blanditiis placeat, mollitia necessitatibus reprehenderit. Labore dolores amet quos, accusamus earum asperiores officiis assumenda optio architecto quia neque, quae eum.'
-      },
-    ]
+    properties: [],
+    units: [],
+    tennants:[],
+    expenses:[],
+    revenue:[],
+    bookings:[]
   },
   getters: {
-    products({ state }) {
-      return state.products;
+    properties({state}) {
+      return state.properties
+    },
+    units({state}) {
+      return state.units
+    },
+    tenants({state}) {
+      return state.tenants
+    },
+    expenses({state}) {
+      return state.expenses
+    },
+    revenue({state}) {
+      return state.revenue
+    },
+    bookings({state}) {
+      return state.bookings
     }
   },
   actions: {
-    addProduct({ state }, product) {
-      state.products = [...state.products, product];
+    getProperties({ state }) {
+      f7.preloader.show()
+      base("Properties").select({
+        view: "Grid view",
+      }).firstPage((err, records) =>{
+          state.properties = records.map(record => {return ({id:record.id, ...record.fields})})
+          f7.preloader.hide()
+      })
     },
+    getUnits({ state }) {
+      f7.preloader.show()
+      base("Units").select({
+        view: "Grid view",
+      }).firstPage((err, records) =>{
+          state.units = records.map(record => {return ({id:record.id, ...record.fields})})
+          f7.preloader.hide()
+      })
+    },
+    getTenants({ state }) {
+      f7.preloader.show()
+      base("Tenants").select({
+        view: "Grid view",
+      }).firstPage((err, records) =>{
+          state.tenants = records.map(record => {return ({id:record.id, ...record.fields})})
+          f7.preloader.hide()
+      })
+    },
+    getExpenses({ state }) {
+      f7.preloader.show()
+      base("Expenses").select({
+        view: "Grid view",
+      }).firstPage((err, records) =>{
+          state.expenses = records.map(record => {return ({id:record.id, ...record.fields})})
+          f7.preloader.hide()
+      })
+    },
+    getRevenue({ state }) {
+      f7.preloader.show()
+      base("Revenue").select({
+        view: "Grid view",
+      }).firstPage((err, records) =>{
+          state.revenue = records.map(record => {return ({id:record.id, ...record.fields})})
+          f7.preloader.hide()
+      })
+    },
+    getBookings({ state }) {
+      f7.preloader.show()
+      base("Bookings").select({
+        view: "Grid view",
+      }).firstPage((err, records) =>{
+          state.bookings = records.map(record => {return ({id:record.id, ...record.fields})})
+          f7.preloader.hide()
+      })
+    }
   },
 })
 export default store;

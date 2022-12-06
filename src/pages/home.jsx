@@ -19,8 +19,7 @@ import {
 
 const HomePage = () => (
   <Page name="home">
-    {/* Top Navbar */}
-    <Navbar large sliding={false}>
+    {/* <Navbar large sliding={false}>
       <NavLeft>
         <Link iconIos="f7:menu" iconAurora="f7:menu" iconMd="material:menu" panelOpen="left" />
       </NavLeft>
@@ -30,12 +29,10 @@ const HomePage = () => (
       </NavRight>
       <NavTitleLarge>VLC Properties</NavTitleLarge>
     </Navbar>
-    {/* Toolbar */}
     <Toolbar bottom>
       <Link>Left Link</Link>
       <Link>Right Link</Link>
-    </Toolbar>
-    {/* Page content */}
+    </Toolbar> */}
     <Block strong>
       <p>This is an example of split view application layout, commonly used on tablets. The main approach of such kind of layout is that you can see different views at the same time.</p>
 

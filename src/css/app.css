@@ -84,3 +84,8 @@
   content: '';
   z-index: 6000;
 }
+
+.fc-toolbar-chunk {
+  display: flex;
+  flex-direction: row;
+}

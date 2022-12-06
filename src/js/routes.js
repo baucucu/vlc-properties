@@ -9,10 +9,63 @@ import DynamicRoutePage from '../pages/dynamic-route.jsx';
 import RequestAndLoad from '../pages/request-and-load.jsx';
 import NotFoundPage from '../pages/404.jsx';
 
+import PropertyPage from '../pages/property.jsx';
+import PropertiesPage from '../pages/properties.jsx';
+import BookingsPage from '../pages/bookings.jsx';
+import TenantsPage from '../pages/tenants.jsx';
+import TenantPage from '../pages/tenant.jsx';
+import ExpensesPage from '../pages/expenses.jsx'
+
 var routes = [
   {
     path: '/',
-    component: HomePage,
+    component: PropertiesPage,
+    // async: function({router,to,resolve}) {
+
+    // }
+  },
+  {
+    path: '/property/:propertyId',
+    async: function({router, to, resolve}) {
+      const app = router.app;
+
+      // Show Preloader
+      app.preloader.show();
+
+      // User ID from request
+      const {propertyId} = to.params;
+      
+      app.preloader.hide();
+      resolve(
+        {
+          component: PropertyPage,
+        },
+        {
+          props: {
+            property: {
+              name: "Dr Lluch",
+              propertyId
+            },
+          }
+        }
+      ); 
+    },
+  },
+  {
+    path: '/bookings/',
+    component: BookingsPage
+  },
+  {
+    path: '/expenses/',
+    component: ExpensesPage
+  },
+  {
+    path: '/tenants/',
+    component: TenantsPage
+  },
+  {
+    path: '/tenants/:id',
+    component: TenantPage
   },
   {
     path: '/about/',
