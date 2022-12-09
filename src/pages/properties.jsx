@@ -56,7 +56,7 @@ const PropertiesPage = () => {
     })
   }
 
-  function getUnitData(unitId,propertyId){  
+  function getUnitData(unitId,propertyId){
     let propertyRevenue = revenue
       .filter(item => item.Property[0]===propertyId && `${dayjs(month,'MM-YYYY').month()}${dayjs(month,'MM-YYYY').year()}` === `${dayjs(item.Date,'MM-YYYY').month()}${dayjs(item.Date,'MM-YYYY').year()}`)
       .map(item => ({unit: item.Unit[0], amount: item.Amount}))
@@ -113,7 +113,7 @@ const PropertiesPage = () => {
 
 
   useEffect(() => {
-    bookings.length > 0 && setResources(units.map(unit => {
+    setResources(units.map(unit => {
       let {property_revenue,property_expenses,property_profit,unit_revenue,booked_days} = getUnitData(unit.id, unit.Property[0])
       return({
         id: unit.id,

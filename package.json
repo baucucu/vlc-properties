@@ -24,12 +24,14 @@
     "@fullcalendar/react": "^5.11.3",
     "@fullcalendar/resource-timeline": "^5.11.3",
     "airtable": "^0.11.6",
+    "axios": "^1.2.1",
     "currency.js": "^2.0.4",
     "dayjs": "^1.11.6",
     "dom7": "^4.0.4",
     "framework7": "^7.0.9",
     "framework7-icons": "^5.0.5",
     "framework7-react": "^7.0.9",
+    "lodash": "^4.17.21",
     "material-icons": "^1.13.1",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
@@ -42,6 +44,6 @@
     "cpy-cli": "^4.2.0",
     "cross-env": "^7.0.3",
     "postcss-preset-env": "^7.8.3",
-    "vite": "^3.2.4"
+    "vite": "^4.0.0"
   }
 }
