@@ -74,7 +74,7 @@ const ExpensesPage = () => {
       console.log("formData changed: ",{formData})
       let emptyFields = formData.filter(item => item.value === '')
       console.log({emptyFields})
-      if(formData.length>0 && emptyFields.length === 0){setCanSave(true)}
+      if(formData.length>0 && emptyFields.length === 0){setCanSave(true)} else {setCanSave(false)}
     }, [formData])
     return(
       <Page>
