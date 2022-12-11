@@ -109,6 +109,7 @@ const ExpensesPage = () => {
               <ListInput
                 name={index+".amount"}
                 type="number"
+                min={0}
                 label="Amount"
                 inner-start={<p>€</p>}
                 placeholder="Enter amount"

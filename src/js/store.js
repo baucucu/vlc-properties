@@ -1,7 +1,7 @@
 
 import { createStore } from 'framework7/lite';
 import {f7} from 'framework7-react'
-import { getRecords, updateRecords } from '../utils/airtable';
+import { getRecords, updateRecords, createRecords } from '../utils/airtable';
 
 const store = createStore({
   state: {
@@ -87,7 +87,39 @@ const store = createStore({
       dispatch('getRevenue')
     },
     async saveExpenses({state,dispatch},data){
+      f7.preloader.show()
       console.log("expenses received: ",{data})
+      let records = Array(data.formData.length/4).fill({
+        fields:{
+          Amount: null,
+          Expense: null,
+          Date: null,
+          Property: null
+        }
+      })
+      data.formData.forEach(item => {
+        if(!records[item.index]){
+          records[item.index] = {}
+        }
+        switch(item.property){
+          case 'amount':
+            records[item.index].fields.Amount = Number(item.value)
+          case 'date':
+            records[item.index].fields.Date = item.value
+          case 'property':
+            records[item.index].fields.Property = [item.value]
+          case 'description':
+            records[item.index].fields.Expense = item.value
+          default:
+            return;
+        }
+      })
+      console.log({records})
+      await createRecords('Expenses',records)
+      .then(() => {
+        f7.preloader.hide()
+        dispatch('getExpenses')
+      })
     },
     async getRevenue({ state,dispatch }) {
       f7.preloader.show()

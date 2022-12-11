@@ -24,5 +24,14 @@ const updateRecords = async (table,update) => {
         data : update
     })
 }
-export {getRecords, updateRecords}
+
+const createRecords = async (table,records) => {
+    return await axios(`https://api.airtable.com/v0/app7IkFVMW99zzGgj/${table}`,{
+        headers:{"Authorization": `Bearer ${import.meta.env.VITE_AIRTABLE_KEY}`},
+        method: "POST",
+        data : {records}
+    })
+}
+
+export {getRecords, updateRecords, createRecords}
 // export default base
