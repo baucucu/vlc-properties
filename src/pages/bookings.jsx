@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page, Navbar, Block, List, ListItem, useStore,Chip, Badge } from 'framework7-react';
+import { Page, Navbar, Block, List, ListItem, useStore,Chip, Badge, Butt  on } from 'framework7-react';
 import dayjs from 'dayjs';
 
 const BookingsPage = () => {
@@ -7,10 +7,14 @@ const BookingsPage = () => {
   const tenants = useStore('tenants')
   const properties = useStore('properties')
   const units = useStore('units')
-  console.log({bookings})
+  
+  
+
   return (
     <Page>
-      <Navbar title="Bookings"/>
+      <Navbar title="Bookings">
+        <Button onClick={handleNewBooking}>Add new booking</Button>
+      </Navbar>
       <Block>
         <List mediaList>
           {
@@ -21,7 +25,7 @@ const BookingsPage = () => {
               return (
                 <ListItem
                   key={booking.id}
-                  link={`/bookings/:${booking.id}`}
+                  link={`/bookings/${booking.id}`}
                   title={
                     <div style={{display:"flex", gap:16}}>
                       
