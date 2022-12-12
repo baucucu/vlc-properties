@@ -135,7 +135,7 @@ const store = createStore({
       dispatch('getSelected')
     },
     async saveBooking({state,dispatch},data) {
-      console.log({data})
+      // console.log({data})
       f7.preloader.show()
       let payload = {
         records: [
@@ -157,7 +157,7 @@ const store = createStore({
           }
         ]
       }
-      console.log({payload})
+      // console.log({payload})
       await updateRecords('Bookings',payload)
       f7.preloader.show()
       dispatch('getBookings')

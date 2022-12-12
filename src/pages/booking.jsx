@@ -63,17 +63,15 @@ const BookingPage = ({f7route,f7router}) => {
   }
   
   useEffect(() => {
+    console.log("bookings changed: ", bookings)
     setBooking(bookings.filter(item => item.id === f7route.params.id)[0])
     setTenant(tenants.filter(item => item.id === booking.Tenant[0])[0])
     setProperty(properties.filter(item => item.id ===  booking.Property[0])[0])
     setUnit(units.filter(item => item.id ===  booking.Unit[0])[0])
   },[bookings])
-  
-  useEffect(() => {
-    console.log({booking})
-  },[booking])
 
   useEffect(() => {
+    console.log("booking changed: ",{booking})
     setSelectedProperty(booking["Property"][0])
     setFormData({
       checkIn: booking["Check in"],
@@ -94,9 +92,10 @@ const BookingPage = ({f7route,f7router}) => {
       contractURL: booking["Contract URL"],
       totalRevenue: currency( booking["Total revenue"], { symbol: '€', decimal: ',', separator: '.' }).format(),
     })
-  },[bookings])
+  },[booking])
 
   useEffect(()=>{
+    console.log("formData changed: ",{formData})
     f7.form.fillFromData("#bookingForm",formData)
   },[formData])
   
