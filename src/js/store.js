@@ -2,6 +2,7 @@
 import { createStore } from 'framework7/lite';
 import {f7} from 'framework7-react'
 import { getRecords, updateRecords, createRecords } from '../utils/airtable';
+import currency from 'currency.js';
 
 const store = createStore({
   state: {
@@ -132,6 +133,34 @@ const store = createStore({
       state.bookings = await getRecords('Bookings')
       f7.preloader.hide()
       dispatch('getSelected')
+    },
+    async saveBooking({state,dispatch},data) {
+      console.log({data})
+      f7.preloader.show()
+      let payload = {
+        records: [
+          {
+            id: data.recordId,
+            fields: {
+              "Status": data.status,
+              "Type": data.type,
+              "Tenant": [data.tenant],
+              "Unit": [data.unit],
+              // "Property": [data.property],
+              "Notes": data.notes,
+              "Channel": data.channel,
+              "Rent": currency(data.rent)/100,
+              "Deposit": currency(data.deposit)/100,
+              "Check in": data.checkIn,
+              "Check out": data.checkOut, 
+            }
+          }
+        ]
+      }
+      console.log({payload})
+      await updateRecords('Bookings',payload)
+      f7.preloader.show()
+      dispatch('getBookings')
     },
     setSelected({state}, options){
       state.selected = options

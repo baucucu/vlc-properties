@@ -1,95 +1,272 @@
-import React from 'react';
+import React, {useEffect,useState} from 'react';
 import {
   Page,
   Navbar,
   List,
   ListInput,
+  Input,
   ListItem,
   Toggle,
   BlockTitle,
   Row,
   Button,
   Range,
-  Block
+  Block,
+  Col,
+  Icon,
+  NavRight,
+  useStore,
+  f7
 } from 'framework7-react';
+import lists from "../utils/static"
+import store from '../js/store'
+import dayjs from 'dayjs'
+import currency from 'currency.js';
 
-const BookingPage = () => (
-  <Page name="form">
-    <Navbar title="Booking" backLink="Back"></Navbar>
-    <Row></Row>
-    <BlockTitle>Booking</BlockTitle>
-    <List noHairlinesMd>
-      <ListInput
-        label="Name"
-        type="text"
-        placeholder="Your name"
-      ></ListInput>
+const BookingPage = ({f7route,f7router}) => {
+  const bookings = useStore('bookings')
+  const tenants = useStore('tenants')
+  const properties = useStore('properties')
+  const units = useStore('units')
+  
+  const [booking,setBooking] = useState(bookings.filter(item => item.id === f7route.params.id)[0])
+  const [tenant, setTenant] = useState()
+  const [property, setProperty] = useState()
+  const [unit, setUnit] = useState()
+  const [formUnits, setFormUnits] = useState()
+  const [formData, setFormData] = useState([])
+  const [readOnly, setReadOnly] = useState(true)
+  const [selectedProperty,setSelectedProperty] = useState(formData.property)
+  
+  const handleCancel = () => {
+    f7.form.fillFromData('#bookingForm', formData)
+    setReadOnly(true)
+  }
 
-      <ListInput
-        label="E-mail"
-        type="email"
-        placeholder="E-mail"
-      ></ListInput>
+  const handleChange = (e) => {
+    console.log({e,value: e.target.value})
+  } 
+  
+  const handleSave = () => {
+    let data = f7.form.getFormData('#bookingForm')
+    if(JSON.stringify(data) !== JSON.stringify(formData)){
+        store.dispatch('saveBooking',{recordId: booking.id, ...data, name:tenant.Name})
+    }
+    setReadOnly(true)
+  }
 
-      <ListInput
-        label="URL"
-        type="url"
-        placeholder="URL"
-      ></ListInput>
+  const confirmBooking = () => {
 
-      <ListInput
-        label="Password"
-        type="password"
-        placeholder="Password"
-      ></ListInput>
+  }
+  const rejectBooking = () => {
 
-      <ListInput
-        label="Phone"
-        type="tel"
-        placeholder="Phone"
-      ></ListInput>
+  }
+  
+  useEffect(() => {
+    setBooking(bookings.filter(item => item.id === f7route.params.id)[0])
+    setTenant(tenants.filter(item => item.id === booking.Tenant[0])[0])
+    setProperty(properties.filter(item => item.id ===  booking.Property[0])[0])
+    setUnit(units.filter(item => item.id ===  booking.Unit[0])[0])
+  },[bookings])
+  
+  useEffect(() => {
+    console.log({booking})
+  },[booking])
 
-      <ListInput
-        label="Gender"
-        type="select"
-        >
-        <option>Male</option>
-        <option>Female</option>
-      </ListInput>
+  useEffect(() => {
+    setSelectedProperty(booking["Property"][0])
+    setFormData({
+      checkIn: booking["Check in"],
+      checkOut: booking["Check out"],
+      status: booking["Status"],
+      type: booking["Type"],
+      tenant: booking["Tenant"][0],
+      property: selectedProperty,
+      unit: booking["Unit"][0],
+      notes: booking["Notes"],
+      channel: booking["Channel"],
+      date: dayjs(booking["Date"]).format('YYYY-MM-DD'),
+      rent: currency( booking["Rent"], { symbol: '€', decimal: ',', separator: '.' }).format(),
+      deposit: currency( booking["Deposit"], { symbol: '€', decimal: ',', separator: '.' }).format(),
+      duration: booking["Duration"],
+      durationUnits: booking["Duration units"],
+      contractStatus:booking["Contract status"],
+      contractURL: booking["Contract URL"],
+      totalRevenue: currency( booking["Total revenue"], { symbol: '€', decimal: ',', separator: '.' }).format(),
+    })
+  },[bookings])
 
-      <ListInput
-        label="Birth date"
-        type="date"
-        placeholder="Birth day"
-        defaultValue="2014-04-30"
-      ></ListInput>
+  useEffect(()=>{
+    f7.form.fillFromData("#bookingForm",formData)
+  },[formData])
+  
+  useEffect(() => {console.log({selectedProperty})},[selectedProperty])
 
-      <ListItem
-        title="Toggle"
-      >
-        <Toggle slot="after" />
-      </ListItem>
-
-      <ListInput
-        label="Range"
-        input={false}
-      >
-        <Range slot="input" value={50} min={0} max={100} step={1} />
-      </ListInput>
-
-      <ListInput
-        type="textarea"
-        label="Textarea"
-        placeholder="Bio"
-      ></ListInput>
-      <ListInput
-        type="textarea"
-        label="Resizable"
-        placeholder="Bio"
-        resizable
-      ></ListInput>
-    </List>
-  </Page>
-);
+  return(
+    <Page name="form">
+      <Navbar title="Booking " backLink="Back">
+        {readOnly && <Button onClick={() => setReadOnly(false)}>Edit</Button>}
+          {readOnly || <div style={{display:"flex", gap:16}}>
+              <Button small bgColor="teal" onClick={handleSave}>Save</Button>
+              <Button small bgColor="red" onClick={handleCancel} >Cancel</Button>
+          </div>}
+          {readOnly && <NavRight style={{gap: 8}}>
+            {formData.status === "New booking" && <Button small onClick={confirmBooking} bgColor="teal">Confirm</Button>}
+            <Button small onClick={rejectBooking} bgColor="red">Reject</Button>
+          </NavRight>}
+      </Navbar>
+      
+      <Block>
+          <form id="bookingForm" className="form-store-data"><h2 slot="header">Details</h2>
+            <Row>
+              <Col>
+                <List noHairlines>
+                  <ListInput name='date' label="Booking date" type='datepicker' disabled/>
+                </List>
+              </Col>
+              <Col>
+                <List noHairlines>
+                  <ListInput name='channel' type="select" label="Channel"  disabled={readOnly}>
+                    {lists.channel.map(item => (<option key={item} value={item}>{item}</option>))}
+                  </ListInput>
+                </List>
+              </Col>
+              <Col>
+                <List noHairlines>
+                  <ListInput name='type' type="select" label="Type"  disabled={readOnly}>
+                    {lists.type.map(item => (<option key={item} value={item}>{item}</option>))}
+                  </ListInput>  
+                </List>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <List noHairlines>
+                  <ListInput 
+                    name="checkIn" 
+                    label="Check in" 
+                    type='datepicker' 
+                    calendarParams={{
+                      events:[{
+                        date: dayjs(formData.checkIn)
+                      }],
+                      minDate: dayjs().format('YYYY-MM-DD'),
+                      value: [dayjs(formData.checkIn)]
+                    }} 
+                    disabled={readOnly}
+                  />
+                </List>
+              </Col>
+              <Col small>
+                <List noHairlines>
+                  <ListInput 
+                    name="checkOut" 
+                    label="Check out"  
+                    type='datepicker' 
+                    calendarParams={{
+                      events:[{
+                        date: dayjs(formData.checkOut)
+                      }],
+                      minDate:dayjs().format('YYYY-MM-DD'),
+                      value: [dayjs(formData.checkOut)]
+                    }}  
+                    disabled={readOnly}
+                  />
+                </List>
+              </Col>
+              <Col>
+                <List noHairlines>
+                  <ListInput name='duration' label="Duration" disabled/>
+                </List>
+              </Col>
+              <Col>
+                <List noHairlines>
+                  <ListInput name='durationUnits' label="Units" disabled/>
+                </List>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <List noHairlines>
+                  <ListInput name='status' label="Status"  disabled>
+                    {lists.status.map(item => (<option key={item} value={item}>{item}</option>))}
+                  </ListInput>
+                </List>
+              </Col>
+              <Col>
+                <List noHairlines>
+                  <ListInput name='contractStatus' label="Contract status" disabled/>
+                </List>
+              </Col>
+              <Col>
+                <List noHairlines>
+                  <ListInput name='contractURL' label="Contract URL" disabled/>
+                </List>
+              </Col>
+            </Row>
+            <Row>
+              <Col small>
+                <List noHairlines>
+                  <ListInput name="tenant" label="Tenant"  type='select'  disabled={readOnly}>
+                      {tenants.map(tenant => (<option key={tenant.id} value={tenant.id}>{tenant.Name}</option>))}
+                  </ListInput>
+                </List>
+              </Col>
+              <Col small>
+                <List noHairlines>
+                  <ListInput name="property" label="Property"  type='select' onChange={(e) => setSelectedProperty(e.target.value)} disabled={readOnly}>
+                    {properties.map(property => (<option key={property.id}  value={property.id}>{property.Name}</option>))}
+                  </ListInput>
+                </List>
+              </Col>
+              <Col small>
+                <List noHairlines>
+                  <ListInput name="unit" label="Room"  type='select'  disabled={readOnly}>
+                    {
+                      units
+                        .filter(unit => unit.Property[0] === selectedProperty)
+                        .map(unit => (<option key={unit.id} value={unit.id}>{unit.Name}</option>))
+                    }
+                  </ListInput>
+                </List>
+              </Col>
+            </Row>
+            <Row>
+              <Col small>
+                <List noHairlines>
+                  <ListInput name="rent" label="Rent" disabled={readOnly}/>
+                </List>
+              </Col>
+              <Col small>
+                <List noHairlines>
+                  <ListInput name="deposit" label="Deposit" disabled={readOnly}/>
+                </List>
+              </Col>
+              <Col small>
+                <List noHairlines>
+                  <ListInput name="totalRevenue" label="Total revenue" disabled/>
+                </List>
+              </Col>
+            </Row>
+            <List noHairlines>
+                <ListItem >
+                    <h2 slot="header">Notes</h2>
+                </ListItem>
+                <ListInput
+                    name="notes"
+                    type="textarea"
+                    resizable
+                    placeholder="Enter notes here"
+                    disabled={readOnly} 
+                >
+                    <Icon material="notes" slot="media"/>  
+                </ListInput>
+                
+            </List>
+          </form>
+      </Block>
+    </Page>
+  );
+}
 
 export default BookingPage;

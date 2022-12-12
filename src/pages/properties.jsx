@@ -1,5 +1,5 @@
 import React, { useEffect,useState } from 'react';
-import { Page, BlockTitle, Navbar, Block, Link, Chip, List, ListItem, useStore, CardHeader,CardContent, Segmented,Tabs, Tab, Button, Row, Col, Card } from 'framework7-react';
+import { Page, BlockTitle, Navbar, Block, Link, Chip, List, ListItem, useStore, CardHeader,CardContent, Segmented,Tabs, Tab, Button, Row, Col, Card, f7 } from 'framework7-react';
 import '@fullcalendar/react/dist/vdom';
 import FullCalendar from '@fullcalendar/react';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
@@ -10,7 +10,7 @@ dayjs.extend(isBetween);
 dayjs.extend(minMax);
 import currency from 'currency.js';
 
-const PropertiesPage = () => {
+const PropertiesPage = ({f7router}) => {
   const properties = useStore('properties');
   const units = useStore('units');
   const bookings = useStore('bookings');
@@ -173,6 +173,11 @@ const PropertiesPage = () => {
         schedulerLicenseKey='CC-Attribution-NonCommercial-NoDerivatives'
         initialView='resourceTimelineMonth'
         resourceOrder='unit,property'
+        eventClick={function(info){
+          let recordId = info.event._def.publicId
+          console.log({recordId})
+          f7router.navigate(`/bookings/${recordId}`)
+        }}
         resourceAreaColumns= {[
           {
             group: true,

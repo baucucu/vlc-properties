@@ -22,7 +22,8 @@ const TenantPage = ({f7route}) => {
     })
     f7.form.fillFromData("#tenantForm",formData)
   },[])
-
+  useEffect(() => {console.log({formData})},[formData])
+  
   const handleSave = () => {
     let data = f7.form.getFormData('#tenantForm')
     if(JSON.stringify(data) !== JSON.stringify(formData)){
@@ -41,8 +42,8 @@ const TenantPage = ({f7route}) => {
       <Navbar title={tenant.Name} backLink style={{gap:16}}>
         {readOnly && <Button onClick={() => setReadOnly(false)}>Edit</Button>}
         {readOnly || <div style={{display:"flex", gap:16}}>
-            <Button bgColor="teal" onClick={handleSave}>Save</Button>
-            <Button bgColor="red" onClick={handleCancel}>Cancel</Button>
+            <Button small bgColor="teal" onClick={handleSave}>Save</Button>
+            <Button small bgColor="red" onClick={handleCancel}>Cancel</Button>
         </div>}
       </Navbar>
       <Block>
