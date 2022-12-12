@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page, Navbar, Block, List, ListItem, useStore,Chip, Badge, Butt  on } from 'framework7-react';
+import { Page, Navbar, Block, List, ListItem, useStore,Chip, Badge, Button } from 'framework7-react';
 import dayjs from 'dayjs';
 
 const BookingsPage = () => {
@@ -8,7 +8,7 @@ const BookingsPage = () => {
   const properties = useStore('properties')
   const units = useStore('units')
   
-  
+
 
   return (
     <Page>
