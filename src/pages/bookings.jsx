@@ -8,7 +8,7 @@ const BookingsPage = () => {
   const properties = useStore('properties')
   const units = useStore('units')
   
-
+  function handleNewBooking(){}
 
   return (
     <Page>
