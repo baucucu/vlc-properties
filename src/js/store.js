@@ -157,7 +157,7 @@ const store = createStore({
           }
         ]
       }
-      // console.log({payload})
+      console.log({payload})
       await updateRecords('Bookings',payload)
       f7.preloader.show()
       dispatch('getBookings')
