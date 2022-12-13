@@ -6,6 +6,7 @@ import currency from 'currency.js';
 import store from '../js/store';
 import dayjs from 'dayjs'
 import _ from 'lodash'
+import lists from '../utils/static'
 
 const ExpensesPage = () => {
   const expenses = useStore('expenses');
@@ -39,10 +40,11 @@ const ExpensesPage = () => {
       let property =properties.filter(item => item.id === expense.Property[0])[0] 
       return({
         id: expense.id,
-        title: `${currency(expense.Amount, { symbol: '€', decimal: ',', separator: '.' }).format()} - ${expense.Expense}`,
+        title: `${currency(expense.Amount, { symbol: '€', decimal: ',', separator: '.' }).format()} - ${expense.Category} - ${expense.Expense}`,
         start: expense.Date, 
         extendedProps: {
           property: property.Name,
+          category: expense.Category
         }
       })
     })
@@ -104,7 +106,7 @@ const ExpensesPage = () => {
       <Block>
         <h4>Expense #{index+1}</h4>
         <Row>
-          <Col width={20}>
+          <Col >
             <List noHairlines>
               <ListInput
                 name={index+".amount"}
@@ -148,7 +150,24 @@ const ExpensesPage = () => {
               </ListInput>
             </List>
           </Col>
-          <Col width="80">
+        </Row>
+        <Row>
+          <Col width="35">
+            <List noHairlines>
+              <ListInput
+                name={index+".category"}
+                type="select"
+                // defaultValue={lists.expenseCategories[0]}
+                placeholder="Please choose..."
+                required
+                label="Category"
+                onChange={handleChange}
+              >
+                {lists.expenseCategories.map(category => <option key={category} value={category}>{category}</option>)}
+              </ListInput>
+            </List>
+          </Col>
+          <Col width="65">
             <List noHairlines>
               <ListInput
                 name={index+".description"}

@@ -94,12 +94,13 @@ const store = createStore({
     async saveExpenses({state,dispatch},data){
       f7.preloader.show()
       console.log("expenses received: ",{data})
-      let records = Array(data.formData.length/4).fill({
+      let records = Array(data.formData.length/5).fill({
         fields:{
           Amount: null,
           Expense: null,
           Date: null,
-          Property: null
+          Property: null,
+          Category: null
         }
       })
       data.formData.forEach(item => {
@@ -113,6 +114,8 @@ const store = createStore({
             records[item.index].fields.Date = item.value
           case 'property':
             records[item.index].fields.Property = [item.value]
+          case 'category':
+            records[item.index].fields.Category = item.value  
           case 'description':
             records[item.index].fields.Expense = item.value
           default:
