@@ -19,9 +19,7 @@ const ExpensesPage = () => {
   function handleClose(){
     setPopupOpen(false)
   }
-  function saveExpenses(){
-
-  }
+  
 
   useEffect(() => {
     const ss = f7.smartSelect.get('.smart-select')
@@ -52,7 +50,7 @@ const ExpensesPage = () => {
   },[selected])
 
   
-  function AddExpenses({handleClose, saveExpenses}){
+  function AddExpenses({handleClose}){
     const [rows,setRows] = useState(1)
     const [canSave, setCanSave] = useState(false)
     let [formData, setFormData] = useState([])
@@ -234,7 +232,7 @@ const ExpensesPage = () => {
         onPopupSwipeClose={handleClose}
         onPopupClose={handleClose}
       >
-        <AddExpenses handleClose={handleClose} saveExpenses={saveExpenses}/>
+        <AddExpenses handleClose={handleClose}/>
       </Popup>
     </Page>
   );

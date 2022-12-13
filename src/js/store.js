@@ -60,6 +60,27 @@ const store = createStore({
       f7.preloader.hide()
       dispatch('getExpenses')
     },
+    async addTenant({state, dispatch},data){
+      f7.preloader.show()
+      let payload = {
+        records: [
+          {
+            fields: {
+              "Name": data.name,
+              "Phone":data.phone,
+              "Email":data.email,
+              "Permanent address": data.address,
+              "Passport / ID number": data.idNumber,
+              "Notes": data.notes
+            }
+          }
+        ]
+      }
+      console.log({payload})
+      await createRecords('Tenants',payload)
+      f7.preloader.show()
+      dispatch('getTenants')
+    },
     async saveTenant({state, dispatch},data){
       f7.preloader.show()
       let payload = {
@@ -123,7 +144,7 @@ const store = createStore({
         }
       })
       console.log({records})
-      await createRecords('Expenses',records)
+      await createRecords('Expenses',{records})
       .then(() => {
         f7.preloader.hide()
         dispatch('getExpenses')
@@ -147,6 +168,32 @@ const store = createStore({
       state.booking = state.bookings.filter(booking => booking.id === id)[0]
       f7.preloader.hide()
     },
+    async addBooking({state,dispatch},data){
+      let formData = f7.form.getFormData('#addNewBooking')
+      console.log({formData})
+      console.log({received: data})
+      f7.preloader.show()
+      let payload = {
+        records:[{
+          fields: {
+            "Check in": data.checkIn,
+            "Check out": data.checkOut,
+            "Tenant": [data.tenant],
+            "Unit": [data.unit],
+            "Rent": currency(data.rent)/100,
+            "Deposit": currency(data.deposit)/100,
+            "Channel": data.channel,
+            "Type": data.type,
+            "Notes": data.notes
+          }
+        }]
+      }
+      console.log({payload})
+      const newBooking = await createRecords('Bookings',payload)
+      console.log({newBooking})
+      f7.preloader.show()
+      dispatch('getBookings')
+    },
     async saveBooking({state,dispatch},data) {
       let formData = f7.form.getFormData('#bookingForm')
       console.log({formData})
@@ -161,7 +208,6 @@ const store = createStore({
               "Type": data.type,
               "Tenant": [data.tenant],
               "Unit": [data.unit],
-              // "Property": [data.property],
               "Notes": data.notes,
               "Channel": data.channel,
               "Rent": currency(data.rent)/100,
