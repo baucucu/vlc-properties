@@ -11,14 +11,14 @@ const BookingsPage = () => {
   const units = useStore('units')
 
   const [popupOpen, setPopupOpen] = useState(false)
-  
-
-  const popup = useRef(null)
+  const [tenantPopupOpen, setTenantPopupOpen] = useState(false)
 
   function handleClose(){
     setPopupOpen(false)
   }
-  
+  function handleTenantClose() {
+    setTenantPopupOpen(false)
+  }
 
   function AddBooking({handleClose}){
     const [readOnly,setReadOnly] = useState(false)
@@ -26,6 +26,10 @@ const BookingsPage = () => {
     const [selectableUnits, setSelectableUnits] = useState(units.filter(unit => unit["Property"][0] === selectedProperty))
     const [canSave, setCanSave] = useState(false)
     let [formData, setFormData] = useState({})
+
+    useEffect(() => {
+      console.log({popupOpen,tenantPopupOpen})
+    },[popupOpen,tenantPopupOpen])
     
     function handleSave() {
       f7.store.dispatch('addBooking',formData)
@@ -70,7 +74,7 @@ const BookingsPage = () => {
                   <ListInput name="tenant" label="Tenant"  type='select' onChange={handleChange} disabled={readOnly}>
                       {tenants.map(tenant => (<option key={tenant.id} value={tenant.id}>{tenant.Name}</option>))}
                   </ListInput>
-                  <ListButton>Add new tenant</ListButton>
+                  <ListButton onClick={() => {setTenantPopupOpen(true)}}>Add new tenant</ListButton>
                 </List>
               </Col>
               <Col>
@@ -177,6 +181,93 @@ const BookingsPage = () => {
     )
   }
 
+  function AddTenant({handleTenantClose}){
+    const [canSave, setCanSave] = useState(false)
+    const [formData, setFormData] = useState({})
+    
+    function handleSave() {
+      f7.store.dispatch('addTenant',formData)
+      handleTenantClose()
+    }
+    function handleChange(){
+      let data = f7.form.convertToData('#newTenantForm')
+      console.log({data})
+      setFormData(data)
+    }
+    useEffect(() => {
+      console.log("formData changed: ",{formData})
+      let emptyFields = Object.keys(formData).filter(key => formData[key] === '' && key !== 'notes')
+      console.log({emptyFields})
+      if(emptyFields.length === 0){setCanSave(true)} else {setCanSave(false)}
+    }, [formData])
+    
+    return(
+      <Page>
+        <Navbar title="Add new tenant">
+          {canSave && <Button onClick={handleSave}><Icon material='save'/></Button>}
+          <NavRight>
+            <Button onClick={handleTenantClose}>
+              <Icon  material="close"></Icon>
+            </Button>
+          </NavRight>
+        </Navbar>
+        <form id="newTenantForm" className="form-store-data">
+          <Block>
+            <Row>
+              <Col>
+                <List noHairlines>
+                  <ListItem >
+                      <h2 slot="header">Contact details</h2>
+                  </ListItem> 
+                  <ListInput name="name" label="Name" onChange={handleChange} >
+                  </ListInput>
+                  <ListInput name="phone" label="Phone"  onChange={handleChange}>
+                  </ListInput>
+                  <ListInput name="email" label="Email"  onChange={handleChange}>
+                  </ListInput>
+                  <ListInput name="address" label="Permanent address" onChange={handleChange}>
+                  </ListInput>
+                </List>
+              </Col>
+              <Col>
+                <Block>
+                  <List noHairlines>
+                    <ListItem >
+                        <h2 slot="header">ID</h2>
+                    </ListItem>
+                    <ListInput 
+                        name="idNumber"
+                        label="ID number"
+                        onChange={handleChange}
+                    >
+                    </ListInput>
+                    <ListItem>
+                        {/* <img src={tenant["Passport / ID file"]?.[0].url} style={{maxHeight:"20vh", maxWidth:"100%"}}/> */}
+                    </ListItem>         
+                  </List>
+                </Block>
+              </Col>
+            </Row>
+            <List>
+              <ListItem >
+                  <h2 slot="header">Notes</h2>
+              </ListItem>
+              <ListInput
+                  name="notes"
+                  type="textarea"
+                  resizable
+                  placeholder="Enter notes here"
+                  onChange={handleChange}
+              >
+                  <Icon material="notes" slot="media"/>  
+              </ListInput>
+            </List>
+          </Block>
+        </form>
+      </Page>
+    )
+  }
+
   return (
     <Page>
       <Navbar title="Bookings">
@@ -266,6 +357,15 @@ const BookingsPage = () => {
         onPopupClose={handleClose}
       >
         <AddBooking handleClose={handleClose}/>
+      </Popup>
+      <Popup
+        className="newTenant"
+        opened={tenantPopupOpen}
+        onPopupClosed={handleTenantClose}
+        onPopupSwipeClose={handleTenantClose}
+        onPopupClose={handleTenantClose}
+      >
+        <AddTenant handleTenantClose={handleTenantClose}/>
       </Popup>
     </Page>
   );
