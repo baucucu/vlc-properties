@@ -24,62 +24,46 @@ import dayjs from 'dayjs'
 import currency from 'currency.js';
 
 const BookingPage = ({f7route,f7router}) => {
+  
   const bookings = useStore('bookings')
   const tenants = useStore('tenants')
   const properties = useStore('properties')
   const units = useStore('units')
+  const booking = useStore('booking')
+  console.log({booking})
   
-  const [booking,setBooking] = useState(bookings.filter(item => item.id === f7route.params.id)[0])
-  const [tenant, setTenant] = useState()
-  const [property, setProperty] = useState()
-  const [unit, setUnit] = useState()
-  const [formUnits, setFormUnits] = useState()
-  const [formData, setFormData] = useState([])
+  const [formData, setFormData] = useState()
+
   const [readOnly, setReadOnly] = useState(true)
-  const [selectedProperty,setSelectedProperty] = useState(formData.property)
+  const [selectedProperty,setSelectedProperty] = useState(booking["Property"][0])
+  const [selectedUnit, setSelectedUnit] = useState(booking["Unit"][0])
+  const [selectableUnits, setSelectableUnits] = useState(units.filter(unit => unit["Property"][0] === booking["Property"][0]))
   
   const handleCancel = () => {
     f7.form.fillFromData('#bookingForm', formData)
     setReadOnly(true)
   }
-
-  const handleChange = (e) => {
-    console.log({e,value: e.target.value})
-  } 
   
   const handleSave = () => {
     let data = f7.form.getFormData('#bookingForm')
+    data.unit = selectedUnit
+    data.recordId = booking.id
+    console.log({sent:data})
     if(JSON.stringify(data) !== JSON.stringify(formData)){
-        store.dispatch('saveBooking',{recordId: booking.id, ...data, name:tenant.Name})
+        store.dispatch('saveBooking',data)
     }
     setReadOnly(true)
   }
-
-  const confirmBooking = () => {
-
-  }
-  const rejectBooking = () => {
-
-  }
   
-  useEffect(() => {
-    console.log("bookings changed: ", bookings)
-    setBooking(bookings.filter(item => item.id === f7route.params.id)[0])
-    setTenant(tenants.filter(item => item.id === booking.Tenant[0])[0])
-    setProperty(properties.filter(item => item.id ===  booking.Property[0])[0])
-    setUnit(units.filter(item => item.id ===  booking.Unit[0])[0])
-  },[bookings])
-
-  useEffect(() => {
+  useEffect(() =>{
     console.log("booking changed: ",{booking})
-    setSelectedProperty(booking["Property"][0])
     setFormData({
       checkIn: booking["Check in"],
       checkOut: booking["Check out"],
       status: booking["Status"],
       type: booking["Type"],
       tenant: booking["Tenant"][0],
-      property: selectedProperty,
+      property: booking["Property"][0],
       unit: booking["Unit"][0],
       notes: booking["Notes"],
       channel: booking["Channel"],
@@ -92,15 +76,25 @@ const BookingPage = ({f7route,f7router}) => {
       contractURL: booking["Contract URL"],
       totalRevenue: currency( booking["Total revenue"], { symbol: '€', decimal: ',', separator: '.' }).format(),
     })
+    f7.form.fillFromData("#bookingForm",formData)
   },[booking])
 
-  useEffect(()=>{
-    console.log("formData changed: ",{formData})
-    f7.form.fillFromData("#bookingForm",formData)
-  },[formData])
-  
-  useEffect(() => {console.log({selectedProperty})},[selectedProperty])
+  const handlePropertyChange = ({id}) => {
+    setSelectedProperty(id)
+  }
 
+  const handleUnitChange = ({id}) => {
+    setSelectedUnit(id)
+  }
+
+  useEffect(() => {console.log("selectedUnit changed: ",{selectedUnit})},[selectedUnit])
+  useEffect(() => {console.log("selectableUnits changed: ",{selectableUnits})},[selectableUnits])
+
+  useEffect(() => {
+    console.log("selectedProperty changed: ",{selectedProperty})
+    setSelectableUnits(units.filter(unit => unit["Property"][0] === selectedProperty ))
+  },[selectedProperty])
+  
   return(
     <Page name="form">
       <Navbar title="Booking " backLink="Back">
@@ -109,10 +103,10 @@ const BookingPage = ({f7route,f7router}) => {
               <Button small bgColor="teal" onClick={handleSave}>Save</Button>
               <Button small bgColor="red" onClick={handleCancel} >Cancel</Button>
           </div>}
-          {readOnly && <NavRight style={{gap: 8}}>
+          {/* {readOnly && <NavRight style={{gap: 8}}>
             {formData.status === "New booking" && <Button small onClick={confirmBooking} bgColor="teal">Confirm</Button>}
             <Button small onClick={rejectBooking} bgColor="red">Reject</Button>
-          </NavRight>}
+          </NavRight>} */}
       </Navbar>
       
       <Block>
@@ -147,10 +141,10 @@ const BookingPage = ({f7route,f7router}) => {
                     type='datepicker' 
                     calendarParams={{
                       events:[{
-                        date: dayjs(formData.checkIn)
+                        date: dayjs(booking["Check in"])
                       }],
                       minDate: dayjs().format('YYYY-MM-DD'),
-                      value: [dayjs(formData.checkIn)]
+                      value: [dayjs(booking["Check in"])]
                     }} 
                     disabled={readOnly}
                   />
@@ -164,10 +158,10 @@ const BookingPage = ({f7route,f7router}) => {
                     type='datepicker' 
                     calendarParams={{
                       events:[{
-                        date: dayjs(formData.checkOut)
+                        date: dayjs(booking["Check out"])
                       }],
                       minDate:dayjs().format('YYYY-MM-DD'),
-                      value: [dayjs(formData.checkOut)]
+                      value: [dayjs(booking["Check out"])]
                     }}  
                     disabled={readOnly}
                   />
@@ -206,24 +200,23 @@ const BookingPage = ({f7route,f7router}) => {
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="tenant" label="Tenant"  type='select'  disabled={readOnly}>
+                  <ListInput name="tenant" label="Tenant"  type='select' disabled={readOnly}>
                       {tenants.map(tenant => (<option key={tenant.id} value={tenant.id}>{tenant.Name}</option>))}
                   </ListInput>
                 </List>
               </Col>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="property" label="Property"  type='select' onChange={(e) => setSelectedProperty(e.target.value)} disabled={readOnly}>
-                    {properties.map(property => (<option key={property.id}  value={property.id}>{property.Name}</option>))}
+                  <ListInput name="property" label="Property"  type='select' onChange={(e) => handlePropertyChange({id:e.target.value})} disabled={readOnly}>
+                    {properties.map(property => (<option key={property.id}  value={property.id} >{property.Name}</option>))}
                   </ListInput>
                 </List>
               </Col>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="unit" label="Room"  type='select'  disabled={readOnly}>
+                  <ListInput name="unit" label="Room"  type='select' onChange={(e)=>handleUnitChange({id:e.target.value})} disabled={readOnly}>
                     {
-                      units
-                        .filter(unit => unit.Property[0] === selectedProperty)
+                      selectableUnits
                         .map(unit => (<option key={unit.id} value={unit.id}>{unit.Name}</option>))
                     }
                   </ListInput>

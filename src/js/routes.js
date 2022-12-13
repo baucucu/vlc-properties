@@ -17,6 +17,8 @@ import TenantsPage from '../pages/tenants.jsx';
 import TenantPage from '../pages/tenant.jsx';
 import ExpensesPage from '../pages/expenses.jsx';
 
+import { f7 } from 'framework7-react';
+
 var routes = [
   {
     path: '/',
@@ -43,10 +45,7 @@ var routes = [
         },
         {
           props: {
-            property: {
-              name: "Dr Lluch",
-              propertyId
-            },
+            property: f7.store.state.properties.filter(property => property.id === propertyId)[0],
           }
         }
       ); 
@@ -57,8 +56,24 @@ var routes = [
     component: BookingsPage
   },
   {
-    path: '/bookings/:id',
-    component: BookingPage
+    path: '/bookings/:bookingId',
+    async: function({router, to, resolve}) {
+      const app = router.app;
+
+      // Show Preloader
+      app.preloader.show();
+
+      // User ID from request
+      const {bookingId} = to.params;
+      console.log()
+      app.preloader.hide();
+      f7.store.dispatch("getBooking",bookingId)
+      resolve(
+        {
+          component: BookingPage,
+        }
+      ); 
+    },
   },
   {
     path: '/expenses/',

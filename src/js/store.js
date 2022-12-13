@@ -12,7 +12,8 @@ const store = createStore({
     expenses:[],
     revenue:[],
     bookings:[],
-    selected:[]
+    selected:[],
+    booking: undefined
   },
   getters: {
     properties({state}) {
@@ -35,6 +36,9 @@ const store = createStore({
     },
     bookings({state}) {
       return state.bookings
+    },
+    booking({state}) {
+      return state.booking
     }
   },
   actions: {
@@ -134,8 +138,16 @@ const store = createStore({
       f7.preloader.hide()
       dispatch('getSelected')
     },
+    async getBooking({state, dispatch},id) {
+      console.log("getBooking",{id})
+      f7.preloader.show()
+      state.booking = state.bookings.filter(booking => booking.id === id)[0]
+      f7.preloader.hide()
+    },
     async saveBooking({state,dispatch},data) {
-      // console.log({data})
+      let formData = f7.form.getFormData('#bookingForm')
+      console.log({formData})
+      console.log({received:data})
       f7.preloader.show()
       let payload = {
         records: [
@@ -158,7 +170,8 @@ const store = createStore({
         ]
       }
       console.log({payload})
-      await updateRecords('Bookings',payload)
+      const update = await updateRecords('Bookings',payload)
+      console.log({update})
       f7.preloader.show()
       dispatch('getBookings')
     },
