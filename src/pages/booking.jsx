@@ -98,15 +98,9 @@ const BookingPage = ({f7route,f7router}) => {
   return(
     <Page name="form">
       <Navbar title="Booking " backLink="Back">
-        {readOnly && <Button onClick={() => setReadOnly(false)}>Edit</Button>}
-          {readOnly || <div style={{display:"flex", gap:16}}>
-              <Button small bgColor="teal" onClick={handleSave}>Save</Button>
-              <Button small bgColor="red" onClick={handleCancel} >Cancel</Button>
-          </div>}
-          {/* {readOnly && <NavRight style={{gap: 8}}>
-            {formData.status === "New booking" && <Button small onClick={confirmBooking} bgColor="teal">Confirm</Button>}
-            <Button small onClick={rejectBooking} bgColor="red">Reject</Button>
-          </NavRight>} */}
+        {readOnly && <Button onClick={() => setReadOnly(false)}><Icon small material='edit'/></Button>}
+          {readOnly || <Button small onClick={handleSave}><Icon material='save'/></Button>}
+          {readOnly || <NavRight><Button small onClick={handleCancel} ><Icon material='close'/></Button></NavRight>}
       </Navbar>
       
       <Block>

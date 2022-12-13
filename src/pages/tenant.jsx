@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { Page, Navbar, Block, BlockTitle, List, ListItem, useStore, Row, Col, ListInput, Icon, Button, f7 } from 'framework7-react';
+import { Page, Navbar, Block, BlockTitle, List, ListItem, useStore, Row, Col, ListInput, Icon, Button, f7, NavRight } from 'framework7-react';
 import store from '../js/store';
 
 const TenantPage = ({f7route}) => {
@@ -40,11 +40,11 @@ const TenantPage = ({f7route}) => {
   return (
     <Page>
       <Navbar title={tenant.Name} backLink style={{gap:16}}>
-        {readOnly && <Button onClick={() => setReadOnly(false)}>Edit</Button>}
-        {readOnly || <div style={{display:"flex", gap:16}}>
-            <Button small bgColor="teal" onClick={handleSave}>Save</Button>
-            <Button small bgColor="red" onClick={handleCancel}>Cancel</Button>
-        </div>}
+        {readOnly && <Button onClick={() => setReadOnly(false)}><Icon material='edit'/></Button>}
+        {readOnly || <Button small onClick={handleSave}><Icon  material='save'/></Button>}
+        {readOnly || <NavRight>
+           <Button small onClick={handleCancel}><Icon material='close'/></Button>
+          </NavRight>}
       </Navbar>
       <Block>
         <form id="tenantForm" className="form-store-data">

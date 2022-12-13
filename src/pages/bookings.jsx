@@ -23,7 +23,6 @@ const BookingsPage = () => {
   function AddBooking({handleClose}){
     const [readOnly,setReadOnly] = useState(false)
     const [selectedProperty,setSelectedProperty] = useState(properties.map(property => property.id)[0])
-    // const [selectedUnit, setSelectedUnit] = useState()
     const [selectableUnits, setSelectableUnits] = useState(units.filter(unit => unit["Property"][0] === selectedProperty))
     const [canSave, setCanSave] = useState(false)
     let [formData, setFormData] = useState({})
@@ -42,10 +41,6 @@ const BookingsPage = () => {
       setSelectedProperty(id)
     }
   
-    // const handleUnitChange = ({id}) => {
-    //   setSelectedUnit(id)
-    // }
-  
     useEffect(() => {
       setSelectableUnits(units.filter(unit => unit["Property"][0] === selectedProperty ))
     },[selectedProperty])
@@ -54,13 +49,13 @@ const BookingsPage = () => {
       console.log("formData changed: ",{formData})
       let emptyFields = Object.keys(formData).filter(key => formData[key] === '' && key !== 'notes')
       console.log({emptyFields})
-      if(emptyFields.length === 0){setCanSave(true)} else {setCanSave(false)}
+      if(Object.keys(formData).length >0 && emptyFields.length === 0){setCanSave(true)} else {setCanSave(false)}
     }, [formData])
 
     return(
       <Page>
         <Navbar title="Add new booking">
-          {canSave && <Button bgColor="teal" onClick={handleSave}>Save</Button>}
+          {canSave && <Button onClick={handleSave}><Icon material='save'/></Button>}
           <NavRight>
             <Button onClick={handleClose}>
               <Icon  material="close"></Icon>
@@ -185,7 +180,9 @@ const BookingsPage = () => {
   return (
     <Page>
       <Navbar title="Bookings">
-        <Button onClick={() => setPopupOpen(true)}>Add new booking</Button>
+        <Button onClick={() => setPopupOpen(true)}>
+          <Icon material='add'></Icon>
+        </Button>
       </Navbar>
       <Block>
         <List mediaList>

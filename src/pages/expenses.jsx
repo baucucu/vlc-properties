@@ -14,7 +14,6 @@ const ExpensesPage = () => {
   const selected = useStore('selected');
   const [events,setEvents] = useState([])
   const [popupOpen, setPopupOpen] = useState(false)
-  const popup = useRef(null)
 
   function handleClose(){
     setPopupOpen(false)
@@ -79,7 +78,7 @@ const ExpensesPage = () => {
     return(
       <Page>
         <Navbar title="Add new expenses">
-          {canSave && <Button bgColor="teal" onClick={handleSave}>Save</Button>}
+          {canSave && <Button onClick={handleSave}><Icon material='save'/></Button>}
           <NavRight>
             <Button onClick={handleClose}>
               <Icon  material="close"></Icon>
@@ -186,6 +185,10 @@ const ExpensesPage = () => {
   return (
     <Page>
       <Navbar title="Expenses">
+        <Button onClick={() => setPopupOpen(true)}>
+          <Icon material="add">
+          </Icon>
+        </Button>
       </Navbar>
       <Row>
         <Col>
@@ -213,14 +216,14 @@ const ExpensesPage = () => {
               headerToolbar={{
                 left: 'today prev next',
                 center: 'title',
-                right: 'addExpenses'
+                right: ''
               }}
-              customButtons={{
-                addExpenses: {
-                  text: "Add expenses",
-                  click: () => setPopupOpen(true)
-                }
-              }}
+              // customButtons={{
+              //   addExpenses: {
+              //     text: "Add expenses",
+              //     click: () => setPopupOpen(true)
+              //   }
+              // }}
             />
           </Block>
         </Col>      

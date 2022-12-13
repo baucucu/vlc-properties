@@ -32,7 +32,7 @@ const TenantsPage = () => {
     return(
       <Page>
         <Navbar title="Add new tenant">
-          {canSave && <Button bgColor="teal" onClick={handleSave}>Save</Button>}
+          {canSave && <Button onClick={handleSave}><Icon material='save'/></Button>}
           <NavRight>
             <Button onClick={handleClose}>
               <Icon  material="close"></Icon>
