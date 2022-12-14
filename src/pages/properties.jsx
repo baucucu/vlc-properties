@@ -20,7 +20,7 @@ const PropertiesPage = ({f7router}) => {
 
   const [resources, setResources] = useState([]);
   const [events, setEvents] = useState([]);
-  const [month, setMonth] = useState()
+  const [month, setMonth] = useState();
   const [finance, setFinance] = useState({
       monthlyExpenses: currency(0,{ symbol: '€', decimal: ',', separator: '.' }).format(),
       ytdExpenses: currency(0,{ symbol: '€', decimal: ',', separator: '.' }).format(),
