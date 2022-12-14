@@ -67,7 +67,7 @@ const BookingsPage = () => {
           </NavRight>
         </Navbar>
         <Block>
-          <form id="newBookingForm" className="form-store-data"><h2 slot="header">Details</h2>
+          <form id="newBookingForm" className="form-store-data">
             <Row>
               <Col small>
                 <List noHairlines>
@@ -248,7 +248,7 @@ const BookingsPage = () => {
                 </Block>
               </Col>
             </Row>
-            <List>
+            <List noHairlines>
               <ListItem >
                   <h2 slot="header">Notes</h2>
               </ListItem>
