@@ -1,7 +1,9 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { f7, Page, Navbar, Block, List, ListItem, useStore,Chip, Badge, Button, Popup, NavRight, Icon, Row,Col,ListInput, ListButton } from 'framework7-react';
+import { f7, Page,Input, Navbar, Block, List, ListItem, useStore,Chip, Badge, Button, Popup, NavRight, Icon, Row,Col,ListInput, ListButton } from 'framework7-react';
 import dayjs from 'dayjs';
 import lists  from '../utils/static';
+import { PickerInline,PickerDropPane, PickerOverlay   } from 'filestack-react';
+
 
 const BookingsPage = () => {
   
@@ -78,7 +80,6 @@ const BookingsPage = () => {
                 </List>
               </Col>
               <Col>
-                
               </Col>
             </Row>
             <Row>
@@ -160,7 +161,7 @@ const BookingsPage = () => {
             </Row>
             <List noHairlines>
                 <ListItem >
-                    <h2 slot="header">Notes</h2>
+                    <h3 slot="header">Notes</h3>
                 </ListItem>
                 <ListInput
                     name="notes"
@@ -184,13 +185,15 @@ const BookingsPage = () => {
   function AddTenant({handleTenantClose}){
     const [canSave, setCanSave] = useState(false)
     const [formData, setFormData] = useState({})
+    const [pickerOpen, setPickerOpen] = useState(false)
+    const [uploads,setUploads] = useState([])
     
     function handleSave() {
-      f7.store.dispatch('addTenant',formData)
+      f7.store.dispatch('addTenant',{...formData,uploads})
       handleTenantClose()
     }
     function handleChange(){
-      let data = f7.form.convertToData('#newTenantForm')
+      let data = f7.form.convertToData('#newBookingTenantForm')
       console.log({data})
       setFormData(data)
     }
@@ -211,46 +214,55 @@ const BookingsPage = () => {
             </Button>
           </NavRight>
         </Navbar>
-        <form id="newTenantForm" className="form-store-data">
+        <form id="newBookingTenantForm" className="form-store-data">
           <Block>
             <Row>
               <Col>
                 <List noHairlines>
-                  <ListItem >
-                      <h2 slot="header">Contact details</h2>
-                  </ListItem> 
-                  <ListInput name="name" label="Name" onChange={handleChange} >
-                  </ListInput>
-                  <ListInput name="phone" label="Phone"  onChange={handleChange}>
-                  </ListInput>
-                  <ListInput name="email" label="Email"  onChange={handleChange}>
-                  </ListInput>
-                  <ListInput name="address" label="Permanent address" onChange={handleChange}>
-                  </ListInput>
+                  <ListInput name="name" label="Name" onChange={handleChange} />
+                  <ListInput name="email" label="Email"  onChange={handleChange} />
                 </List>
               </Col>
               <Col>
-                <Block>
-                  <List noHairlines>
-                    <ListItem >
-                        <h2 slot="header">ID</h2>
-                    </ListItem>
-                    <ListInput 
-                        name="idNumber"
-                        label="ID number"
-                        onChange={handleChange}
-                    >
-                    </ListInput>
-                    <ListItem>
-                        {/* <img src={tenant["Passport / ID file"]?.[0].url} style={{maxHeight:"20vh", maxWidth:"100%"}}/> */}
-                    </ListItem>         
-                  </List>
-                </Block>
+                <List noHairlines>
+                  <ListInput name="phone" label="Phone"  onChange={handleChange} />
+                  <ListInput 
+                      name="idNumber"
+                      label="ID number"
+                      onChange={handleChange}
+                  >
+                  </ListInput>      
+                </List>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <List noHairlines>
+                  <ListInput name="address" label="Permanent address" onChange={handleChange} />
+                </List>
               </Col>
             </Row>
             <List noHairlines>
               <ListItem >
-                  <h2 slot="header">Notes</h2>
+                  <h2 slot="header">Files</h2>
+              </ListItem>
+              {uploads.map(file => <ListItem key={file.handle} mediaItem title={file.filename}>
+                {file.url ? <img src={file.url} width={40} slot="media"/> : <Icon material="file"/>}
+              </ListItem>)}
+            </List>
+            <Button onClick={()=> setPickerOpen(true)}>Add files</Button>
+            {pickerOpen && <PickerInline 
+                apikey={import.meta.env.VITE_FILESTACK_KEY}
+                pickerOptions={{}}
+                onUploadDone={(res) => {
+                console.log(res);
+                setUploads([...uploads,...res.filesUploaded])
+                setPickerOpen(false)
+              }}
+            />}
+            <List noHairlines>
+              <ListItem >
+                  <h3 slot="header">Notes</h3>
               </ListItem>
               <ListInput
                   name="notes"

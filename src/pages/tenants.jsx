@@ -15,17 +15,9 @@ const TenantsPage = () => {
     const [formData, setFormData] = useState({})
     const [pickerOpen, setPickerOpen] = useState(false)
     const [uploads,setUploads] = useState([])
-    
-    const options = {
-      displayMode: 'inline',
-      container: '#picker',
-      maxFiles: 20,
-      uploadInBackground: false,
-      onUploadDone: (res) => console.log(res),
-    };
 
     function handleSave() {
-      f7.store.dispatch('addTenant',[...formData, uploads])
+      f7.store.dispatch('addTenant',{...formData, uploads})
       handleClose()
     }
     function handleChange(){
@@ -39,7 +31,6 @@ const TenantsPage = () => {
       console.log({emptyFields})
       if(emptyFields.length === 0){setCanSave(true)} else {setCanSave(false)}
     }, [formData])
-    useEffect(() => {console.log({uploads})},[uploads])
     
     return(
       <Page>
@@ -52,69 +43,67 @@ const TenantsPage = () => {
           </NavRight>
         </Navbar>
         <form id="newTenantForm" className="form-store-data">
-          <>
-            <Row>
-              <Col>
+          <Row>
+            <Col>
+              <List noHairlines>
+                <ListInput name="name" label="Name" onChange={handleChange} />
+                <ListInput name="phone" label="Phone"  onChange={handleChange} />
+                
+              </List>
+            </Col>
+            <Col>
+              <Block>
                 <List noHairlines>
-                  <ListInput name="name" label="Name" onChange={handleChange} />
-                  <ListInput name="phone" label="Phone"  onChange={handleChange} />
+                  <ListInput 
+                      name="idNumber"
+                      label="ID number"
+                      onChange={handleChange}
+                  />
+                  <ListInput name="email" label="Email"  onChange={handleChange} />
                   
                 </List>
-              </Col>
-              <Col>
-                <Block>
-                  <List noHairlines>
-                    <ListInput 
-                        name="idNumber"
-                        label="ID number"
-                        onChange={handleChange}
-                    />
-                    <ListInput name="email" label="Email"  onChange={handleChange} />
-                    
-                  </List>
-                </Block>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <List noHairlines>
-                  <ListInput name="address" label="Permanent address" onChange={handleChange} />
-                </List>
-              </Col>
-            </Row>
-            <List noHairlines>
-              <ListItem >
-                  <h2 slot="header">Files</h2>
-              </ListItem>
-              {uploads.map(file => <ListItem key={file.handle} mediaItem title={file.filename}>
-                {file.url ? <img src={file.url} width={40} slot="media"/> : <Icon material="file"/>}
-              </ListItem>)}
-            </List>
-            <Button onClick={()=> setPickerOpen(true)}>Add files</Button>
-            {pickerOpen && <PickerInline 
-                apikey={import.meta.env.VITE_FILESTACK_KEY}
-                pickerOptions={{}}
-                onUploadDone={(res) => {
-                console.log(res);
-                setUploads([...uploads,...res.filesUploaded])
-                setPickerOpen(false)
-              }}
-            />}
-            <List noHairlines>
-              <ListItem >
-                  <h2 slot="header">Notes</h2>
-              </ListItem>
-              <ListInput
-                  name="notes"
-                  type="textarea"
-                  resizable
-                  placeholder="Enter notes here"
-                  onChange={handleChange}
-              >
-                  <Icon material="notes" slot="media"/>  
-              </ListInput>
-            </List>
-          </>
+              </Block>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <List noHairlines>
+                <ListInput name="address" label="Permanent address" onChange={handleChange} />
+              </List>
+            </Col>
+          </Row>
+          <List noHairlines>
+            <ListItem >
+                <h2 slot="header">Files</h2>
+            </ListItem>
+            {uploads.map(file => <ListItem key={file.handle} mediaItem title={file.filename}>
+              {file.url ? <img src={file.url} width={40} slot="media"/> : <Icon material="file"/>}
+            </ListItem>)}
+          </List>
+          <Button onClick={()=> setPickerOpen(true)}>Add files</Button>
+          {pickerOpen && <PickerInline 
+              apikey={import.meta.env.VITE_FILESTACK_KEY}
+              pickerOptions={{}}
+              onUploadDone={(res) => {
+              console.log(res);
+              setUploads([...uploads,...res.filesUploaded])
+              setPickerOpen(false)
+            }}
+          />}
+          <List noHairlines>
+            <ListItem >
+                <h2 slot="header">Notes</h2>
+            </ListItem>
+            <ListInput
+                name="notes"
+                type="textarea"
+                resizable
+                placeholder="Enter notes here"
+                onChange={handleChange}
+            >
+                <Icon material="notes" slot="media"/>  
+            </ListInput>
+          </List>
         </form>
       </Page>
     )
