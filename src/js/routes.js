@@ -23,9 +23,6 @@ var routes = [
   {
     path: '/',
     component: PropertiesPage,
-    // async: function({router,to,resolve}) {
-
-    // }
   },
   {
     path: '/property/:propertyId',
