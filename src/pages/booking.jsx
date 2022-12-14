@@ -117,15 +117,18 @@ const BookingPage = () => {
             <Col>
               <List noHairlines>
                 <ListInput name='channel' type="select" label="Channel" disabled={readOnly}>
-                  {settings.channel.map(item => (<option key={item} value={item}>{item}</option>))}
+                  {settings.channels.map(item => (<option key={item} value={item}>{item}</option>))}
                 </ListInput>
               </List>
             </Col>
             <Col>
               <List noHairlines>
-                <ListInput name='type' type="select" label="Type" disabled={readOnly}>
-                  {settings.bookingType.map(item => (<option key={item} value={item}>{item}</option>))}
-                </ListInput>
+                <ListInput name='contractStatus' label="Contract status" disabled />
+              </List>
+            </Col>
+            <Col>
+              <List noHairlines>
+                <ListInput name='contractURL' label="Contract URL" disabled />
               </List>
             </Col>
           </Row>
@@ -172,18 +175,6 @@ const BookingPage = () => {
             <Col>
               <List noHairlines>
                 <ListInput name='durationUnits' label="Units" disabled />
-              </List>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <List noHairlines>
-                <ListInput name='contractStatus' label="Contract status" disabled />
-              </List>
-            </Col>
-            <Col>
-              <List noHairlines>
-                <ListInput name='contractURL' label="Contract URL" disabled />
               </List>
             </Col>
           </Row>

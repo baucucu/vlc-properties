@@ -151,13 +151,6 @@ const BookingsPage = () => {
                   </ListInput>
                 </List>
               </Col>
-              <Col>
-                <List noHairlines>
-                  <ListInput name='type' type="select" label="Type" onChange={handleChange} disabled={readOnly}>
-                    {settings.bookingType.map(item => (<option key={item} value={item}>{item}</option>))}
-                  </ListInput>
-                </List>
-              </Col>
             </Row>
             <List noHairlines>
               <ListItem >
@@ -315,37 +308,20 @@ const BookingsPage = () => {
                       </Chip>
                       <Chip
                         text={`${dayjs(booking["Check in"]).format("D MMM YY")} to ${dayjs(booking["Check out"]).format("D MMM YY")}`}
-                      // color="teal"
-                      // mediaBgColor="orange"
                       >
                       </Chip>
 
                     </div>
                   }
-                  text={
-                    <div style={{ display: "flex", gap: 4, marginTop: 16 }}>
-                      <Badge
-                        color='gray'
-                      >
-                        {booking.Channel}
-                      </Badge>
-                      <Badge
-                        color='gray'
-                      >
-                        {booking.Type}
-                      </Badge>
-                    </div>
-                  }
+                  text={<Badge color="black">{booking.Channel}</Badge>}
                   after={
                     <div style={{ display: "flex", flexDirection: "row-reverse", gap: 16 }}>
                       <Chip
                         text={booking["Contract status"] || "N/A"}
-                        // color={booking["Contract status"] === "Signed" ? "teal" : "red"}
                         media="C"
                         mediaBgColor='black'
                       >
                       </Chip>
-
                     </div>
                   }
 
