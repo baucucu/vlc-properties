@@ -1,6 +1,6 @@
 
 import { createStore } from 'framework7/lite';
-import {f7} from 'framework7-react'
+import { f7 } from 'framework7-react'
 import { getRecords, updateRecords, createRecords } from '../utils/airtable';
 import currency from 'currency.js';
 
@@ -8,67 +8,81 @@ const store = createStore({
   state: {
     properties: [],
     units: [],
-    tennants:[],
-    expenses:[],
-    revenue:[],
-    bookings:[],
-    selected:[],
-    booking: undefined
+    tennants: [],
+    expenses: [],
+    revenue: [],
+    bookings: [],
+    selected: [],
+    booking: undefined,
+    settings: {}
   },
   getters: {
-    properties({state}) {
+    properties({ state }) {
       return state.properties
     },
-    selected({state}){
+    selected({ state }) {
       return state.selected
     },
-    units({state}) {
+    units({ state }) {
       return state.units
     },
-    tenants({state}) {
+    tenants({ state }) {
       return state.tenants
     },
-    expenses({state}) {
+    expenses({ state }) {
       return state.expenses
     },
-    revenue({state}) {
+    revenue({ state }) {
       return state.revenue
     },
-    bookings({state}) {
+    bookings({ state }) {
       return state.bookings
     },
-    booking({state}) {
+    booking({ state }) {
       return state.booking
+    },
+    settings({ state }) {
+      return state.settings
     }
   },
   actions: {
-   async getProperties({ state,dispatch }) {
+    async getSettings({ state, dispatch }) {
+      f7.preloader.show()
+      const data = await getRecords('Settings')
+      console.log({ settings: data })
+      data.map(item => {
+        state.settings[item.Name] = item.Values
+      })
+      f7.preloader.hide()
+      dispatch('getProperties')
+    },
+    async getProperties({ state, dispatch }) {
       f7.preloader.show()
       state.properties = await getRecords('Properties')
       f7.preloader.hide()
       dispatch('getUnits')
     },
-    async getUnits({ state,dispatch }) {
+    async getUnits({ state, dispatch }) {
       f7.preloader.show()
       state.units = await getRecords('Units')
       f7.preloader.hide()
       dispatch('getTenants')
     },
-    async getTenants({ state,dispatch }) {
+    async getTenants({ state, dispatch }) {
       f7.preloader.show()
       state.tenants = await getRecords('Tenants')
       f7.preloader.hide()
       dispatch('getExpenses')
     },
-    async addTenant({state, dispatch},data){
+    async addTenant({ state, dispatch }, data) {
       f7.preloader.show()
       let payload = {
         records: [
           {
             fields: {
               "Name": data.name,
-              "Phone":data.phone,
-              "Email":data.email,
+              "Phone": data.phone,
+              "Email": data.email,
               "Permanent address": data.address,
               "Passport / ID number": data.idNumber,
               "Notes": data.notes
@@ -76,12 +90,12 @@ const store = createStore({
           }
         ]
       }
-      console.log({payload})
-      await createRecords('Tenants',payload)
+      console.log({ payload })
+      await createRecords('Tenants', payload)
       f7.preloader.show()
       dispatch('getTenants')
     },
-    async saveTenant({state, dispatch},data){
+    async saveTenant({ state, dispatch }, data) {
       f7.preloader.show()
       let payload = {
         records: [
@@ -89,35 +103,35 @@ const store = createStore({
             id: data.recordId,
             fields: {
               "Name": data.name,
-              "Phone":data.phone,
-              "Email":data.email,
+              "Phone": data.phone,
+              "Email": data.email,
               "Permanent address": data.address,
               "Passport / ID number": data.idNumber,
               "Notes": data.notes,
-              "Files": data.uploads.map(file => ({url: file.url}))
+              "Files": data.uploads.map(file => ({ url: file.url }))
             }
           }
         ]
       }
-      console.log({payload})
-      await updateRecords('Tenants',payload)
+      console.log({ payload })
+      await updateRecords('Tenants', payload)
       f7.preloader.show()
       dispatch('getTenants')
     },
-    async getExpenses({ state,dispatch }) {
+    async getExpenses({ state, dispatch }) {
       f7.preloader.show()
-      try{
+      try {
         state.expenses = await getRecords('Expenses')
-      } catch(e){console.log({e})}
-      
+      } catch (e) { console.log({ e }) }
+
       f7.preloader.hide()
       dispatch('getRevenue')
     },
-    async saveExpenses({state,dispatch},data){
+    async saveExpenses({ state, dispatch }, data) {
       f7.preloader.show()
-      console.log("expenses received: ",{data})
-      let records = Array(data.formData.length/5).fill({
-        fields:{
+      console.log("expenses received: ", { data })
+      let records = Array(data.formData.length / 5).fill({
+        fields: {
           Amount: null,
           Expense: null,
           Date: null,
@@ -126,10 +140,10 @@ const store = createStore({
         }
       })
       data.formData.forEach(item => {
-        if(!records[item.index]){
+        if (!records[item.index]) {
           records[item.index] = {}
         }
-        switch(item.property){
+        switch (item.property) {
           case 'amount':
             records[item.index].fields.Amount = Number(item.value)
           case 'date':
@@ -137,45 +151,45 @@ const store = createStore({
           case 'property':
             records[item.index].fields.Property = [item.value]
           case 'category':
-            records[item.index].fields.Category = item.value  
+            records[item.index].fields.Category = item.value
           case 'description':
             records[item.index].fields.Expense = item.value
           default:
             return;
         }
       })
-      console.log({records})
-      await createRecords('Expenses',{records})
-      .then(() => {
-        f7.preloader.hide()
-        dispatch('getExpenses')
-      })
+      console.log({ records })
+      await createRecords('Expenses', { records })
+        .then(() => {
+          f7.preloader.hide()
+          dispatch('getExpenses')
+        })
     },
-    async getRevenue({ state,dispatch }) {
+    async getRevenue({ state, dispatch }) {
       f7.preloader.show()
       state.revenue = await getRecords('Revenue')
       f7.preloader.hide()
       dispatch('getBookings')
     },
-    async getBookings({ state,dispatch }) {
+    async getBookings({ state, dispatch }) {
       f7.preloader.show()
       state.bookings = await getRecords('Bookings')
       f7.preloader.hide()
       dispatch('getSelected')
     },
-    async getBooking({state, dispatch},id) {
-      console.log("getBooking",{id})
+    async getBooking({ state, dispatch }, id) {
+      console.log("getBooking", { id })
       f7.preloader.show()
       state.booking = state.bookings.filter(booking => booking.id === id)[0]
       f7.preloader.hide()
     },
-    async addBooking({state,dispatch},data){
+    async addBooking({ state, dispatch }, data) {
       let formData = f7.form.getFormData('#addNewBooking')
-      console.log({formData})
-      console.log({received: data})
+      console.log({ formData })
+      console.log({ received: data })
       f7.preloader.show()
       let payload = {
-        records:[{
+        records: [{
           fields: {
             "Check in": data.checkIn,
             "Check out": data.checkOut,
@@ -189,16 +203,16 @@ const store = createStore({
           }
         }]
       }
-      console.log({payload})
-      const newBooking = await createRecords('Bookings',payload)
-      console.log({newBooking})
+      console.log({ payload })
+      const newBooking = await createRecords('Bookings', payload)
+      console.log({ newBooking })
       f7.preloader.show()
       dispatch('getBookings')
     },
-    async saveBooking({state,dispatch},data) {
+    async saveBooking({ state, dispatch }, data) {
       let formData = f7.form.getFormData('#bookingForm')
-      console.log({formData})
-      console.log({received:data})
+      console.log({ formData })
+      console.log({ received: data })
       f7.preloader.show()
       let payload = {
         records: [
@@ -211,24 +225,24 @@ const store = createStore({
               "Unit": [data.unit],
               "Notes": data.notes,
               "Channel": data.channel,
-              "Rent": currency(data.rent)/100,
-              "Deposit": currency(data.deposit)/100,
+              "Rent": currency(data.rent) / 100,
+              "Deposit": currency(data.deposit) / 100,
               "Check in": dayjs(data.checkIn).format('YYYY-MM-DD'),
-              "Check out": dayjs(data.checkOut).format('YYYY-MM-DD'), 
+              "Check out": dayjs(data.checkOut).format('YYYY-MM-DD'),
             }
           }
         ]
       }
-      console.log({payload})
-      const update = await updateRecords('Bookings',payload)
-      console.log({update})
+      console.log({ payload })
+      const update = await updateRecords('Bookings', payload)
+      console.log({ update })
       f7.preloader.show()
       dispatch('getBookings')
     },
-    setSelected({state}, options){
+    setSelected({ state }, options) {
       state.selected = options
     },
-    getSelected({state}){
+    getSelected({ state }) {
       state.selected = state.properties.map(property => property.id)
     },
   },

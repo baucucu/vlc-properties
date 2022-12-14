@@ -1,44 +1,44 @@
-import React, {useEffect,useState, useRef} from 'react';
-import {f7, Page, Navbar, PhotoBrowser, Block, List, ListItem, ListInput,ListButton, Button, NavRight, Icon, useStore, Popup, Row, Col } from 'framework7-react';
-import { PickerInline,PickerDropPane, PickerOverlay   } from 'filestack-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { f7, Page, Navbar, PhotoBrowser, Block, List, ListItem, ListInput, ListButton, Button, NavRight, Icon, useStore, Popup, Row, Col } from 'framework7-react';
+import { PickerInline, PickerDropPane, PickerOverlay } from 'filestack-react';
 
 const TenantsPage = () => {
   const tenants = useStore('tenants')
-  const [popupOpen, setPopupOpen] = useState(false)  
-  
-  function handleClose(){
+  const [popupOpen, setPopupOpen] = useState(false)
+
+  function handleClose() {
     setPopupOpen(false)
   }
 
-  function AddTenant({handleClose}){
+  function AddTenant({ handleClose }) {
     const [canSave, setCanSave] = useState(false)
     const [formData, setFormData] = useState({})
     const [pickerOpen, setPickerOpen] = useState(false)
-    const [uploads,setUploads] = useState([])
+    const [uploads, setUploads] = useState([])
 
     function handleSave() {
-      f7.store.dispatch('addTenant',{...formData, uploads})
+      f7.store.dispatch('addTenant', { ...formData, uploads })
       handleClose()
     }
-    function handleChange(){
+    function handleChange() {
       let data = f7.form.convertToData('#newTenantForm')
-      console.log({data})
+      console.log({ data })
       setFormData(data)
     }
     useEffect(() => {
-      console.log("formData changed: ",{formData})
+      console.log("formData changed: ", { formData })
       let emptyFields = Object.keys(formData).filter(key => formData[key] === '' && key !== 'notes')
-      console.log({emptyFields})
-      if(emptyFields.length === 0){setCanSave(true)} else {setCanSave(false)}
+      console.log({ emptyFields })
+      if (emptyFields.length === 0) { setCanSave(true) } else { setCanSave(false) }
     }, [formData])
-    
-    return(
+
+    return (
       <Page>
         <Navbar title="Add new tenant">
-          {canSave && <Button onClick={handleSave}><Icon material='save'/></Button>}
+          {canSave && <Button onClick={handleSave}><Icon material='save' /></Button>}
           <NavRight>
             <Button onClick={handleClose}>
-              <Icon  material="close"></Icon>
+              <Icon material="close"></Icon>
             </Button>
           </NavRight>
         </Navbar>
@@ -47,19 +47,19 @@ const TenantsPage = () => {
             <Col>
               <List noHairlines>
                 <ListInput name="name" label="Name" onChange={handleChange} />
-                <ListInput name="email" label="Email"  onChange={handleChange} />
-                
+                <ListInput name="email" label="Email" onChange={handleChange} />
+
               </List>
             </Col>
             <Col>
               <List noHairlines>
-                <ListInput name="phone" label="Phone"  onChange={handleChange} />
-                <ListInput 
-                    name="idNumber"
-                    label="ID number"
-                    onChange={handleChange}
+                <ListInput name="phone" label="Phone" onChange={handleChange} />
+                <ListInput
+                  name="idNumber"
+                  label="ID number"
+                  onChange={handleChange}
                 />
-                
+
               </List>
             </Col>
           </Row>
@@ -72,34 +72,34 @@ const TenantsPage = () => {
           </Row>
           <List noHairlines>
             <ListItem >
-                <h2 slot="header">Files</h2>
+              <h2 slot="header">Files</h2>
             </ListItem>
             {uploads.map(file => <ListItem key={file.handle} mediaItem title={file.filename}>
-              {file.url ? <img src={file.url} width={40} slot="media"/> : <Icon material="file"/>}
+              {file.url ? <img src={file.url} width={40} slot="media" /> : <Icon material="file" />}
             </ListItem>)}
           </List>
-          <Button onClick={()=> setPickerOpen(true)}>Add files</Button>
-          {pickerOpen && <PickerInline 
-              apikey={import.meta.env.VITE_FILESTACK_KEY}
-              pickerOptions={{}}
-              onUploadDone={(res) => {
+          <Button onClick={() => setPickerOpen(true)}>Add files</Button>
+          {pickerOpen && <PickerInline
+            apikey={import.meta.env.VITE_FILESTACK_KEY}
+            pickerOptions={{}}
+            onUploadDone={(res) => {
               console.log(res);
-              setUploads([...uploads,...res.filesUploaded])
+              setUploads([...uploads, ...res.filesUploaded])
               setPickerOpen(false)
             }}
           />}
           <List noHairlines>
             <ListItem >
-                <h2 slot="header">Notes</h2>
+              <h2 slot="header">Notes</h2>
             </ListItem>
             <ListInput
-                name="notes"
-                type="textarea"
-                resizable
-                placeholder="Enter notes here"
-                onChange={handleChange}
+              name="notes"
+              type="textarea"
+              resizable
+              placeholder="Enter notes here"
+              onChange={handleChange}
             >
-                <Icon material="notes" slot="media"/>  
+              <Icon material="notes" slot="media" />
             </ListInput>
           </List>
         </form>
@@ -115,7 +115,7 @@ const TenantsPage = () => {
       <Block>
         <List>
           {tenants.map(tenant => (<ListItem key={tenant.id} link={`/tenants/${tenant.id}`} title={tenant.Name}>
-            
+
           </ListItem>))}
         </List>
       </Block>
@@ -126,7 +126,7 @@ const TenantsPage = () => {
         onPopupSwipeClose={handleClose}
         onPopupClose={handleClose}
       >
-        <AddTenant handleClose={handleClose}/>
+        <AddTenant handleClose={handleClose} />
       </Popup>
     </Page>
   );
