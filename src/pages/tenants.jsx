@@ -47,22 +47,20 @@ const TenantsPage = () => {
             <Col>
               <List noHairlines>
                 <ListInput name="name" label="Name" onChange={handleChange} />
-                <ListInput name="phone" label="Phone"  onChange={handleChange} />
+                <ListInput name="email" label="Email"  onChange={handleChange} />
                 
               </List>
             </Col>
             <Col>
-              <Block>
-                <List noHairlines>
-                  <ListInput 
-                      name="idNumber"
-                      label="ID number"
-                      onChange={handleChange}
-                  />
-                  <ListInput name="email" label="Email"  onChange={handleChange} />
-                  
-                </List>
-              </Block>
+              <List noHairlines>
+                <ListInput name="phone" label="Phone"  onChange={handleChange} />
+                <ListInput 
+                    name="idNumber"
+                    label="ID number"
+                    onChange={handleChange}
+                />
+                
+              </List>
             </Col>
           </Row>
           <Row>

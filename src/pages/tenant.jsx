@@ -54,19 +54,19 @@ const TenantPage = ({f7route}) => {
               <Col>
                 <List noHairlines>
                   <ListInput name="name" label="Name"  readonly={readOnly}/>
-                  <ListInput name="phone" label="Phone" readonly={readOnly}/>
+                  <ListInput name="email" label="Email" readonly={readOnly} />
                   
                 </List>
               </Col>
               <Col>
                 <Block>
                   <List noHairlines>
+                    <ListInput name="phone" label="Phone" readonly={readOnly}/>
                     <ListInput 
                         name="idNumber"
                         label="ID number"
                         readonly={readOnly}
                     />
-                    <ListInput name="email" label="Email" readonly={readOnly} />
                     
                   </List>
                 </Block>
