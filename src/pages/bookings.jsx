@@ -327,15 +327,10 @@ const BookingsPage = () => {
                   after={
                     <div style={{display:"flex", flexDirection:"row-reverse",gap:16}}>
                       <Chip
-                        text={booking.Status}
-                        color={booking.Status === "Confirmed" ? "teal" : "blue"}
-                      >
-                      </Chip>
-                      <Chip
                         text={booking["Contract status"] || "N/A"}
-                        color={booking["Contract status"] === "Signed" ? "teal" : "red"}
+                        // color={booking["Contract status"] === "Signed" ? "teal" : "red"}
                         media="Co"
-                        mediaBgColor='gray'
+                        // mediaBgColor='gray'
                       >
                       </Chip>
                       

@@ -173,6 +173,7 @@ const PropertiesPage = ({f7router}) => {
         schedulerLicenseKey='CC-Attribution-NonCommercial-NoDerivatives'
         initialView='resourceTimelineMonth'
         resourceOrder='unit,property'
+        nowIndicator
         eventClick={function(info){
           let recordId = info.event._def.publicId
           console.log({recordId})
@@ -183,7 +184,7 @@ const PropertiesPage = ({f7router}) => {
             group: true,
             field: 'property',
             headerContent: 'Property',
-            width:150
+            width: 150,
           },
           {
             group: true,

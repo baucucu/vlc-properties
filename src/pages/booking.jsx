@@ -30,61 +30,69 @@ const BookingPage = ({f7route,f7router}) => {
   const properties = useStore('properties')
   const units = useStore('units')
   const booking = useStore('booking')
-  console.log({booking})
-  
-  const [formData, setFormData] = useState()
 
   const [readOnly, setReadOnly] = useState(true)
+  const [selectedTenant, setSelectedTenant] = useState(booking["Tenant"][0])
   const [selectedProperty,setSelectedProperty] = useState(booking["Property"][0])
   const [selectedUnit, setSelectedUnit] = useState(booking["Unit"][0])
   const [selectableUnits, setSelectableUnits] = useState(units.filter(unit => unit["Property"][0] === booking["Property"][0]))
   
+  const initialData = {
+    checkIn: booking["Check in"],
+    checkOut: booking["Check out"],
+    type: booking["Type"],
+    tenant: booking["Tenant"][0],
+    property: booking["Property"][0],
+    unit: booking["Unit"][0],
+    notes: booking["Notes"],
+    channel: booking["Channel"],
+    date: dayjs(booking["Date"]).format('YYYY-MM-DD'),
+    rent: currency( booking["Rent"], { symbol: '€', decimal: ',', separator: '.' }).format(),
+    deposit: currency( booking["Deposit"], { symbol: '€', decimal: ',', separator: '.' }).format(),
+    duration: booking["Duration"],
+    durationUnits: booking["Duration units"],
+    contractStatus:booking["Contract status"],
+    contractURL: booking["Contract URL"],
+    totalRevenue: currency( booking["Total revenue"], { symbol: '€', decimal: ',', separator: '.' }).format(),
+  }
+
+  useEffect(() => {
+    f7.form.fillFromData("#bookingForm",initialData)
+  },[])
+
   const handleCancel = () => {
-    f7.form.fillFromData('#bookingForm', formData)
+    f7.form.fillFromData('#bookingForm', initialData)
     setReadOnly(true)
   }
   
   const handleSave = () => {
     let data = f7.form.getFormData('#bookingForm')
-    data.unit = selectedUnit
-    data.recordId = booking.id
-    console.log({sent:data})
-    if(JSON.stringify(data) !== JSON.stringify(formData)){
+    data = {...data, ...{unit: selectedUnit, tenant: selectedTenant, recordId: booking.id}}
+    console.log('form data:',{data})
+    if(JSON.stringify(data) !== JSON.stringify(initialData)){
         store.dispatch('saveBooking',data)
+        console.log({sent:data})
     }
     setReadOnly(true)
   }
   
-  useEffect(() =>{
-    console.log("booking changed: ",{booking})
-    setFormData({
-      checkIn: booking["Check in"],
-      checkOut: booking["Check out"],
-      status: booking["Status"],
-      type: booking["Type"],
-      tenant: booking["Tenant"][0],
-      property: booking["Property"][0],
-      unit: booking["Unit"][0],
-      notes: booking["Notes"],
-      channel: booking["Channel"],
-      date: dayjs(booking["Date"]).format('YYYY-MM-DD'),
-      rent: currency( booking["Rent"], { symbol: '€', decimal: ',', separator: '.' }).format(),
-      deposit: currency( booking["Deposit"], { symbol: '€', decimal: ',', separator: '.' }).format(),
-      duration: booking["Duration"],
-      durationUnits: booking["Duration units"],
-      contractStatus:booking["Contract status"],
-      contractURL: booking["Contract URL"],
-      totalRevenue: currency( booking["Total revenue"], { symbol: '€', decimal: ',', separator: '.' }).format(),
-    })
-    f7.form.fillFromData("#bookingForm",formData)
-  },[booking])
 
   const handlePropertyChange = ({id}) => {
     setSelectedProperty(id)
+    let formData = f7.form.getFormData('#bookingForm')
+    console.log({id,formData})
   }
 
   const handleUnitChange = ({id}) => {
     setSelectedUnit(id)
+    let formData = f7.form.getFormData('#bookingForm')
+    console.log({id,formData})
+  }
+
+  const handleTenantChange = ({id}) => {
+    setSelectedTenant(id)
+    let formData = f7.form.getFormData('#bookingForm')
+    console.log({id,formData})
   }
 
   useEffect(() => {console.log("selectedUnit changed: ",{selectedUnit})},[selectedUnit])
@@ -175,13 +183,6 @@ const BookingPage = ({f7route,f7router}) => {
             <Row>
               <Col>
                 <List noHairlines>
-                  <ListInput name='status' label="Status"  disabled>
-                    {lists.status.map(item => (<option key={item} value={item}>{item}</option>))}
-                  </ListInput>
-                </List>
-              </Col>
-              <Col>
-                <List noHairlines>
                   <ListInput name='contractStatus' label="Contract status" disabled/>
                 </List>
               </Col>
@@ -194,7 +195,7 @@ const BookingPage = ({f7route,f7router}) => {
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="tenant" label="Tenant"  type='select' disabled={readOnly}>
+                  <ListInput name="tenant" label="Tenant"  type='select' onChange={(e)=>handleTenantChange({id:e.target.value})} disabled={readOnly}>
                       {tenants.map(tenant => (<option key={tenant.id} value={tenant.id}>{tenant.Name}</option>))}
                   </ListInput>
                 </List>

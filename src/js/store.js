@@ -180,8 +180,8 @@ const store = createStore({
             "Check out": data.checkOut,
             "Tenant": [data.tenant],
             "Unit": [data.unit],
-            "Rent": currency(data.rent)/100,
-            "Deposit": currency(data.deposit)/100,
+            "Rent": currency(data.rent),
+            "Deposit": currency(data.deposit),
             "Channel": data.channel,
             "Type": data.type,
             "Notes": data.notes
