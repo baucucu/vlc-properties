@@ -4,39 +4,32 @@ import store from '../js/store';
 
 const TenantPage = ({f7route}) => {
   const tenants = useStore('tenants')
-  console.log({f7route})
-  const [tenant, setTenant] = useState(tenants.filter(item => item.id === f7route.params.id)[0])
-  const [formData, setFormData] = useState()
   const [readOnly, setReadOnly] = useState(true)
-  
+  const tenant = tenants.filter(item => item.id === f7route.params.id)[0]
+  const initialData = {
+    phone: tenant.Phone,
+    email: tenant.Email,
+    address: tenant["Permanent address"],
+    idNumber: tenant["Passport / ID number"],
+    notes: tenant.Notes,
+    // idFile: tenant["Passport / ID file"][0].url
+  }   
   useEffect(() => {
-    setTenant(tenants.filter(item => item.id === f7route.params.id)[0])
-  },[tenants])
-
-  useEffect(() => {
-    setFormData({
-        phone: tenant.Phone,
-        email: tenant.Email,
-        address: tenant["Permanent address"],
-        idNumber: tenant["Passport / ID number"],
-        notes: tenant.Notes,
-        // idFile: tenant["Passport / ID file"][0].url
-    })
-    f7.form.fillFromData("#tenantForm",formData)
+    console.log({f7route})
+    f7.form.fillFromData("#tenantForm",initialData)
   },[])
-  useEffect(() => {console.log({formData})},[formData])
-  
+
   const handleSave = () => {
     let data = f7.form.getFormData('#tenantForm')
     console.log({data})
-    if(JSON.stringify(data) !== JSON.stringify(formData)){
+    if(JSON.stringify(data) !== JSON.stringify(initialData)){
         store.dispatch('saveTenant',{recordId: tenant.id, ...data, name:tenant.Name})
     }
     setReadOnly(true)
   }
 
   const handleCancel = () => {
-    f7.form.fillFromData('#tenantForm', formData)
+    f7.form.fillFromData('#tenantForm', initialData)
     setReadOnly(true)
   }
   
