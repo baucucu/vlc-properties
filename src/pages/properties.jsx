@@ -1,5 +1,5 @@
 import React, { useEffect,useState } from 'react';
-import { Page, BlockTitle, Navbar, Block, Link, Chip, List, ListItem, useStore, CardHeader,CardContent, Segmented,Tabs, Tab, Button, Row, Col, Card, f7 } from 'framework7-react';
+import { Page, Popup, Navbar, Block, Link, Chip, List, ListItem, useStore, CardHeader,CardContent, Segmented,Tabs, Tab, Button, Row, Col, Card, f7 } from 'framework7-react';
 import '@fullcalendar/react/dist/vdom';
 import FullCalendar from '@fullcalendar/react';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
@@ -22,12 +22,12 @@ const PropertiesPage = ({f7router}) => {
   const [events, setEvents] = useState([]);
   const [month, setMonth] = useState()
   const [finance, setFinance] = useState({
-      monthlyExpenses: `€${currency(0)}`,
-      ytdExpenses: `€${currency(0)}`,
-      monthlyRevenue: `${currency(0)}`,
-      ytdRevenue: `€${currency(0)}`,
-      monthlyProfit: `€${currency(0)}`,
-      ytdProfit: `€${currency(0)}`,
+      monthlyExpenses: currency(0,{ symbol: '€', decimal: ',', separator: '.' }).format(),
+      ytdExpenses: currency(0,{ symbol: '€', decimal: ',', separator: '.' }).format(),
+      monthlyRevenue: currency(0,{ symbol: '€', decimal: ',', separator: '.' }).format(),
+      ytdRevenue: currency(0,{ symbol: '€', decimal: ',', separator: '.' }).format(),
+      monthlyProfit: currency(0,{ symbol: '€', decimal: ',', separator: '.' }).format(),
+      ytdProfit: currency(0,{ symbol: '€', decimal: ',', separator: '.' }).format(),
   })
 
   function getMonthlyFinance(){
@@ -166,79 +166,88 @@ const PropertiesPage = ({f7router}) => {
         </Col>
       </Row>
       <Block>
-      {events&&<FullCalendar 
-        ref={calendarRef}
-        height="55vh"
-        plugins={[resourceTimelinePlugin]}
-        schedulerLicenseKey='CC-Attribution-NonCommercial-NoDerivatives'
-        initialView='resourceTimelineMonth'
-        resourceOrder='unit,property'
-        nowIndicator
-        eventClick={function(info){
-          let recordId = info.event._def.publicId
-          console.log({recordId})
-          f7router.navigate(`/bookings/${recordId}`)
-        }}
-        resourceAreaColumns= {[
-          {
-            group: true,
-            field: 'property',
-            headerContent: 'Property',
-            width: 150,
-          },
-          {
-            group: true,
-            field: 'property_revenue',
-            headerContent: 'Revenue'
-          },
-          {
-            group: true,
-            field: 'property_expenses',
-            headerContent: 'Expenses'
-          },
-          {
-            group: true,
-            field: 'property_profit',
-            headerContent: 'Profit'
-          },
-          {
-            field: 'unit',
-            headerContent: 'Room'
-          },
-          {
-            // group: true,
-            field: 'unit_revenue',
-            headerContent: 'Revenue'
-          },
-          {
-            field: 'booked_days',
-            headerContent: 'Booked'
-          }
-        ]}
-        resourceAreaWidth='50%'
-        resources={resources}
-        events={events}
-        customButtons={{
-          prevMonth: {
-            text: '<',
-            click: function() {
-              handleMonthChange('prev')
+        {events&&<FullCalendar 
+          ref={calendarRef}
+          height="55vh"
+          plugins={[resourceTimelinePlugin]}
+          schedulerLicenseKey='CC-Attribution-NonCommercial-NoDerivatives'
+          initialView='resourceTimelineMonth'
+          resourceOrder='unit,property'
+          nowIndicator
+          eventClick={function(info){
+            let recordId = info.event._def.publicId
+            console.log({recordId})
+            f7router.navigate(`/bookings/${recordId}`)
+          }}
+          resourceAreaColumns= {[
+            {
+              group: true,
+              field: 'property',
+              headerContent: 'Property',
+              width: 150,
+            },
+            {
+              group: true,
+              field: 'property_revenue',
+              headerContent: 'Revenue'
+            },
+            {
+              group: true,
+              field: 'property_expenses',
+              headerContent: 'Expenses'
+            },
+            {
+              group: true,
+              field: 'property_profit',
+              headerContent: 'Profit'
+            },
+            {
+              field: 'unit',
+              headerContent: 'Room'
+            },
+            {
+              // group: true,
+              field: 'unit_revenue',
+              headerContent: 'Revenue'
+            },
+            {
+              field: 'booked_days',
+              headerContent: 'Booked'
             }
-          },
-          nextMonth: {
-            text: '>',
-            click: function() {
-              handleMonthChange('next')
+          ]}
+          resourceAreaWidth='50%'
+          resources={resources}
+          events={events}
+          customButtons={{
+            prevMonth: {
+              text: '<',
+              click: function() {
+                handleMonthChange('prev')
+              }
+            },
+            nextMonth: {
+              text: '>',
+              click: function() {
+                handleMonthChange('next')
+              }
             }
-          }
-        }}
-        headerToolbar={{
-          left: 'today prevMonth nextMonth',
-          center: 'title',
-          right: ''
-        }}
-      />}
+          }}
+          headerToolbar={{
+            left: 'today prevMonth nextMonth',
+            center: 'title',
+            right: ''
+          }}
+        />}
       </Block>
+      {/* <Popup
+        className="newProperty"
+        opened={popupOpen}
+        onPopupClosed={handleClose}
+        onPopupSwipeClose={handleClose}
+        onPopupClose={handleClose}
+      >
+        <AddTenant handleClose={handleClose}/>
+      </Popup> */}
     </Page> 
   );
 }
