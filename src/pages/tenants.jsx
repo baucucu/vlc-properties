@@ -1,9 +1,11 @@
 import React, {useEffect,useState} from 'react';
-import {f7, Page, Navbar, Block, List, ListItem, ListInput, Button, NavRight, Icon, useStore, Popup, Row, Col } from 'framework7-react';
+import {f7, Page, Navbar, PhotoBrowser, Block, List, ListItem, ListInput,ListButton, Button, NavRight, Icon, useStore, Popup, Row, Col } from 'framework7-react';
+import { PickerInline,PickerDropPane, PickerOverlay   } from 'filestack-react';
 
 const TenantsPage = () => {
   const tenants = useStore('tenants')
   const [popupOpen, setPopupOpen] = useState(false)
+  
   
   function handleClose(){
     setPopupOpen(false)
@@ -12,7 +14,17 @@ const TenantsPage = () => {
   function AddTenant({handleClose}){
     const [canSave, setCanSave] = useState(false)
     const [formData, setFormData] = useState({})
+    const [pickerOpen, setPickerOpen] = useState(false)
+    const [uploads,setUploads] = useState([])
     
+    const options = {
+      displayMode: 'inline',
+      container: '#picker',
+      maxFiles: 20,
+      uploadInBackground: false,
+      onUploadDone: (res) => console.log(res),
+    };
+
     function handleSave() {
       f7.store.dispatch('addTenant',formData)
       handleClose()
@@ -69,13 +81,21 @@ const TenantsPage = () => {
                         onChange={handleChange}
                     >
                     </ListInput>
-                    <ListItem>
-                        {/* <img src={tenant["Passport / ID file"]?.[0].url} style={{maxHeight:"20vh", maxWidth:"100%"}}/> */}
-                    </ListItem>         
+                    <PhotoBrowser photos={uploads.map(file => file.url)} ref={standalone} />    
                   </List>
                 </Block>
               </Col>
             </Row>
+            <Button onClick={()=> setPickerOpen(true)}>Upload files</Button>
+              {pickerOpen && <PickerInline 
+                apikey={import.meta.env.VITE_FILESTACK_KEY}
+                // onSuccess={(res) => console.log(res)}
+                onUploadDone={(res) => {
+                  console.log(res);
+                  setUploads(res.filesUploaded)
+                  setPickerOpen(false)
+                }}
+              />}
             <List>
               <ListItem >
                   <h2 slot="header">Notes</h2>

@@ -1,7 +1,5 @@
-import Airtable from 'airtable';
 import axios from 'axios';
 
-// const base = new Airtable({apiKey: import.meta.env.VITE_AIRTABLE_KEY}).base('app7IkFVMW99zzGgj');
 const getRecords = async (table)  => {
     let records = [];
     let offset

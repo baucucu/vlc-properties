@@ -28,6 +28,8 @@
     "currency.js": "^2.0.4",
     "dayjs": "^1.11.6",
     "dom7": "^4.0.4",
+    "filestack-js": "^3.25.0",
+    "filestack-react": "^4.0.1",
     "framework7": "^7.0.9",
     "framework7-icons": "^5.0.5",
     "framework7-react": "^7.0.9",
