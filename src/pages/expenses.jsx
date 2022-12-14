@@ -14,14 +14,9 @@ const ExpensesPage = () => {
   const selected = useStore('selected');
   const [events, setEvents] = useState([]);
   const [popupOpen, setPopupOpen] = useState(false);
-  const [settingsPopupOpen, setSettingsPopupOpen] = useState(false);
 
   function handleClose() {
     setPopupOpen(false);
-  }
-
-  function handleSettingsClose() {
-    setSettingsPopupOpen(false)
   }
 
 
@@ -195,11 +190,6 @@ const ExpensesPage = () => {
         <Button onClick={() => setPopupOpen(true)}>
           <Icon material="add" />
         </Button>
-        <NavRight>
-          <Button onClick={() => setSettingsPopupOpen(true)}>
-            <Icon material="settings" />
-          </Button>
-        </NavRight>
       </Navbar>
       <Row>
         <Col>
@@ -246,15 +236,6 @@ const ExpensesPage = () => {
         onPopupClose={handleClose}
       >
         <AddExpenses handleClose={handleClose} />
-      </Popup>
-      <Popup
-        className="settings"
-        opened={settingsPopupOpen}
-        onPopupClosed={handleSettingsClose}
-        onPopupSwipeClose={handleSettingsClose}
-        onPopupClose={handleSettingsClose}
-      >
-        <Settings handleClose={handleSettingsClose} />
       </Popup>
     </Page>
   );
