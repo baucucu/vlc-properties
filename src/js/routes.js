@@ -16,6 +16,7 @@ import BookingPage from '../pages/booking.jsx';
 import TenantsPage from '../pages/tenants.jsx';
 import TenantPage from '../pages/tenant.jsx';
 import ExpensesPage from '../pages/expenses.jsx';
+import SettingsPage from '../pages/settings.jsx';
 
 import { f7 } from 'framework7-react';
 
@@ -26,15 +27,15 @@ var routes = [
   },
   {
     path: '/property/:propertyId',
-    async: function({router, to, resolve}) {
+    async: function ({ router, to, resolve }) {
       const app = router.app;
 
       // Show Preloader
       app.preloader.show();
 
       // User ID from request
-      const {propertyId} = to.params;
-      
+      const { propertyId } = to.params;
+
       app.preloader.hide();
       resolve(
         {
@@ -45,7 +46,7 @@ var routes = [
             property: f7.store.state.properties.filter(property => property.id === propertyId)[0],
           }
         }
-      ); 
+      );
     },
   },
   {
@@ -53,23 +54,27 @@ var routes = [
     component: BookingsPage
   },
   {
+    path: '/settings/',
+    component: SettingsPage
+  },
+  {
     path: '/bookings/:bookingId',
-    async: function({router, to, resolve}) {
+    async: function ({ router, to, resolve }) {
       const app = router.app;
 
       // Show Preloader
       app.preloader.show();
 
       // User ID from request
-      const {bookingId} = to.params;
+      const { bookingId } = to.params;
       console.log()
       app.preloader.hide();
-      f7.store.dispatch("getBooking",bookingId)
+      f7.store.dispatch("getBooking", bookingId)
       resolve(
         {
           component: BookingPage,
         }
-      ); 
+      );
     },
   },
   {

@@ -68,6 +68,9 @@ const MyApp = () => {
               <ListItem link="/tenants/" view=".view-main" p title="Tenants" noChevron>
                 <Icon slot="media" material="person_search"></Icon>
               </ListItem>
+              <ListItem link="/settings/" view=".view-main" p title="Settings" noChevron>
+                <Icon slot="media" material="settings"></Icon>
+              </ListItem>
             </List>
           </Page>
         </View>

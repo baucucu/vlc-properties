@@ -28,10 +28,6 @@ const BookingsPage = () => {
     const [canSave, setCanSave] = useState(false)
     let [formData, setFormData] = useState({})
 
-    useEffect(() => {
-      console.log({ popupOpen, tenantPopupOpen })
-    }, [popupOpen, tenantPopupOpen])
-
     function handleSave() {
       f7.store.dispatch('addBooking', formData)
       handleClose()
@@ -41,10 +37,15 @@ const BookingsPage = () => {
       console.log({ data })
       setFormData(data)
     }
-
     const handlePropertyChange = ({ id }) => {
       setSelectedProperty(id)
     }
+
+    useEffect(() => { console.log({ settings }) }, [])
+
+    useEffect(() => {
+      console.log({ popupOpen, tenantPopupOpen })
+    }, [popupOpen, tenantPopupOpen])
 
     useEffect(() => {
       setSelectableUnits(units.filter(unit => unit["Property"][0] === selectedProperty))
@@ -146,14 +147,14 @@ const BookingsPage = () => {
               <Col>
                 <List noHairlines>
                   <ListInput name='channel' type="select" label="Channel" onChange={handleChange} disabled={readOnly}>
-                    {settings.channel.map(item => (<option key={item} value={item}>{item}</option>))}
+                    {settings.channels.map(item => (<option key={item} value={item}>{item}</option>))}
                   </ListInput>
                 </List>
               </Col>
               <Col>
                 <List noHairlines>
                   <ListInput name='type' type="select" label="Type" onChange={handleChange} disabled={readOnly}>
-                    {settings.type.map(item => (<option key={item} value={item}>{item}</option>))}
+                    {settings.bookingType.map(item => (<option key={item} value={item}>{item}</option>))}
                   </ListInput>
                 </List>
               </Col>
