@@ -1,12 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import { Page, Navbar, Block, BlockTitle, List, ListItem, useStore, Row, Col, ListInput, Icon, Button, f7, NavRight } from 'framework7-react';
 import store from '../js/store';
+import { PickerInline,PickerDropPane, PickerOverlay   } from 'filestack-react';
+
 
 const TenantPage = ({f7route}) => {
   const tenants = useStore('tenants')
   const [readOnly, setReadOnly] = useState(true)
   const tenant = tenants.filter(item => item.id === f7route.params.id)[0]
+  const [pickerOpen,setPickerOpen] = useState(false)
+  const [uploads, setUploads] = useState(tenant.Files)
+  console.log({tenant})
   const initialData = {
+    name: tenant.Name,
     phone: tenant.Phone,
     email: tenant.Email,
     address: tenant["Permanent address"],
@@ -23,7 +29,7 @@ const TenantPage = ({f7route}) => {
     let data = f7.form.getFormData('#tenantForm')
     console.log({data})
     if(JSON.stringify(data) !== JSON.stringify(initialData)){
-        store.dispatch('saveTenant',{recordId: tenant.id, ...data, name:tenant.Name})
+        store.dispatch('saveTenant',{recordId: tenant.id, ...data, name:tenant.Name, uploads})
     }
     setReadOnly(true)
   }
@@ -44,43 +50,54 @@ const TenantPage = ({f7route}) => {
       </Navbar>
       <Block>
         <form id="tenantForm" className="form-store-data">
-            <Row>
-                <Col>
-                    <List noHairlines>
-                        <ListItem >
-                            <h2 slot="header">Contact details</h2>
-                        </ListItem>
-                        <ListInput name="phone" label="Phone"  disabled={readOnly}>
-                        </ListInput>
-                        
-                        <ListInput name="email" label="Email"  disabled={readOnly}>
-                        </ListInput>
-                        
-                        <ListInput name="address" label="Permanent address" disabled={readOnly}>
-                        </ListInput>
-                    </List>
-                </Col>
-                <Col>
-                    <Block>
-                        <List noHairlines>
-                            <ListItem >
-                                <h2 slot="header">ID</h2>
-                            </ListItem>
-                            <ListInput 
-                                name="idNumber"
-                                label="ID number"
-                                
-                                disabled={readOnly}
-                            >
-                            </ListInput>
-                            <ListItem>
-                                <img src={tenant["Passport / ID file"]?.[0].url} style={{maxHeight:"20vh", maxWidth:"100%"}}/>
-                            </ListItem>         
-                        </List>
-                    </Block>
-                </Col>
+        <Row>
+              <Col>
+                <List noHairlines>
+                  <ListInput name="name" label="Name"  readonly={readOnly}/>
+                  <ListInput name="phone" label="Phone" readonly={readOnly}/>
+                  
+                </List>
+              </Col>
+              <Col>
+                <Block>
+                  <List noHairlines>
+                    <ListInput 
+                        name="idNumber"
+                        label="ID number"
+                        readonly={readOnly}
+                    />
+                    <ListInput name="email" label="Email" readonly={readOnly} />
+                    
+                  </List>
+                </Block>
+              </Col>
             </Row>
-            <List>
+            <Row>
+              <Col>
+                <List noHairlines>
+                  <ListInput name="address" label="Permanent address" readonly={readOnly} />
+                </List>
+              </Col>
+            </Row>
+            <List noHairlines>
+              <ListItem >
+                  <h2 slot="header">Files</h2>
+              </ListItem>
+              {uploads.map(file => <ListItem key={file.id || file.handle} mediaItem title={file.filename}>
+                <img src={file.url} width={40} slot="media"/>
+              </ListItem>)}
+            </List>
+            {readOnly || <Button onClick={()=> setPickerOpen(true)}>Add files</Button>}
+            {pickerOpen && <PickerInline 
+                apikey={import.meta.env.VITE_FILESTACK_KEY}
+                pickerOptions={{}}
+                onUploadDone={(res) => {
+                console.log(res);
+                setUploads([...uploads,...res.filesUploaded])
+                setPickerOpen(false)
+              }}
+            />}
+            <List noHairlines>
                 <ListItem >
                     <h2 slot="header">Notes</h2>
                 </ListItem>
@@ -89,11 +106,10 @@ const TenantPage = ({f7route}) => {
                     type="textarea"
                     resizable
                     placeholder="Enter notes here"
-                    disabled={readOnly} 
+                    readonly={readOnly} 
                 >
                     <Icon material="notes" slot="media"/>  
                 </ListInput>
-                
             </List>
         </form>
       </Block>

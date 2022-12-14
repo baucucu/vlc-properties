@@ -1,11 +1,10 @@
-import React, {useEffect,useState} from 'react';
+import React, {useEffect,useState, useRef} from 'react';
 import {f7, Page, Navbar, PhotoBrowser, Block, List, ListItem, ListInput,ListButton, Button, NavRight, Icon, useStore, Popup, Row, Col } from 'framework7-react';
 import { PickerInline,PickerDropPane, PickerOverlay   } from 'filestack-react';
 
 const TenantsPage = () => {
   const tenants = useStore('tenants')
-  const [popupOpen, setPopupOpen] = useState(false)
-  
+  const [popupOpen, setPopupOpen] = useState(false)  
   
   function handleClose(){
     setPopupOpen(false)
@@ -26,7 +25,7 @@ const TenantsPage = () => {
     };
 
     function handleSave() {
-      f7.store.dispatch('addTenant',formData)
+      f7.store.dispatch('addTenant',[...formData, uploads])
       handleClose()
     }
     function handleChange(){
@@ -40,6 +39,7 @@ const TenantsPage = () => {
       console.log({emptyFields})
       if(emptyFields.length === 0){setCanSave(true)} else {setCanSave(false)}
     }, [formData])
+    useEffect(() => {console.log({uploads})},[uploads])
     
     return(
       <Page>
@@ -52,51 +52,55 @@ const TenantsPage = () => {
           </NavRight>
         </Navbar>
         <form id="newTenantForm" className="form-store-data">
-          <Block>
+          <>
             <Row>
               <Col>
                 <List noHairlines>
-                  <ListItem >
-                      <h2 slot="header">Contact details</h2>
-                  </ListItem> 
-                  <ListInput name="name" label="Name" onChange={handleChange} >
-                  </ListInput>
-                  <ListInput name="phone" label="Phone"  onChange={handleChange}>
-                  </ListInput>
-                  <ListInput name="email" label="Email"  onChange={handleChange}>
-                  </ListInput>
-                  <ListInput name="address" label="Permanent address" onChange={handleChange}>
-                  </ListInput>
+                  <ListInput name="name" label="Name" onChange={handleChange} />
+                  <ListInput name="phone" label="Phone"  onChange={handleChange} />
+                  
                 </List>
               </Col>
               <Col>
                 <Block>
                   <List noHairlines>
-                    <ListItem >
-                        <h2 slot="header">ID</h2>
-                    </ListItem>
                     <ListInput 
                         name="idNumber"
                         label="ID number"
                         onChange={handleChange}
-                    >
-                    </ListInput>
-                    <PhotoBrowser photos={uploads.map(file => file.url)} ref={standalone} />    
+                    />
+                    <ListInput name="email" label="Email"  onChange={handleChange} />
+                    
                   </List>
                 </Block>
               </Col>
             </Row>
-            <Button onClick={()=> setPickerOpen(true)}>Upload files</Button>
-              {pickerOpen && <PickerInline 
+            <Row>
+              <Col>
+                <List noHairlines>
+                  <ListInput name="address" label="Permanent address" onChange={handleChange} />
+                </List>
+              </Col>
+            </Row>
+            <List noHairlines>
+              <ListItem >
+                  <h2 slot="header">Files</h2>
+              </ListItem>
+              {uploads.map(file => <ListItem key={file.handle} mediaItem title={file.filename}>
+                {file.url ? <img src={file.url} width={40} slot="media"/> : <Icon material="file"/>}
+              </ListItem>)}
+            </List>
+            <Button onClick={()=> setPickerOpen(true)}>Add files</Button>
+            {pickerOpen && <PickerInline 
                 apikey={import.meta.env.VITE_FILESTACK_KEY}
-                // onSuccess={(res) => console.log(res)}
+                pickerOptions={{}}
                 onUploadDone={(res) => {
-                  console.log(res);
-                  setUploads(res.filesUploaded)
-                  setPickerOpen(false)
-                }}
-              />}
-            <List>
+                console.log(res);
+                setUploads([...uploads,...res.filesUploaded])
+                setPickerOpen(false)
+              }}
+            />}
+            <List noHairlines>
               <ListItem >
                   <h2 slot="header">Notes</h2>
               </ListItem>
@@ -110,7 +114,7 @@ const TenantsPage = () => {
                   <Icon material="notes" slot="media"/>  
               </ListInput>
             </List>
-          </Block>
+          </>
         </form>
       </Page>
     )

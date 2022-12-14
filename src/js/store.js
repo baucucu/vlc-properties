@@ -93,7 +93,8 @@ const store = createStore({
               "Email":data.email,
               "Permanent address": data.address,
               "Passport / ID number": data.idNumber,
-              "Notes": data.notes
+              "Notes": data.notes,
+              "Files": data.uploads.map(file => ({url: file.url}))
             }
           }
         ]
