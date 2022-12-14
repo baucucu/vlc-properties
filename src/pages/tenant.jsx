@@ -4,13 +4,15 @@ import store from '../js/store';
 
 const TenantPage = ({f7route}) => {
   const tenants = useStore('tenants')
-  
-  const [tenant,setTenant] = useState(tenants.filter(item => item.id === f7route.params.id)[0])
+  console.log({f7route})
+  const [tenant, setTenant] = useState(tenants.filter(item => item.id === f7route.params.id)[0])
   const [formData, setFormData] = useState()
   const [readOnly, setReadOnly] = useState(true)
+  
   useEffect(() => {
     setTenant(tenants.filter(item => item.id === f7route.params.id)[0])
   },[tenants])
+
   useEffect(() => {
     setFormData({
         phone: tenant.Phone,
@@ -26,6 +28,7 @@ const TenantPage = ({f7route}) => {
   
   const handleSave = () => {
     let data = f7.form.getFormData('#tenantForm')
+    console.log({data})
     if(JSON.stringify(data) !== JSON.stringify(formData)){
         store.dispatch('saveTenant',{recordId: tenant.id, ...data, name:tenant.Name})
     }
