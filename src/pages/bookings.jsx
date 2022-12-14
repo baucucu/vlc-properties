@@ -291,19 +291,19 @@ const BookingsPage = () => {
                       
                       <Chip 
                         text={tenant.Name} 
-                        media="Te"
-                        mediaBgColor="deeppurple"
+                        media="T"
+                        mediaBgColor="black"
                       >  
                       </Chip>
                       <Chip 
                         text={`${property.Name} - ${unit.Name}`} 
-                        media="Pr"
-                        mediaBgColor="deeporange"
+                        media="P"
+                        mediaBgColor="black"
                       >  
                       </Chip>
                       <Chip 
                         text={`${dayjs(booking["Check in"]).format("D MMM YY")} to ${dayjs(booking["Check out"]).format("D MMM YY")}`} 
-                        color="teal"
+                        // color="teal"
                         // mediaBgColor="orange"
                       >  
                       </Chip>
@@ -313,12 +313,12 @@ const BookingsPage = () => {
                   text={
                     <div style={{display:"flex", gap:4, marginTop: 16}}>
                       <Badge
-                        color='black'
+                        color='gray'
                       >
                         {booking.Channel}
                       </Badge>
                       <Badge
-                        color='red'
+                        color='gray'
                       >
                         {booking.Type}
                       </Badge>
@@ -329,8 +329,8 @@ const BookingsPage = () => {
                       <Chip
                         text={booking["Contract status"] || "N/A"}
                         // color={booking["Contract status"] === "Signed" ? "teal" : "red"}
-                        media="Co"
-                        // mediaBgColor='gray'
+                        media="C"
+                        mediaBgColor='black'
                       >
                       </Chip>
                       
