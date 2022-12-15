@@ -162,7 +162,7 @@ const ExpensesPage = () => {
                 label="Category"
                 onChange={handleChange}
               >
-                {settings.expenseCategories.map(category => <option key={category} value={category}>{category}</option>)}
+                {settings.expenseCategories.values.map(category => <option key={category} value={category}>{category}</option>)}
               </ListInput>
             </List>
           </Col>

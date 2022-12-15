@@ -182,35 +182,38 @@ const store = createStore({
     },
     async saveExpenses({ state, dispatch }, data) {
       f7.preloader.show()
-      let records = Array(data.formData.length / 5).fill({
-        fields: {
-          Amount: null,
-          Expense: null,
-          Date: null,
-          Property: null,
-          Category: null
-        }
-      })
+      let payload = {
+        records: Array(data.formData.length / 5).fill({
+          fields: {
+            Amount: null,
+            Expense: null,
+            Date: null,
+            Property: null,
+            Category: null
+          }
+        }),
+        typecast: true
+      }
       data.formData.forEach(item => {
-        if (!records[item.index]) {
+        if (!payload.records[item.index]) {
           records[item.index] = {}
         }
         switch (item.property) {
           case 'amount':
-            records[item.index].fields.Amount = Number(item.value)
+            payload.records[item.index].fields.Amount = Number(item.value)
           case 'date':
-            records[item.index].fields.Date = item.value
+            payload.records[item.index].fields.Date = item.value
           case 'property':
-            records[item.index].fields.Property = [item.value]
+            payload.records[item.index].fields.Property = [item.value]
           case 'category':
-            records[item.index].fields.Category = item.value
+            payload.records[item.index].fields.Category = item.value
           case 'description':
-            records[item.index].fields.Expense = item.value
+            payload.records[item.index].fields.Expense = item.value
           default:
             return;
         }
       })
-      await createRecords('Expenses', { records })
+      await createRecords('Expenses', payload)
         .then(() => {
           f7.preloader.hide()
           dispatch('getExpenses')
