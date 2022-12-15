@@ -10,23 +10,68 @@ const SettingsPage = () => {
     }, {})
     const [editedProperties, setEditedProperties] = useState(initialProperties)
     const [editChannels, setEditChannels] = useState(false)
+    const [editedChannels, setEditedChannels] = useState(settings.channels.values)
+    const [canSaveChannels, setCanSaveChannels] = useState(false)
+    const [nOfChannels, setNofChannels] = useState(editedChannels.length)
+    const [editedCategories, setEditedCategories] = useState(settings.expenseCategories.values)
     const [editCategories, setEditCategories] = useState(false)
+    const [canSaveCategories, setCanSaveCategories] = useState(false)
+    const [nOfCategories, setNofCategories] = useState(editedCategories.length)
     const [popupOpen, setPopupOpen] = useState(false)
 
     function handleAddProperty() { setPopupOpen(true) }
     function handleClose() { setPopupOpen(false) }
     function handleSaveProperties() {
-        console.log(JSON.stringify(editedProperties))
-        console.log(JSON.stringify(initialProperties))
+        // console.log(JSON.stringify(editedProperties))
+        // console.log(JSON.stringify(initialProperties))
         if (JSON.stringify(editedProperties) !== JSON.stringify(initialProperties)) {
-            console.log('saving properties')
+            // console.log('saving properties')
             f7.store.dispatch('saveProperties', editedProperties)
         }
         setEditProperties(false)
     }
+
+    function handleAddChannel() {
+        setNofChannels(nOfChannels + 1)
+    }
+    function handleChannelEdit({ name, index }) {
+        let temp = editedChannels
+        editedChannels[index] = name
+        setEditedChannels([...temp])
+    }
+    function handleSaveChannels() {
+        f7.store.dispatch('saveSettings', { id: settings.channels.id, values: editedChannels })
+        setEditChannels(false)
+        setCanSaveChannels(false)
+    }
+
+    function handleAddCategory() {
+        setNofCategories(nOfCategories + 1)
+    }
+    function handleCategoryEdit({ name, index }) {
+        let temp = editedCategories
+        editedCategories[index] = name
+        setEditedCategories([...temp])
+    }
+    function handleSaveCategories() {
+        f7.store.dispatch('saveSettings', { id: settings.expenseCategories.id, values: editedCategories })
+        setEditCategories(false)
+        setCanSaveCategories(false)
+    }
+
     useEffect(() => {
-        console.log({ editedProperties })
-    }, [editedProperties])
+        setCanSaveChannels(
+            editedChannels.every(item => item.length > 3) &&
+            editedChannels !== settings.channels.values
+        )
+    }, [editedChannels])
+
+    useEffect(() => {
+        setCanSaveCategories(
+            editedCategories.every(item => item?.length > 3) &&
+            editedCategories !== settings.expenseCategories.values
+        )
+    }, [editedCategories])
 
     const AddProperty = () => {
         const [canSave, setCanSave] = useState(false)
@@ -40,7 +85,6 @@ const SettingsPage = () => {
         }
 
         useEffect(() => {
-            console.log({ property })
             if (property?.name?.length > 3) {
                 setCanSave(true)
             }
@@ -95,12 +139,12 @@ const SettingsPage = () => {
                         <ListItem >
                             <h3 slot="header">Booking channels</h3>
                             <div style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
-                                {editChannels && <Button ><Icon material="save" /></Button>}
-                                {editChannels && <Button ><Icon material="add" /></Button>}
-                                {editChannels || <Button ><Icon material="edit" /></Button>}
+                                {canSaveChannels && <Button onClick={() => handleSaveChannels()}><Icon material="save" /></Button>}
+                                {editChannels && <Button onClick={() => handleAddChannel()}><Icon material="add" /></Button>}
+                                {editChannels || <Button onClick={() => setEditChannels(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {settings.channels.map((item, index) => <ListInput key={item} name={"channel." + index} readonly={!editChannels} defaultValue={item} />)}
+                        {[...Array(nOfChannels).keys()].map((index) => <ListInput key={index} name={"channel." + index} onChange={(e) => handleChannelEdit({ name: e.target.value, index })} readonly={!editChannels} defaultValue={editedChannels[index]} />)}
                     </List>
                 </form>
                 <form>
@@ -108,12 +152,12 @@ const SettingsPage = () => {
                         <ListItem >
                             <h3 slot="header">Expense categories</h3>
                             <div style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
-                                {editCategories && <Button ><Icon material="save" /></Button>}
-                                {editCategories && <Button ><Icon material="add" /></Button>}
-                                {editCategories || <Button ><Icon material="edit" /></Button>}
+                                {canSaveCategories && <Button onClick={() => handleSaveCategories()}><Icon material="save" /></Button>}
+                                {editCategories && <Button onClick={() => handleAddCategory()}><Icon material="add" /></Button>}
+                                {editCategories || <Button onClick={() => setEditCategories(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {settings.expenseCategories.map((item, index) => <ListInput key={item} name={"expenseCategory." + index} readonly={!editCategories} defaultValue={item} />)}
+                        {[...Array(nOfCategories).keys()].map((index) => <ListInput key={index} name={"expenseCategory." + index} onChange={(e) => handleCategoryEdit({ name: e.target.value, index })} readonly={!editCategories} defaultValue={editedCategories[index]} />)}
                     </List>
                 </form>
             </Block>

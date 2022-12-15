@@ -49,12 +49,28 @@ const store = createStore({
     async getSettings({ state, dispatch }) {
       f7.preloader.show()
       const data = await getRecords('Settings')
-      console.log({ settings: data })
       data.map(item => {
-        state.settings[item.Name] = item.Values
+        state.settings[item.Name] = { id: item.id, values: item.Values }
       })
       f7.preloader.hide()
       dispatch('getProperties')
+    },
+    async saveSettings({ state, dispatch }, { id, values }) {
+      console.log({ received: { id, values } })
+      f7.preloader.show()
+      const payload = {
+        records: [{
+          id,
+          fields: {
+            Values: values
+          }
+        }],
+        typecast: true
+      }
+      const update = await updateRecords('Settings', payload)
+      console.log({ update })
+      f7.preloader.hide()
+      dispatch('getSettings')
     },
     async getProperties({ state, dispatch }) {
       f7.preloader.show()
@@ -63,7 +79,6 @@ const store = createStore({
       dispatch('getUnits')
     },
     async addProperty({ state, dispatch }, property) {
-      console.log({ received: property })
       f7.preloader.show()
       let payload = {
         records: [{
@@ -71,7 +86,6 @@ const store = createStore({
         }]
       }
       let newProperty = await createRecords("Properties", payload)
-      console.log({ newProperty })
       payload = {
         records: Array.of(property.rooms).map((item, index) => ({
           fields: {
@@ -80,14 +94,11 @@ const store = createStore({
           }
         }))
       }
-      console.log({ payload })
-      let newUnits = await createRecords('Units', payload)
-      console.log({ newUnits })
+      await createRecords('Units', payload)
       f7.preloader.hide()
       f7.dispatch('getProperties')
     },
     async saveProperties({ state, dispatch }, properties) {
-      console.log({ received: properties })
       f7.preloader.show()
       let payload = {
         records: Object.keys(properties).map(id => ({
@@ -97,9 +108,7 @@ const store = createStore({
           }
         }))
       }
-      console.log({ payload })
-      let update = await updateRecords('Properties', payload)
-      console.log({ update })
+      await updateRecords('Properties', payload)
       f7.preloader.hide()
       dispatch('getProperties')
     },
@@ -131,7 +140,6 @@ const store = createStore({
           }
         ]
       }
-      console.log({ payload })
       await createRecords('Tenants', payload)
       f7.preloader.show()
       dispatch('getTenants')
@@ -154,7 +162,6 @@ const store = createStore({
           }
         ]
       }
-      console.log({ payload })
       await updateRecords('Tenants', payload)
       f7.preloader.show()
       dispatch('getTenants')
@@ -170,7 +177,6 @@ const store = createStore({
     },
     async saveExpenses({ state, dispatch }, data) {
       f7.preloader.show()
-      console.log("expenses received: ", { data })
       let records = Array(data.formData.length / 5).fill({
         fields: {
           Amount: null,
@@ -199,7 +205,6 @@ const store = createStore({
             return;
         }
       })
-      console.log({ records })
       await createRecords('Expenses', { records })
         .then(() => {
           f7.preloader.hide()
@@ -219,15 +224,12 @@ const store = createStore({
       dispatch('getSelected')
     },
     async getBooking({ state, dispatch }, id) {
-      console.log("getBooking", { id })
       f7.preloader.show()
       state.booking = state.bookings.filter(booking => booking.id === id)[0]
       f7.preloader.hide()
     },
     async addBooking({ state, dispatch }, data) {
       let formData = f7.form.getFormData('#addNewBooking')
-      console.log({ formData })
-      console.log({ received: data })
       f7.preloader.show()
       let payload = {
         records: [{
@@ -244,16 +246,12 @@ const store = createStore({
           }
         }]
       }
-      console.log({ payload })
       const newBooking = await createRecords('Bookings', payload)
-      console.log({ newBooking })
       f7.preloader.show()
       dispatch('getBookings')
     },
     async saveBooking({ state, dispatch }, data) {
       let formData = f7.form.getFormData('#bookingForm')
-      console.log({ formData })
-      console.log({ received: data })
       f7.preloader.show()
       let payload = {
         records: [
@@ -274,9 +272,7 @@ const store = createStore({
           }
         ]
       }
-      console.log({ payload })
       const update = await updateRecords('Bookings', payload)
-      console.log({ update })
       f7.preloader.show()
       dispatch('getBookings')
     },
