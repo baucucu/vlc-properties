@@ -62,6 +62,47 @@ const store = createStore({
       f7.preloader.hide()
       dispatch('getUnits')
     },
+    async addProperty({ state, dispatch }, property) {
+      console.log({ received: property })
+      f7.preloader.show()
+      let payload = {
+        records: [{
+          fields: { Name: property.name }
+        }]
+      }
+      let newProperty = await createRecords("Properties", payload)
+      console.log({ newProperty })
+      payload = {
+        records: Array.of(property.rooms).map((item, index) => ({
+          fields: {
+            Name: `Room ${index + 1}`,
+            Property: [newProperty.data.records[0].id]
+          }
+        }))
+      }
+      console.log({ payload })
+      let newUnits = await createRecords('Units', payload)
+      console.log({ newUnits })
+      f7.preloader.hide()
+      f7.dispatch('getProperties')
+    },
+    async saveProperties({ state, dispatch }, properties) {
+      console.log({ received: properties })
+      f7.preloader.show()
+      let payload = {
+        records: Object.keys(properties).map(id => ({
+          id,
+          fields: {
+            Name: properties[id]
+          }
+        }))
+      }
+      console.log({ payload })
+      let update = await updateRecords('Properties', payload)
+      console.log({ update })
+      f7.preloader.hide()
+      dispatch('getProperties')
+    },
     async getUnits({ state, dispatch }) {
       f7.preloader.show()
       state.units = await getRecords('Units')
