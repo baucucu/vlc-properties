@@ -5,9 +5,10 @@ const SettingsPage = () => {
     const settings = useStore('settings');
     const properties = useStore('properties');
     const [editProperties, setEditProperties] = useState(false)
-    const [editedProperties, setEditedProperties] = useState(properties.reduce((acc, property) => {
+    const initialProperties = properties.reduce((acc, property) => {
         return { ...acc, [property.id]: property.Name }
-    }, {}))
+    }, {})
+    const [editedProperties, setEditedProperties] = useState(initialProperties)
     const [editChannels, setEditChannels] = useState(false)
     const [editCategories, setEditCategories] = useState(false)
     const [popupOpen, setPopupOpen] = useState(false)
@@ -15,7 +16,13 @@ const SettingsPage = () => {
     function handleAddProperty() { setPopupOpen(true) }
     function handleClose() { setPopupOpen(false) }
     function handleSaveProperties() {
-        f7.store.dispatch('saveProperties', editedProperties)
+        console.log(JSON.stringify(editedProperties))
+        console.log(JSON.stringify(initialProperties))
+        if (JSON.stringify(editedProperties) !== JSON.stringify(initialProperties)) {
+            console.log('saving properties')
+            f7.store.dispatch('saveProperties', editedProperties)
+        }
+        setEditProperties(false)
     }
     useEffect(() => {
         console.log({ editedProperties })
