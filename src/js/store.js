@@ -3,6 +3,7 @@ import { createStore } from 'framework7/lite';
 import { f7 } from 'framework7-react'
 import { getRecords, updateRecords, createRecords } from '../utils/airtable';
 import currency from 'currency.js';
+import dayjs from 'dayjs';
 
 const store = createStore({
   state: {
@@ -85,9 +86,9 @@ const store = createStore({
           fields: { Name: property.name }
         }]
       }
-      console.log({ payload })
+      // console.log({ payload })
       let newProperty = await createRecords("Properties", payload)
-      console.log({ newProperty })
+      // console.log({ newProperty })
       payload = {
         records: [...Array(property.rooms).keys()].map((item, index) => ({
           fields: {
@@ -96,8 +97,9 @@ const store = createStore({
           }
         }))
       }
-      console.log({ payload })
+      // console.log({ payload })
       const units = await createRecords('Units', payload)
+      // console.log({units})
       f7.preloader.hide()
       dispatch('getProperties')
     },

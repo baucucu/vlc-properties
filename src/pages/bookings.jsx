@@ -147,7 +147,7 @@ const BookingsPage = () => {
               <Col>
                 <List noHairlines>
                   <ListInput name='channel' type="select" label="Channel" onChange={handleChange} disabled={readOnly}>
-                    {settings.channels.map(item => (<option key={item} value={item}>{item}</option>))}
+                    {settings.channels.values.map(item => (<option key={item} value={item}>{item}</option>))}
                   </ListInput>
                 </List>
               </Col>
@@ -314,16 +314,16 @@ const BookingsPage = () => {
                     </div>
                   }
                   text={<Badge color="black">{booking.Channel}</Badge>}
-                  after={
-                    <div style={{ display: "flex", flexDirection: "row-reverse", gap: 16 }}>
-                      <Chip
-                        text={booking["Contract status"] || "N/A"}
-                        media="C"
-                        mediaBgColor='black'
-                      >
-                      </Chip>
-                    </div>
-                  }
+                // after={
+                //   <div style={{ display: "flex", flexDirection: "row-reverse", gap: 16 }}>
+                //     <Chip
+                //       text={booking["Contract status"] || "N/A"}
+                //       media="C"
+                //       mediaBgColor='black'
+                //     >
+                //     </Chip>
+                //   </div>
+                // }
 
                 >
                 </ListItem>

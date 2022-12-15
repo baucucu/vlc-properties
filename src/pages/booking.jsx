@@ -46,8 +46,6 @@ const BookingPage = () => {
     deposit: currency(booking["Deposit"], { symbol: '€', decimal: ',', separator: '.' }).format(),
     duration: booking["Duration"],
     durationUnits: booking["Duration units"],
-    contractStatus: booking["Contract status"],
-    contractURL: booking["Contract URL"],
     totalRevenue: currency(booking["Total revenue"], { symbol: '€', decimal: ',', separator: '.' }).format(),
   }
 
@@ -117,18 +115,8 @@ const BookingPage = () => {
             <Col>
               <List noHairlines>
                 <ListInput name='channel' type="select" label="Channel" disabled={readOnly}>
-                  {settings.channels.map(item => (<option key={item} value={item}>{item}</option>))}
+                  {settings.channels.values.map(item => (<option key={item} value={item}>{item}</option>))}
                 </ListInput>
-              </List>
-            </Col>
-            <Col>
-              <List noHairlines>
-                <ListInput name='contractStatus' label="Contract status" disabled />
-              </List>
-            </Col>
-            <Col>
-              <List noHairlines>
-                <ListInput name='contractURL' label="Contract URL" disabled />
               </List>
             </Col>
           </Row>
