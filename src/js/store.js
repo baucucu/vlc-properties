@@ -242,12 +242,12 @@ const store = createStore({
       let payload = {
         records: [{
           fields: {
-            "Check in": new Date(data.checkIn),
-            "Check out": new Date(data.checkOut),
+            "Check in": dayjs(new Date(data.checkIn)).format('YYYY-MM-DD'),
+            "Check out": dayjs(new Date(data.checkOut)).format('YYYY-MM-DD'),
             "Tenant": [data.tenant],
             "Unit": [data.unit],
-            "Rent": currency(data.rent),
-            "Deposit": currency(data.deposit),
+            "Rent": currency(data.rent, { symbol: '€', decimal: ',', separator: '.' }),
+            "Deposit": currency(data.deposit, { symbol: '€', decimal: ',', separator: '.' }),
             "Channel": data.channel,
             "Type": data.type,
             "Notes": data.notes
@@ -272,15 +272,15 @@ const store = createStore({
               "Unit": [data.unit],
               "Notes": data.notes,
               "Channel": data.channel,
-              "Rent": currency(data.rent),
-              "Deposit": currency(data.deposit),
-              "Check in": new Date(data.checkIn),
-              "Check out": new Date(data.checkOut)
-            },
-            typecast: true
+              "Rent": currency(data.rent, { symbol: '€', decimal: ',', separator: '.' }),
+              "Deposit": currency(data.deposit, { symbol: '€', decimal: ',', separator: '.' }),
+              "Check in": dayjs(new Date(data.checkIn)).format('YYYY-MM-DD'),
+              "Check out": dayjs(new Date(data.checkOut)).format('YYYY-MM-DD')
+            }
           }
         ]
       }
+      console.log({ payload })
       const update = await updateRecords('Bookings', payload)
       f7.preloader.show()
       dispatch('getBookings')
