@@ -242,8 +242,8 @@ const store = createStore({
       let payload = {
         records: [{
           fields: {
-            "Check in": dayjs(data.checkIn).format('DD/MM/YYYY'),
-            "Check out": dayjs(data.checkOut).format('DD/MM/YYYY'),
+            "Check in": new Date(data.checkIn),
+            "Check out": new Date(data.checkOut),
             "Tenant": [data.tenant],
             "Unit": [data.unit],
             "Rent": currency(data.rent),
@@ -274,8 +274,8 @@ const store = createStore({
               "Channel": data.channel,
               "Rent": currency(data.rent),
               "Deposit": currency(data.deposit),
-              "Check in": dayjs(data.checkIn).format('DD/MM/YYYY'),
-              "Check out": dayjs(data.checkOut).format('DD/MM/YYYY')
+              "Check in": new Date(data.checkIn),
+              "Check out": new Date(data.checkOut)
             },
             typecast: true
           }
