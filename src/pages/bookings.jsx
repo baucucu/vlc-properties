@@ -40,6 +40,9 @@ const BookingsPage = () => {
     const handlePropertyChange = ({ id }) => {
       setSelectedProperty(id)
     }
+    const handleUnitChange = ({ id }) => {
+
+    }
 
     useEffect(() => { console.log({ settings }) }, [])
 
