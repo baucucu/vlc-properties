@@ -272,8 +272,8 @@ const store = createStore({
               "Unit": [data.unit],
               "Notes": data.notes,
               "Channel": data.channel,
-              "Rent": currency(data.rent) / 100,
-              "Deposit": currency(data.deposit) / 100,
+              "Rent": currency(data.rent),
+              "Deposit": currency(data.deposit),
               "Check in": dayjs(data.checkIn).format('YYYY-MM-DD'),
               "Check out": dayjs(data.checkOut).format('YYYY-MM-DD')
             },
