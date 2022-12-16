@@ -242,8 +242,8 @@ const store = createStore({
       let payload = {
         records: [{
           fields: {
-            "Check in": data.checkIn,
-            "Check out": data.checkOut,
+            "Check in": dayjs(data.checkIn).format('YYYY-MM-DD'),
+            "Check out": dayjs(data.checkOut).format('YYYY-MM-DD'),
             "Tenant": [data.tenant],
             "Unit": [data.unit],
             "Rent": currency(data.rent),
