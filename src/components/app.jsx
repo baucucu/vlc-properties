@@ -28,6 +28,7 @@ import {
 import routes from '../js/routes';
 import store from '../js/store';
 import LoginPage from '../pages/login';
+import { logout } from '../utils/firebase'
 
 const MyApp = () => {
 
@@ -41,6 +42,8 @@ const MyApp = () => {
     routes: routes,
   };
 
+  const [selected, setSelected] = useState('properties')
+
   useEffect(() => {
     store.dispatch('getSettings');
   }, [])
@@ -53,21 +56,39 @@ const MyApp = () => {
         <View>
           <Page>
             <Navbar title="VLC Properties" />
-            <List>
-              <ListItem link="/" view=".view-main" title="Properties" noChevron>
+            <List menuList noHairlines>
+              <ListItem link="/" view=".view-main" title="Properties" noChevron
+                selected={selected === 'properties'}
+                onClick={() => setSelected('properties')}
+              >
                 <Icon slot="media" material="home"></Icon>
               </ListItem>
-              <ListItem link="/expenses/" view=".view-main" p title="Expenses" noChevron >
+              <ListItem link="/expenses/" view=".view-main" p title="Expenses" noChevron
+                selected={selected === 'expenses'}
+                onClick={() => setSelected('expenses')}
+              >
                 <Icon slot="media" material="money_off"></Icon>
               </ListItem>
-              <ListItem link="/bookings/" view=".view-main" p title="Bookings" noChevron >
+              <ListItem link="/bookings/" view=".view-main" p title="Bookings" noChevron
+                selected={selected === 'bookings'}
+                onClick={() => setSelected('bookings')}
+              >
                 <Icon slot="media" material="card_travel"></Icon>
               </ListItem>
-              <ListItem link="/tenants/" view=".view-main" p title="Tenants" noChevron>
+              <ListItem link="/tenants/" view=".view-main" p title="Tenants" noChevron
+                selected={selected === 'tenants'}
+                onClick={() => setSelected('tenants')}
+              >
                 <Icon slot="media" material="person_search"></Icon>
               </ListItem>
-              <ListItem link="/settings/" view=".view-main" p title="Settings" noChevron>
+              <ListItem link="/settings/" view=".view-main" p title="Settings" noChevron
+                selected={selected === 'settings'}
+                onClick={() => setSelected('settings')}
+              >
                 <Icon slot="media" material="settings"></Icon>
+              </ListItem>
+              <ListItem link="#" view=".view-main" p title="Log out" noChevron onClick={() => logout()}>
+                <Icon slot="media" material="logout"></Icon>
               </ListItem>
             </List>
           </Page>
