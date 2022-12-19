@@ -16,7 +16,6 @@ import {
   Link,
   Block,
   BlockTitle,
-  LoginScreen,
   LoginScreenTitle,
   List,
   ListItem,
@@ -26,10 +25,9 @@ import {
   useStore,
   Preloader
 } from 'framework7-react';
-
-
 import routes from '../js/routes';
 import store from '../js/store';
+import LoginPage from '../pages/login';
 
 const MyApp = () => {
 
@@ -78,6 +76,7 @@ const MyApp = () => {
 
       {/* Your main view, should have "view-main" class */}
       <View main className="safe-areas" url="/" />
+      <LoginPage />
 
     </App>
   )

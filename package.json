@@ -30,6 +30,7 @@
     "dom7": "^4.0.4",
     "filestack-js": "^3.25.0",
     "filestack-react": "^4.0.1",
+    "firebase": "^9.15.0",
     "framework7": "^7.0.9",
     "framework7-icons": "^5.0.5",
     "framework7-react": "^7.0.9",
@@ -38,6 +39,7 @@
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-firebase-hooks": "^5.1.1",
     "skeleton-elements": "^4.0.1",
     "swiper": "^8.4.5"
   },
