@@ -53,6 +53,8 @@ const ExpensesPage = () => {
         })
       })
     setEvents(evs)
+    const ss = f7.smartSelect.get('.smart-select')
+    ss.setValue(selected)
 
   }, [selected])
 
@@ -200,7 +202,7 @@ const ExpensesPage = () => {
           <Block>
             <List>
               <ListItem title="Filter properties" smartSelect smartSelectParams={{ openIn: 'popover' }} >
-                <select className="filter" name="filter" multiple defaultValue={selected}>
+                <select className="filter" name="filter" multiple>
                   {properties.map(item => <option key={item.docId} value={item.docId}>{item.name}</option>)}
                 </select>
               </ListItem>
