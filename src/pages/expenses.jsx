@@ -33,6 +33,7 @@ const ExpensesPage = () => {
       setSelected(options)
     })
   }, [])
+  useEffect(() => { console.log({ events }) }, [events])
 
   useEffect(() => {
     console.log({ selected })
