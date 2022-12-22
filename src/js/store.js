@@ -83,7 +83,7 @@ const store = createStore({
       })
     },
     async createOne({ state, dispatch }, { collectionName, payload }) {
-      // console.log({ received: { collectionName, payload } })
+      console.log({ received: { collectionName, payload } })
       return await createOne(collectionName, payload)
     },
     setSelected({ state }, options) {

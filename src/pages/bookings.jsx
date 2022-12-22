@@ -1,26 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { f7, Page, Input, Navbar, Block, List, ListItem, useStore, Chip, Badge, Button, Popup, NavRight, Icon, Row, Col, ListInput, ListButton } from 'framework7-react';
+import { f7, Page, Navbar, Block, List, ListItem, useStore, Chip, Badge, Button, Popup, NavRight, Icon, Row, Col, ListInput, ListButton } from 'framework7-react';
 import dayjs from 'dayjs';
-import { PickerInline, PickerDropPane, PickerOverlay } from 'filestack-react';
+import { PickerInline } from 'filestack-react';
 import useFirestoreListener from "react-firestore-listener"
-
+import { doc, arrayUnion } from 'firebase/firestore'
+import { db } from '../utils/firebase'
 
 
 const BookingsPage = () => {
   const settings = useFirestoreListener({ collection: "settings" })
   const properties = useFirestoreListener({ collection: "properties" })
-  const tennants = useFirestoreListener({ collection: "tennants" })
+  const tenants = useFirestoreListener({ collection: "tenants" })
   const units = useFirestoreListener({ collection: "units" })
   const bookings = useFirestoreListener({ collection: "bookings" })
 
   const [popupOpen, setPopupOpen] = useState(false)
-  const [tennantPopupOpen, setTennantPopupOpen] = useState(false)
+  const [tenantPopupOpen, setTenantPopupOpen] = useState(false)
 
   function handleClose() {
     setPopupOpen(false)
   }
-  function handletennantClose() {
-    setTennantPopupOpen(false)
+  function handletenantClose() {
+    setTenantPopupOpen(false)
   }
 
   function AddBooking({ handleClose }) {
@@ -30,8 +31,42 @@ const BookingsPage = () => {
     const [canSave, setCanSave] = useState(false)
     let [formData, setFormData] = useState({})
 
-    function handleSave() {
-      f7.store.dispatch('addBooking', formData)
+    async function handleSave() {
+      console.log({ formData })
+      let payload = {
+        channel: formData.channel,
+        deposit: Number(formData.deposit),
+        rent: Number(formData.rent),
+        notes: formData.notes,
+        date: new Date(),
+        checkIn: new Date(formData.checkIn),
+        checkOut: new Date(formData.checkOut),
+        tenant: doc(db, 'tenants', formData.tenant),
+        unit: doc(db, 'units', formData.unit),
+        property: doc(db, 'properties', formData.property)
+      }
+      console.log({ payload })
+      f7.store.dispatch('createOne', { collectionName: 'bookings', payload }).then(ref => {
+        payload = {
+          bookings: arrayUnion(ref)
+        }
+        f7.store.dispatch('updateOne', { collectionName: 'tenants', id: formData.tenant, payload })
+      })
+      let increment = dayjs(formData.checkOut).diff(dayjs(formData.checkIn), 'day') < 30 ? 'day' : 'month'
+      let day = formData.checkIn
+      do {
+        payload = {
+          tenant: doc(db, 'tenants', formData.tenant),
+          unit: doc(db, 'units', formData.unit),
+          property: doc(db, 'properties', formData.property),
+          amount: Number(formData.rent),
+          date: new Date(day)
+        }
+        // debugger;
+        f7.store.dispatch('createOne', { collectionName: 'revenue', payload })
+        day = dayjs(day).add(1, increment)
+      } while (dayjs(day).isBefore(dayjs(formData.checkOut)))
+
       handleClose()
     }
     function handleChange() {
@@ -47,11 +82,11 @@ const BookingsPage = () => {
     useEffect(() => { console.log({ settings }) }, [])
 
     useEffect(() => {
-      console.log({ popupOpen, tennantPopupOpen })
-    }, [popupOpen, tennantPopupOpen])
+      console.log({ popupOpen, tenantPopupOpen })
+    }, [popupOpen, tenantPopupOpen])
 
     useEffect(() => {
-      setSelectableUnits(units.filter(unit => unit["Property"][0] === selectedProperty))
+      setSelectableUnits(units.filter(unit => unit.property.id === selectedProperty))
     }, [selectedProperty])
 
     useEffect(() => {
@@ -76,10 +111,10 @@ const BookingsPage = () => {
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="tennant" label="tennant" type='select' onChange={handleChange} disabled={readOnly}>
-                    {tennants.map(tennant => (<option key={tennant.id} value={tennant.id}>{tennant.Name}</option>))}
+                  <ListInput name="tenant" label="tenant" type='select' onChange={handleChange} disabled={readOnly}>
+                    {tenants.map(tenant => (<option key={tenant.docId} value={tenant.docId}>{tenant.name}</option>))}
                   </ListInput>
-                  <ListButton onClick={() => { setTennantPopupOpen(true) }}>Add new tennant</ListButton>
+                  <ListButton onClick={() => { setTenantPopupOpen(true) }}>Add new tenant</ListButton>
                 </List>
               </Col>
               <Col>
@@ -89,7 +124,7 @@ const BookingsPage = () => {
               <Col small>
                 <List noHairlines>
                   <ListInput name="property" label="Property" type='select' onChange={(e) => handlePropertyChange({ id: e.target.value })} disabled={readOnly}>
-                    {properties.map(property => (<option key={property.id} value={property.id} >{property.Name}</option>))}
+                    {properties.map(property => (<option key={property.docId} value={property.docId} >{property.name}</option>))}
                   </ListInput>
                 </List>
               </Col>
@@ -98,7 +133,7 @@ const BookingsPage = () => {
                   <ListInput name="unit" label="Room" type='select' onChange={(e) => handleUnitChange({ id: e.target.value })} disabled={readOnly}>
                     {
                       selectedProperty && selectableUnits
-                        .map(unit => (<option key={unit.id} value={unit.id}>{unit.Name}</option>))
+                        .map(unit => (<option key={unit.docId} value={unit.docId}>{unit.name}</option>))
                     }
                   </ListInput>
                 </List>
@@ -137,12 +172,12 @@ const BookingsPage = () => {
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="rent" label="Rent" onChange={handleChange} disabled={readOnly} />
+                  <ListInput name="rent" type="number" label="Rent" onChange={handleChange} disabled={readOnly} />
                 </List>
               </Col>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="deposit" label="Deposit" onChange={handleChange} disabled={readOnly} />
+                  <ListInput name="deposit" type="number" label="Deposit" onChange={handleChange} disabled={readOnly} />
                 </List>
               </Col>
             </Row>
@@ -166,6 +201,7 @@ const BookingsPage = () => {
                 resizable
                 placeholder="Enter notes here"
                 disabled={readOnly}
+                onChange={handleChange}
               >
                 <Icon material="notes" slot="media" />
               </ListInput>
@@ -179,18 +215,23 @@ const BookingsPage = () => {
     )
   }
 
-  function Addtennant({ handletennantClose }) {
+  function AddTenant({ handletenantClose }) {
     const [canSave, setCanSave] = useState(false)
     const [formData, setFormData] = useState({})
     const [pickerOpen, setPickerOpen] = useState(false)
     const [uploads, setUploads] = useState([])
 
     function handleSave() {
-      f7.store.dispatch('addtennant', { ...formData, uploads })
-      handletennantClose()
+      console.log({ formData, uploads })
+      let payload = {
+        ...formData,
+        uploads
+      }
+      f7.store.dispatch('createOne', { collectionName: 'tenants', payload })
+      handletenantClose()
     }
     function handleChange() {
-      let data = f7.form.convertToData('#newBookingtennantForm')
+      let data = f7.form.convertToData('#newBookingtenantForm')
       console.log({ data })
       setFormData(data)
     }
@@ -203,15 +244,15 @@ const BookingsPage = () => {
 
     return (
       <Page>
-        <Navbar title="Add new tennant">
+        <Navbar title="Add new tenant">
           {canSave && <Button onClick={handleSave}><Icon material='save' /></Button>}
           <NavRight>
-            <Button onClick={handletennantClose}>
+            <Button onClick={handletenantClose}>
               <Icon material="close"></Icon>
             </Button>
           </NavRight>
         </Navbar>
-        <form id="newBookingtennantForm" className="form-store-data">
+        <form id="newBookingtenantForm" className="form-store-data">
           <Block>
             <Row>
               <Col>
@@ -288,7 +329,7 @@ const BookingsPage = () => {
         <List mediaList>
           {
             bookings.map(booking => {
-              let tennant = tennants.filter(tennant => tennant.docId === booking.tennant.id)[0]
+              let tenant = tenants.filter(tenant => tenant.docId === booking.tenant.id)[0]
               let property = properties.filter(property => property.docId === booking.property.id)[0]
               let unit = units.filter(unit => unit.docId === booking.unit.id)[0]
               return (
@@ -299,25 +340,39 @@ const BookingsPage = () => {
                     <div style={{ display: "flex", gap: 16 }}>
 
                       <Chip
-                        text={tennant.name}
-                        media="T"
+                        text={tenant?.name}
+                        // media="T"
                         mediaBgColor="black"
+                        iconMaterial='person'
+                        iconF7='person'
+                        iconAurora='person'
+                        iconIos='person'
                       >
                       </Chip>
                       <Chip
-                        text={`${property.Name} - ${unit.Name}`}
-                        media="P"
+                        text={`${property.name} - ${unit.name}`}
+                        // media="P"
                         mediaBgColor="black"
+                        iconMaterial='business'
+                        // iconF7='building'
+                        iconAurora='building'
+                      // iconIos='building'
+                      // iconColor='white'
                       >
                       </Chip>
                       <Chip
-                        text={`${dayjs(booking["Check in"]).format("D MMM YY")} to ${dayjs(booking["Check out"]).format("D MMM YY")}`}
+                        text={`${dayjs(booking.checkIn.toDate()).format("D MMM YY")} to ${dayjs(booking.checkOut.toDate()).format("D MMM YY")}`}
+                        mediaBgColor="black"
+                        iconMaterial='calendar'
+                        iconF7='person'
+                        iconAurora='person'
+                        iconIos='person'
                       >
                       </Chip>
 
                     </div>
                   }
-                  text={<Badge color="black">{booking.Channel}</Badge>}
+                  text={<Badge color="black">{booking.channel}</Badge>}
                 // after={
                 //   <div style={{ display: "flex", flexDirection: "row-reverse", gap: 16 }}>
                 //     <Chip
@@ -346,13 +401,13 @@ const BookingsPage = () => {
         <AddBooking handleClose={handleClose} />
       </Popup>
       <Popup
-        className="newtennant"
-        opened={tennantPopupOpen}
-        onPopupClosed={handletennantClose}
-        onPopupSwipeClose={handletennantClose}
-        onPopupClose={handletennantClose}
+        className="newtenant"
+        opened={tenantPopupOpen}
+        onPopupClosed={handletenantClose}
+        onPopupSwipeClose={handletenantClose}
+        onPopupClose={handletenantClose}
       >
-        <Addtennant handletennantClose={handletennantClose} />
+        <AddTenant handletenantClose={handletenantClose} />
       </Popup>
     </Page>
   );

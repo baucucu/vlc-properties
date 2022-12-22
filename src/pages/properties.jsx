@@ -17,7 +17,7 @@ function PropertiesPage({ f7router }) {
   const units = useFirestoreListener({ collection: "units" })
   const bookings = useFirestoreListener({ collection: "bookings" })
   const revenue = useFirestoreListener({ collection: "revenue" })
-  const tennants = useFirestoreListener({ collection: "tennants" })
+  const tenants = useFirestoreListener({ collection: "tenants" })
 
   const [resources, setResources] = useState([]);
   const [events, setEvents] = useState([]);
@@ -34,16 +34,16 @@ function PropertiesPage({ f7router }) {
   function getMonthlyFinance() {
     // debugger;
     const monthlyExpenses = expenses
-      .filter(item => dayjs(item.date.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
+      .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const ytdExpenses = expenses
-      .filter(item => dayjs(item.date.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
+      .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const monthlyRevenue = revenue
-      .filter(item => dayjs(item.date.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
+      .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const ytdRevenue = revenue
-      .filter(item => dayjs(item.date.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
+      .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const monthlyProfit = monthlyRevenue - monthlyExpenses
     const ytdProfit = ytdRevenue - ytdExpenses
@@ -140,9 +140,9 @@ function PropertiesPage({ f7router }) {
     setEvents(bookings.map(booking => {
       return ({
         id: booking.docId,
-        title: tennants.filter(tennant => tennant.docId === booking.tennant.id)[0].name,
+        title: tenants.filter(tenant => tenant.docId === booking.tenant.id)[0].name,
         start: dayjs(booking.checkIn.toDate()).format('YYYY-MM-DD'),
-        end: dayjs(booking.checkIn.toDate()).format('YYYY-MM-DD'),
+        end: dayjs(booking.checkOut.toDate()).format('YYYY-MM-DD'),
         allDay: true,
         resourceId: booking.unit.id,
         // color: booking.Type === 'Monthly' ? 'teal' : 'purple'
