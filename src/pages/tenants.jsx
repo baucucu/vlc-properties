@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { f7, Page, Navbar, PhotoBrowser, Block, List, ListItem, ListInput, ListButton, Button, NavRight, Icon, useStore, Popup, Row, Col } from 'framework7-react';
-import { PickerInline, PickerDropPane, PickerOverlay } from 'filestack-react';
+import { f7, Page, Navbar, Block, List, ListItem, ListInput, Button, NavRight, Icon, useStore, Popup, Row, Col } from 'framework7-react';
+import { PickerInline } from 'filestack-react';
+import useFirestoreListener from "react-firestore-listener"
+
 
 const TenantsPage = () => {
-  const tenants = useStore('tenants')
+  const tenants = useFirestoreListener({ collection: "tenants" })
   const [popupOpen, setPopupOpen] = useState(false)
 
   function handleClose() {
@@ -17,7 +19,7 @@ const TenantsPage = () => {
     const [uploads, setUploads] = useState([])
 
     function handleSave() {
-      f7.store.dispatch('addTenant', { ...formData, uploads })
+      f7.store.dispatch('createOne', { collectionName: "tenants", payload: { ...formData, uploads } })
       handleClose()
     }
     function handleChange() {
@@ -114,7 +116,7 @@ const TenantsPage = () => {
       </Navbar>
       <Block>
         <List>
-          {tenants.map(tenant => (<ListItem key={tenant.id} link={`/tenants/${tenant.id}`} title={tenant.Name}>
+          {tenants.map(tenant => (<ListItem key={tenant.docId} link={`/tenants/${tenant.docId}`} title={tenant.name}>
 
           </ListItem>))}
         </List>
