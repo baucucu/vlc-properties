@@ -220,7 +220,7 @@ const ExpensesPage = () => {
             <List>
               <ListItem title="Filter properties" smartSelect id="propertiesFilter" smartSelectParams={{ openIn: 'popover' }} >
                 <select className="filter" name="filter" multiple >
-                  {properties.map(item => <option key={item.docId} value={item.docId}>{item.name}</option>)}
+                  {_.sortBy(properties, item => item.name).map(item => <option key={item.docId} value={item.docId}>{item.name}</option>)}
                 </select>
               </ListItem>
             </List>

@@ -10,6 +10,7 @@ dayjs.extend(isBetween);
 dayjs.extend(minMax);
 import currency from 'currency.js';
 import useFirestoreListener from "react-firestore-listener"
+import _ from 'lodash'
 
 function PropertiesPage({ f7router }) {
   const properties = useFirestoreListener({ collection: "properties" })
@@ -120,20 +121,23 @@ function PropertiesPage({ f7router }) {
 
 
   useEffect(() => {
-    setResources(units.map(unit => {
-      let { property_revenue, property_expenses, property_profit, unit_revenue, booked_days } = getUnitData(unit.docId, unit.property.id)
-      return ({
-        id: unit.docId,
-        unit: unit.name,
-        property: properties.filter(property => property.docId === unit.property.id)[0].name,
-        property_revenue,
-        property_expenses,
-        property_profit,
-        unit_revenue,
-        booked_days,
-        // occupancy
-      })
-    }))
+    console.log({ units })
+    units.length > 0 && setResources(
+      _.sortBy(units, (item => { return Number(item.name.substring(5, item.name.length)) }))
+        .map(unit => {
+          let { property_revenue, property_expenses, property_profit, unit_revenue, booked_days } = getUnitData(unit.docId, unit.property.id)
+          return ({
+            id: unit.docId,
+            unit: unit.name,
+            property: properties.filter(property => property.docId === unit.property.id)[0].name,
+            property_revenue,
+            property_expenses,
+            property_profit,
+            unit_revenue,
+            booked_days,
+            // occupancy
+          })
+        }))
   }, [month, bookings])
 
   useEffect(() => {

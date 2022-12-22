@@ -171,7 +171,7 @@ const SettingsPage = () => {
                                 {editProperties || <Button onClick={() => setEditProperties(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {editedProperties.map(item => (
+                        {_.sortBy(editedProperties, item => item.name).map(item => (
                             <ListInput key={item.id} name={item.name} readonly={!editProperties}
                                 defaultValue={item.name}
                                 onChange={(e) => handlePropertyChange({ id: item.id, name: e.target.value })}
@@ -188,7 +188,7 @@ const SettingsPage = () => {
                                 {editChannels || <Button onClick={() => setEditChannels(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {editedChannels.map((channel, index) => <ListInput key={index} name={"channel." + index} onChange={(e) => handleChannelEdit({ name: e.target.value, index })} readonly={!editChannels} defaultValue={channel} />)}
+                        {_.sortBy(editedChannels, item => item).map((channel, index) => <ListInput key={index} name={"channel." + index} onChange={(e) => handleChannelEdit({ name: e.target.value, index })} readonly={!editChannels} defaultValue={channel} />)}
                     </List>
                     <List noHairlines>
                         <ListItem >
@@ -199,7 +199,7 @@ const SettingsPage = () => {
                                 {editCategories || <Button onClick={() => setEditCategories(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {editedCategories.map((category, index) => <ListInput key={index} name={"expenseCategory." + index} onChange={(e) => handleCategoryEdit({ name: e.target.value, index })} readonly={!editCategories} defaultValue={category} />)}
+                        {_.sortBy(editedCategories, item => item).map((category, index) => <ListInput key={index} name={"expenseCategory." + index} onChange={(e) => handleCategoryEdit({ name: e.target.value, index })} readonly={!editCategories} defaultValue={category} />)}
                     </List>
                 </form>
             </Block>

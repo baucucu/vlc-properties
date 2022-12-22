@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { f7, Page, Navbar, Block, List, ListItem, ListInput, Button, NavRight, Icon, useStore, Popup, Row, Col } from 'framework7-react';
 import { PickerInline } from 'filestack-react';
 import useFirestoreListener from "react-firestore-listener"
+import _ from 'lodash';
 
 
 const TenantsPage = () => {
@@ -116,7 +117,7 @@ const TenantsPage = () => {
       </Navbar>
       <Block>
         <List>
-          {tenants.map(tenant => (<ListItem key={tenant.docId} link={`/tenants/${tenant.docId}`} title={tenant.name}>
+          {_.sortBy(tenants, item => item.name).map(tenant => (<ListItem key={tenant.docId} link={`/tenants/${tenant.docId}`} title={tenant.name}>
 
           </ListItem>))}
         </List>
