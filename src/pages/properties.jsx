@@ -11,8 +11,6 @@ dayjs.extend(minMax);
 import currency from 'currency.js';
 import useFirestoreListener from "react-firestore-listener"
 
-
-
 function PropertiesPage({ f7router }) {
   const properties = useFirestoreListener({ collection: "properties" })
   const expenses = useFirestoreListener({ collection: "expenses" })

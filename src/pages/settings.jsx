@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Page, Navbar, Button, Block, List, ListItem, ListInput, Stepper, Icon, useStore, Popup, NavRight, f7 } from 'framework7-react';
-import _, { initial } from 'lodash'
-import store from '../js/store';
+import { Page, Navbar, Button, Block, List, ListItem, ListInput, Stepper, Icon, Popup, NavRight, f7 } from 'framework7-react';
+import _ from 'lodash'
 import { createOne, updateOne } from '../utils/firebase';
 import { doc } from 'firebase/firestore'
 import { db } from '../utils/firebase'
+import useFirestoreListener from "react-firestore-listener"
+
 
 const SettingsPage = () => {
-    const settings = useStore('settings');
-    const properties = useStore('properties');
-    // debugger;
+    const properties = useFirestoreListener({ collection: "properties" })
+    const settings = useFirestoreListener({ collection: "settings" })
+
     const [editProperties, setEditProperties] = useState(false)
-    const initialProperties = [...Object.keys(properties).map(key => ({ id: key, name: properties[key].name }))]
-    const [editedProperties, setEditedProperties] = useState(initialProperties)
+    const [editedProperties, setEditedProperties] = useState([])
+
     const [editChannels, setEditChannels] = useState(false)
-    const [editedChannels, setEditedChannels] = useState(settings.channels.values)
+    const [editedChannels, setEditedChannels] = useState([])
     const [canSaveChannels, setCanSaveChannels] = useState(false)
-    const [editedCategories, setEditedCategories] = useState(settings.expenseCategories.values)
+
+    const [editedCategories, setEditedCategories] = useState([])
     const [editCategories, setEditCategories] = useState(false)
     const [canSaveCategories, setCanSaveCategories] = useState(false)
+
     const [popupOpen, setPopupOpen] = useState(false)
 
     function handleAddProperty() { setPopupOpen(true) }
@@ -36,9 +39,10 @@ const SettingsPage = () => {
         setEditedProperties(prev => ([...update]))
     }
     function handleSaveProperties() {
-        console.log({ initialProperties, editedProperties })
+        console.log({ editedProperties })
+        const initialProperties = properties.map(item => ({ id: item.docId, name: item.name }))
         if (!_.isEqual(initialProperties, editedProperties)) {
-            // console.log("saving")
+            console.log("saving")
             let update = editedProperties.map(property => ({
                 id: property.id,
                 name: property.name
@@ -73,7 +77,7 @@ const SettingsPage = () => {
         setCanSaveChannels(
             editChannels &&
             editedChannels.every((channel, index) => channel.length > 3) &&
-            !editedChannels.every((channel, index) => channel === settings.channels[index])
+            !_.isEqual(editedChannels, settings.filter(item => item.docId === 'çhannels')[0])
         )
     }, [editedChannels])
 
@@ -82,13 +86,18 @@ const SettingsPage = () => {
         setCanSaveCategories(
             editCategories &&
             editedCategories.every(category => category.length > 3) &&
-            !editedCategories.every((category, index) => category === settings.expenseCategories[index])
+            !_.isEqual(editedCategories, settings.filter(item => item.docId === 'expenseCategories')[0])
         )
     }, [editedCategories])
 
     useEffect(() => {
-        setEditedProperties([...Object.keys(properties).map(key => ({ id: key, name: properties[key].name }))])
+        setEditedProperties([...properties.map(item => ({ id: item.docId, name: item.name }))])
     }, [properties])
+
+    useEffect(() => {
+        setEditedChannels(settings.filter(item => item.docId === 'channels')[0]?.values || [])
+        setEditedCategories(settings.filter(item => item.docId === 'expenseCategories')[0]?.values || [])
+    }, [settings])
 
     const AddProperty = () => {
         const [canSave, setCanSave] = useState(false)
@@ -162,14 +171,13 @@ const SettingsPage = () => {
                                 {editProperties || <Button onClick={() => setEditProperties(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {editedProperties.map(prop => (
-                            <ListInput key={prop.id} name={prop.name} readonly={!editProperties}
-                                defaultValue={prop.name}
-                                onChange={(e) => handlePropertyChange({ id: prop.id, name: e.target.value })}
+                        {editedProperties.map(item => (
+                            <ListInput key={item.id} name={item.name} readonly={!editProperties}
+                                defaultValue={item.name}
+                                onChange={(e) => handlePropertyChange({ id: item.id, name: e.target.value })}
                             >
                             </ListInput>
                         ))}
-
                     </List>
                     <List noHairlines>
                         <ListItem >
