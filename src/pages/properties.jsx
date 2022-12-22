@@ -141,8 +141,8 @@ function PropertiesPage({ f7router }) {
       return ({
         id: booking.docId,
         title: tenants.filter(tenant => tenant.docId === booking.tenant.id)[0].name,
-        start: dayjs(booking.checkIn.toDate()).format('YYYY-MM-DD'),
-        end: dayjs(booking.checkOut.toDate()).format('YYYY-MM-DD'),
+        start: dayjs(booking.checkIn.toDate()).format('DD.MM.YYYY'),
+        end: dayjs(booking.checkOut.toDate()).format('DD.MM.YYYY'),
         allDay: true,
         resourceId: booking.unit.id,
         // color: booking.Type === 'Monthly' ? 'teal' : 'purple'

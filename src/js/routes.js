@@ -58,23 +58,8 @@ var routes = [
     component: SettingsPage
   },
   {
-    path: '/bookings/:bookingId',
-    async: function ({ router, to, resolve }) {
-      const app = router.app;
-
-      // Show Preloader
-      app.preloader.show();
-
-      // User ID from request
-      const { bookingId } = to.params;
-      app.preloader.hide();
-      f7.store.dispatch("getBooking", bookingId)
-      resolve(
-        {
-          component: BookingPage,
-        }
-      );
-    },
+    path: '/bookings/:id',
+    component: BookingPage,
   },
   {
     path: '/expenses/',

@@ -108,7 +108,7 @@ const ExpensesPage = () => {
   }
 
   const ExpenseRow = ({ index, handleChange }) => {
-    const today = dayjs().format('YYYY-MM-DD')
+    const today = dayjs().format('DD.MM.YYYY')
     return (
       <Block>
         <h4>Expense #{index + 1}</h4>

@@ -1,35 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { Page, Navbar, Block, BlockTitle, List, ListItem, useStore, Row, Col, ListInput, Icon, Button, f7, NavRight } from 'framework7-react';
 import store from '../js/store';
-import { PickerInline, PickerDropPane, PickerOverlay } from 'filestack-react';
+import { PickerInline } from 'filestack-react';
+import useFirestoreListener from "react-firestore-listener"
 
 
 const TenantPage = ({ f7route }) => {
-  const tenants = useStore('tenants')
+  const tenants = useFirestoreListener({ collection: "tenants" })
   const [readOnly, setReadOnly] = useState(true)
-  const tenant = tenants.filter(item => item.id === f7route.params.id)[0]
-  const [pickerOpen, setPickerOpen] = useState(false)
-  const [uploads, setUploads] = useState(tenant.Files || [])
+  const [tenant, setTenant] = useState()
   console.log({ tenant })
-  const initialData = {
-    name: tenant.Name,
-    phone: tenant.Phone,
-    email: tenant.Email,
-    address: tenant["Permanent address"],
-    idNumber: tenant["Passport / ID number"],
-    notes: tenant.Notes,
-    // idFile: tenant["Passport / ID file"][0].url
-  }
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [uploads, setUploads] = useState(tenant?.uploads || [])
+  console.log({ tenant })
+
   useEffect(() => {
-    console.log({ f7route })
-    f7.form.fillFromData("#tenantForm", initialData)
-  }, [])
+    setTenant(tenants.filter(item => item.docId === f7route.params.id)[0])
+  }, [tenants])
+
+  useEffect(() => {
+    f7.form.fillFromData("#tenantForm", tenant)
+    setUploads(tenant?.uploads || [])
+  }, [tenant])
 
   const handleSave = () => {
-    let data = f7.form.getFormData('#tenantForm')
+    let data = f7.form.convertToData('#tenantForm')
     console.log({ data })
-    if (JSON.stringify(data) !== JSON.stringify(initialData)) {
-      store.dispatch('saveTenant', { recordId: tenant.id, ...data, name: tenant.Name, uploads })
+    if (JSON.stringify(data) !== JSON.stringify(tenant)) {
+      setUploads(tenant.up)
+      store.dispatch('updateOne', { collectionName: 'tenants', id: tenant.docId, payload: { ...data, uploads } })
     }
     setReadOnly(true)
   }
@@ -41,14 +40,14 @@ const TenantPage = ({ f7route }) => {
 
   return (
     <Page>
-      <Navbar title={tenant.Name} backLink style={{ gap: 16 }}>
+      <Navbar title={tenant?.name} backLink style={{ gap: 16 }}>
         {readOnly && <Button onClick={() => setReadOnly(false)}><Icon material='edit' /></Button>}
         {readOnly || <Button small onClick={handleSave}><Icon material='save' /></Button>}
         {readOnly || <NavRight>
           <Button small onClick={handleCancel}><Icon material='close' /></Button>
         </NavRight>}
       </Navbar>
-      <Block>
+      {tenant && <Block>
         <form id="tenantForm" className="form-store-data">
           <Row>
             <Col>
@@ -79,7 +78,7 @@ const TenantPage = ({ f7route }) => {
               </List>
             </Col>
           </Row>
-          {uploads.length > 0 && <List noHairlines>
+          {uploads?.length > 0 && <List noHairlines>
             <ListItem >
               <h2 slot="header">Files</h2>
             </ListItem>
@@ -112,7 +111,7 @@ const TenantPage = ({ f7route }) => {
             </ListInput>
           </List>
         </form>
-      </Block>
+      </Block>}
     </Page>
   );
 }
