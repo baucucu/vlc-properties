@@ -6,6 +6,8 @@ import currency from 'currency.js';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import useFirestoreListener from "react-firestore-listener"
+import { doc, arrayUnion } from 'firebase/firestore'
+import { db } from '../utils/firebase'
 
 const ExpensesPage = () => {
   const properties = useFirestoreListener({ collection: "properties" })
@@ -59,14 +61,26 @@ const ExpensesPage = () => {
     const ss = f7.smartSelect.get('.smart-select')
     ss.setValue(selected)
 
-  }, [selected])
+  }, [selected, expenses])
 
   function AddExpenses({ handleClose }) {
     const [rows, setRows] = useState(1)
     const [canSave, setCanSave] = useState(false)
     let [formData, setFormData] = useState([])
+
     function handleSave() {
-      f7.store.dispatch('saveExpenses', { formData })
+      console.log({ formData })
+      let group = _.groupBy(formData, 'index')
+      let payloads = Object.keys(group)
+        .map(index => {
+          let payload = {}
+          group[index].forEach(el => {
+            payload[el.property] = el.property === 'property' ? doc(db, 'properties', el.value) : el.property === 'date' ? new Date(el.value) : el.property === 'amount' ? Number(el.value) : el.value
+          })
+          return payload
+        })
+      console.log({ group, payloads })
+      payloads.map(payload => f7.store.dispatch('createOne', { collectionName: 'expenses', payload }))
       handleClose()
     }
     function handleChange() {
