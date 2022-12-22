@@ -18,6 +18,7 @@ import currency from 'currency.js';
 import useFirestoreListener from "react-firestore-listener"
 import { doc, arrayUnion } from 'firebase/firestore'
 import { db } from '../utils/firebase'
+import _ from 'lodash'
 
 
 const BookingPage = ({ f7route }) => {
@@ -83,7 +84,7 @@ const BookingPage = ({ f7route }) => {
       tenant: doc(db, 'tenants', selectedTenant),
     }
     console.log({ payload })
-    // f7.store.dispatch('updateOne', { collectionName: 'bookings', id: booking.docId, payload })
+    f7.store.dispatch('updateOne', { collectionName: 'bookings', id: booking.docId, payload })
     setReadOnly(true)
   }
 
@@ -112,6 +113,7 @@ const BookingPage = ({ f7route }) => {
   useEffect(() => {
     console.log("selectedProperty changed: ", { selectedProperty })
     setSelectableUnits(units.filter(unit => unit.property.id === selectedProperty))
+    setSelectedUnit(selectableUnits[0])
   }, [selectedProperty])
 
   return (
@@ -185,21 +187,21 @@ const BookingPage = ({ f7route }) => {
             </Col>
             <Col small>
               <List noHairlines>
-                <ListInput name="property" label="Property" type='select' onChange={(e) => handlePropertyChange({ id: e.target.value })} disabled={readOnly}>
+                <ListInput name="property" label="Property" type='select' defaultValue={booking.property.id} onChange={(e) => handlePropertyChange({ id: e.target.value })} disabled={readOnly}>
                   {properties.map(property => (<option key={property.docId} value={property.docId} >{property.name}</option>))}
                 </ListInput>
               </List>
             </Col>
             <Col small>
               <List noHairlines>
-                <ListInput name="unit" label="Room" type='select' onChange={(e) => handleUnitChange({ id: e.target.value })} disabled={readOnly}>
-                  {selectableUnits.map(unit => (<option key={unit.docId} value={unit.docId}>{unit.name}</option>))}
+                <ListInput name="unit" label="Room" type='select' defaultValue={booking.unit.id} onChange={(e) => handleUnitChange({ id: e.target.value })} disabled={readOnly}>
+                  {_.sortBy(selectableUnits, item => item.name).map(unit => (<option key={unit.docId} value={unit.docId}>{unit.name}</option>))}
                 </ListInput>
               </List>
             </Col>
             <Col small>
               <List noHairlines>
-                <ListInput name="tenant" label="Tenant" type='select' onChange={(e) => handleTenantChange({ id: e.target.value })} disabled={readOnly}>
+                <ListInput name="tenant" label="Tenant" type='select' defaultValue={booking.tenant.id} onChange={(e) => handleTenantChange({ id: e.target.value })} disabled={readOnly}>
                   {tenants.map(tenant => (<option key={tenant.docId} value={tenant.docId}>{tenant.name}</option>))}
                 </ListInput>
               </List>
