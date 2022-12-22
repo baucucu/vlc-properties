@@ -168,7 +168,7 @@ const ExpensesPage = () => {
                 label="Property"
                 onChange={handleChange}
               >
-                {properties.map(item => <option key={item.docId} value={item.docId}>{item.name}</option>)}
+                {_.sortBy(properties, item => item.name).map(item => <option key={item.docId} value={item.docId}>{item.name}</option>)}
               </ListInput>
             </List>
           </Col>
@@ -184,8 +184,8 @@ const ExpensesPage = () => {
                 label="Category"
                 onChange={handleChange}
               >
-                {settings.filter(item => item.docId === 'expenseCategories')[0]
-                  ?.values.map(category => <option key={category} value={category}>{category}</option>)}
+                {_.sortBy(settings.filter(item => item.docId === 'expenseCategories')[0]?.values, item => item)
+                  .map(category => <option key={category} value={category}>{category}</option>)}
               </ListInput>
             </List>
           </Col>

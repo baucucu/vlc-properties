@@ -5,6 +5,7 @@ import { PickerInline } from 'filestack-react';
 import useFirestoreListener from "react-firestore-listener"
 import { doc, arrayUnion } from 'firebase/firestore'
 import { db } from '../utils/firebase'
+import _ from 'lodash';
 
 
 const BookingsPage = () => {
@@ -112,19 +113,25 @@ const BookingsPage = () => {
               <Col small>
                 <List noHairlines>
                   <ListInput name="tenant" label="tenant" type='select' onChange={handleChange} disabled={readOnly}>
-                    {tenants.map(tenant => (<option key={tenant.docId} value={tenant.docId}>{tenant.name}</option>))}
+                    {_.sortBy(tenants, item => item.name).map(tenant => (<option key={tenant.docId} value={tenant.docId}>{tenant.name}</option>))}
                   </ListInput>
                   <ListButton onClick={() => { setTenantPopupOpen(true) }}>Add new tenant</ListButton>
                 </List>
               </Col>
               <Col>
+                <List noHairlines>
+                  <ListInput name='channel' type="select" label="Channel" onChange={handleChange} disabled={readOnly}>
+                    {_.sortBy(settings.filter(item => item.docId === 'channels')[0]?.values, item => item)
+                      .map(item => (<option key={item} value={item}>{item}</option>))}
+                  </ListInput>
+                </List>
               </Col>
             </Row>
             <Row>
               <Col small>
                 <List noHairlines>
                   <ListInput name="property" label="Property" type='select' onChange={(e) => handlePropertyChange({ id: e.target.value })} disabled={readOnly}>
-                    {properties.map(property => (<option key={property.docId} value={property.docId} >{property.name}</option>))}
+                    {_.sortBy(properties, item => item.name).map(property => (<option key={property.docId} value={property.docId} >{property.name}</option>))}
                   </ListInput>
                 </List>
               </Col>
@@ -132,7 +139,7 @@ const BookingsPage = () => {
                 <List noHairlines>
                   <ListInput name="unit" label="Room" type='select' onChange={(e) => handleUnitChange({ id: e.target.value })} disabled={readOnly}>
                     {
-                      selectedProperty && selectableUnits
+                      selectedProperty && _.sortBy(selectableUnits, item => Number(item.name.substring(5, item.name.length)))
                         .map(unit => (<option key={unit.docId} value={unit.docId}>{unit.name}</option>))
                     }
                   </ListInput>
@@ -178,16 +185,6 @@ const BookingsPage = () => {
               <Col small>
                 <List noHairlines>
                   <ListInput name="deposit" type="number" label="Deposit" onChange={handleChange} disabled={readOnly} />
-                </List>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <List noHairlines>
-                  <ListInput name='channel' type="select" label="Channel" onChange={handleChange} disabled={readOnly}>
-                    {settings.filter(item => item.docId === 'channels')[0]
-                      ?.values.map(item => (<option key={item} value={item}>{item}</option>))}
-                  </ListInput>
                 </List>
               </Col>
             </Row>
@@ -328,7 +325,7 @@ const BookingsPage = () => {
       <Block>
         <List mediaList>
           {
-            bookings.map(booking => {
+            _.sortBy(bookings, item => item.date).map(booking => {
               let tenant = tenants.filter(tenant => tenant.docId === booking.tenant.id)[0]
               let property = properties.filter(property => property.docId === booking.property.id)[0]
               let unit = units.filter(unit => unit.docId === booking.unit.id)[0]
