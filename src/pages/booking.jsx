@@ -37,8 +37,8 @@ const BookingPage = ({ f7route }) => {
   useEffect(() => {
     console.log({ bookings })
     let temp = bookings.filter(item => item.docId === f7route.params.id)?.[0]
-    setBooking(temp)
-  }, [bookings])
+    settings.length > 0 && setBooking(temp)
+  }, [bookings, settings])
 
   useEffect(() => {
     console.log({ units })
@@ -122,7 +122,7 @@ const BookingPage = ({ f7route }) => {
         {readOnly || <NavRight><Button small onClick={handleCancel} ><Icon material='close' /></Button></NavRight>}
       </Navbar>
 
-      {settings.length > 0 && booking && <Block>
+      {booking && <Block>
         <form id="bookingForm" className="form-store-data"><h2 slot="header">Details</h2>
           <Row>
             <Col>
