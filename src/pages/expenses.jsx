@@ -27,9 +27,11 @@ const ExpensesPage = () => {
   }, [properties])
 
   useEffect(() => {
-    const ss = f7.smartSelect.get('.smart-select')
+    const ss = f7.smartSelect.get('#propertiesFilter > .smart-select')
+    // const ss = f7.smartSelect.get('#propertiesFilter')
     ss.on('close', function (el) {
       let options = Array.from(el.selectEl.selectedOptions).map(option => option.value)
+      console.log({ options })
       setSelected(options)
     })
   }, [])
@@ -202,8 +204,8 @@ const ExpensesPage = () => {
         <Col>
           <Block>
             <List>
-              <ListItem title="Filter properties" smartSelect smartSelectParams={{ openIn: 'popover' }} >
-                <select className="filter" name="filter" multiple>
+              <ListItem title="Filter properties" smartSelect id="propertiesFilter" smartSelectParams={{ openIn: 'popover' }} >
+                <select className="filter" name="filter" multiple >
                   {properties.map(item => <option key={item.docId} value={item.docId}>{item.name}</option>)}
                 </select>
               </ListItem>
