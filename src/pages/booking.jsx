@@ -122,7 +122,7 @@ const BookingPage = ({ f7route }) => {
         {readOnly || <NavRight><Button small onClick={handleCancel} ><Icon material='close' /></Button></NavRight>}
       </Navbar>
 
-      {booking && <Block>
+      {settings.length > 0 && booking && <Block>
         <form id="bookingForm" className="form-store-data"><h2 slot="header">Details</h2>
           <Row>
             <Col>
