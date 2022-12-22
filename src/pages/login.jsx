@@ -13,7 +13,7 @@ const LoginPage = () => {
             // maybe trigger a loading screen
             return;
         }
-        console.log({ user })
+        // console.log({ user })
         if (!!user) {
             f7.loginScreen.close('#authScreen')
         } else {

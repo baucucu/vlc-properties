@@ -9,14 +9,17 @@ import minMax from 'dayjs/plugin/minMax';
 dayjs.extend(isBetween);
 dayjs.extend(minMax);
 import currency from 'currency.js';
+import useFirestoreListener from "react-firestore-listener"
 
-const PropertiesPage = ({ f7router }) => {
-  const properties = useStore('properties');
-  const units = useStore('units');
-  const bookings = useStore('bookings');
-  const revenue = useStore('revenue');
-  const expenses = useStore('expenses');
-  const tenants = useStore('tenants')
+
+
+function PropertiesPage({ f7router }) {
+  const properties = useFirestoreListener({ collection: "properties" })
+  const expenses = useFirestoreListener({ collection: "expenses" })
+  const units = useFirestoreListener({ collection: "units" })
+  const bookings = useFirestoreListener({ collection: "bookings" })
+  const revenue = useFirestoreListener({ collection: "revenue" })
+  const tennants = useFirestoreListener({ collection: "tennants" })
 
   const [resources, setResources] = useState([]);
   const [events, setEvents] = useState([]);
@@ -33,17 +36,17 @@ const PropertiesPage = ({ f7router }) => {
   function getMonthlyFinance() {
     // debugger;
     const monthlyExpenses = expenses
-      .filter(item => dayjs(item.Date).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
-      .reduce((partialSum, a) => partialSum + a.Amount, 0) || 0
+      .filter(item => dayjs(item.date.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
+      .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const ytdExpenses = expenses
-      .filter(item => dayjs(item.Date).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
-      .reduce((partialSum, a) => partialSum + a.Amount, 0) || 0
+      .filter(item => dayjs(item.date.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
+      .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const monthlyRevenue = revenue
-      .filter(item => dayjs(item.Date).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
-      .reduce((partialSum, a) => partialSum + a.Amount, 0) || 0
+      .filter(item => dayjs(item.date.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
+      .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const ytdRevenue = revenue
-      .filter(item => dayjs(item.Date).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
-      .reduce((partialSum, a) => partialSum + a.Amount, 0) || 0
+      .filter(item => dayjs(item.date.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
+      .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const monthlyProfit = monthlyRevenue - monthlyExpenses
     const ytdProfit = ytdRevenue - ytdExpenses
     setFinance({
@@ -58,29 +61,35 @@ const PropertiesPage = ({ f7router }) => {
 
   function getUnitData(unitId, propertyId) {
     let propertyRevenue = revenue
-      .filter(item => item.Property[0] === propertyId && `${dayjs(month, 'MM-YYYY').month()}${dayjs(month, 'MM-YYYY').year()}` === `${dayjs(item.Date, 'MM-YYYY').month()}${dayjs(item.Date, 'MM-YYYY').year()}`)
-      .map(item => ({ unit: item.Unit[0], amount: item.Amount }))
+      .filter(item => {
+        // debugger;
+        return (
+          item.property.id === propertyId &&
+          dayjs(month).month() === dayjs(item.date.toDate()).month() &&
+          dayjs(month).year() === dayjs(item.date.toDate()).year()
+        )
+      })
+      .map(item => ({ unit: item.unit.id, amount: item.amount }))
     let propertyRevenueAmount = propertyRevenue.reduce((partialSum, a) => partialSum + a.amount, 0)
-
     let unitRevenue = propertyRevenue.filter(item => item.unit === unitId)
     let unitRevenueAmount = unitRevenue.reduce((partialSum, a) => partialSum + a.amount, 0)
 
     let propertyExpenses = expenses
-      .filter(item => item.Property[0] === propertyId)
-      .filter(item => `${dayjs(month, 'MM-YYYY').month()}${dayjs(month, 'MM-YYYY').year()}` === `${dayjs(item.Date, 'MM-YYYY').month()}${dayjs(item.Date, 'MM-YYYY').year()}`)
-      .reduce((partialSum, a) => partialSum + a.Amount, 0)
-
+      .filter(item => item.property.id === propertyId)
+      .filter(item => dayjs(month).month() === dayjs(item.date.toDate()).month() && dayjs(month).year() === dayjs(item.date.toDate()).year())
+      .reduce((partialSum, a) => partialSum + a.amount, 0)
     let currentBookings = bookings
-      .filter(booking => booking.Unit[0] === unitId)
-      .filter(booking =>
-        dayjs(month).isBefore(dayjs(booking["Check in"])) && dayjs(month).endOf('month').isAfter(booking["Check in"]) ||
-        dayjs(month).isBefore(dayjs(booking["Check out"])) && dayjs(month).endOf('month').isAfter(booking["Check out"]) ||
-        dayjs(month).isBetween(booking["Check in"], booking["Check out"]) && dayjs(month).endOf('month').isBetween(booking["Check in"], booking["Check out"])
+      .filter(item => item.unit.id === unitId)
+      .filter(item =>
+        dayjs(month).isBefore(dayjs(item.checkIn.toDate())) && dayjs(month).endOf('month').isAfter(dayjs(item.checkIn.toDate)) ||
+        dayjs(month).isBefore(dayjs(item.checkOut.toDate())) && dayjs(month).endOf('month').isAfter(dayjs(item.checkOut.toDate())) ||
+        dayjs(month).isBetween(dayjs(item.checkIn.toDate()), dayjs(item.checkOut.toDate())) && dayjs(month).endOf('month').isBetween(dayjs(item.checkIn.toDate()), dayjs(item.checkOut.toDate()))
       )
+    // debugger;
     let booked_days = currentBookings
-      .map(booking => {
-        let start = dayjs.min(booking["Check out"], dayjs(month).endOf('month'))
-        let end = dayjs.max(booking["Check in"], dayjs(month))
+      .map(item => {
+        let start = dayjs.min(item.checkOut.toDate(), dayjs(month).endOf('month'))
+        let end = dayjs.max(item.checkIn.toDate(), dayjs(month))
         let res = dayjs(start).startOf('day').diff(dayjs(end).endOf('day'), 'day') + 1
         return res
       })
@@ -114,11 +123,11 @@ const PropertiesPage = ({ f7router }) => {
 
   useEffect(() => {
     setResources(units.map(unit => {
-      let { property_revenue, property_expenses, property_profit, unit_revenue, booked_days } = getUnitData(unit.id, unit.Property[0])
+      let { property_revenue, property_expenses, property_profit, unit_revenue, booked_days } = getUnitData(unit.docId, unit.property.id)
       return ({
-        id: unit.id,
-        unit: unit.Name,
-        property: properties.filter(property => property.id === unit.Property[0])[0].Name,
+        id: unit.docId,
+        unit: unit.name,
+        property: properties.filter(property => property.docId === unit.property.id)[0].name,
         property_revenue,
         property_expenses,
         property_profit,
@@ -130,21 +139,15 @@ const PropertiesPage = ({ f7router }) => {
   }, [month, bookings])
 
   useEffect(() => {
-    // console.log({properties})
-    // console.log({units})
-    // console.log(bookings)
-    // console.log({revenue})
-    // console.log({expenses})
-    // console.log({tenants})
     setEvents(bookings.map(booking => {
       return ({
-        id: booking.id,
-        title: booking.Booking,
-        start: booking["Check in"],
-        end: booking["Check out"],
+        id: booking.docId,
+        title: tennants.filter(tennant => tennant.docId === booking.tennant.id)[0].name,
+        start: dayjs(booking.checkIn.toDate()).format('YYYY-MM-DD'),
+        end: dayjs(booking.checkIn.toDate()).format('YYYY-MM-DD'),
         allDay: true,
-        resourceId: booking.Unit[0],
-        color: booking.Type === 'Monthly' ? 'teal' : 'purple'
+        resourceId: booking.unit.id,
+        // color: booking.Type === 'Monthly' ? 'teal' : 'purple'
       })
     }))
   }, [bookings])

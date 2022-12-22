@@ -67,7 +67,6 @@ var routes = [
 
       // User ID from request
       const { bookingId } = to.params;
-      console.log()
       app.preloader.hide();
       f7.store.dispatch("getBooking", bookingId)
       resolve(

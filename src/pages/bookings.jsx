@@ -2,29 +2,31 @@ import React, { useState, useEffect, useRef } from 'react';
 import { f7, Page, Input, Navbar, Block, List, ListItem, useStore, Chip, Badge, Button, Popup, NavRight, Icon, Row, Col, ListInput, ListButton } from 'framework7-react';
 import dayjs from 'dayjs';
 import { PickerInline, PickerDropPane, PickerOverlay } from 'filestack-react';
+import useFirestoreListener from "react-firestore-listener"
+
 
 
 const BookingsPage = () => {
-  const settings = useStore('settings')
-  const bookings = useStore('bookings')
-  const tenants = useStore('tenants')
-  const properties = useStore('properties')
-  const units = useStore('units')
+  const settings = useFirestoreListener({ collection: "settings" })
+  const properties = useFirestoreListener({ collection: "properties" })
+  const tennants = useFirestoreListener({ collection: "tennants" })
+  const units = useFirestoreListener({ collection: "units" })
+  const bookings = useFirestoreListener({ collection: "bookings" })
 
   const [popupOpen, setPopupOpen] = useState(false)
-  const [tenantPopupOpen, setTenantPopupOpen] = useState(false)
+  const [tennantPopupOpen, setTennantPopupOpen] = useState(false)
 
   function handleClose() {
     setPopupOpen(false)
   }
-  function handleTenantClose() {
-    setTenantPopupOpen(false)
+  function handletennantClose() {
+    setTennantPopupOpen(false)
   }
 
   function AddBooking({ handleClose }) {
     const [readOnly, setReadOnly] = useState(false)
-    const [selectedProperty, setSelectedProperty] = useState(properties.map(property => property.id)[0])
-    const [selectableUnits, setSelectableUnits] = useState(units.filter(unit => unit["Property"][0] === selectedProperty))
+    const [selectedProperty, setSelectedProperty] = useState(properties[0]?.docId)
+    const [selectableUnits, setSelectableUnits] = useState(units.filter(unit => unit?.property?.docId === selectedProperty))
     const [canSave, setCanSave] = useState(false)
     let [formData, setFormData] = useState({})
 
@@ -40,15 +42,13 @@ const BookingsPage = () => {
     const handlePropertyChange = ({ id }) => {
       setSelectedProperty(id)
     }
-    const handleUnitChange = ({ id }) => {
-
-    }
+    const handleUnitChange = ({ id }) => { }
 
     useEffect(() => { console.log({ settings }) }, [])
 
     useEffect(() => {
-      console.log({ popupOpen, tenantPopupOpen })
-    }, [popupOpen, tenantPopupOpen])
+      console.log({ popupOpen, tennantPopupOpen })
+    }, [popupOpen, tennantPopupOpen])
 
     useEffect(() => {
       setSelectableUnits(units.filter(unit => unit["Property"][0] === selectedProperty))
@@ -76,10 +76,10 @@ const BookingsPage = () => {
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="tenant" label="Tenant" type='select' onChange={handleChange} disabled={readOnly}>
-                    {tenants.map(tenant => (<option key={tenant.id} value={tenant.id}>{tenant.Name}</option>))}
+                  <ListInput name="tennant" label="tennant" type='select' onChange={handleChange} disabled={readOnly}>
+                    {tennants.map(tennant => (<option key={tennant.id} value={tennant.id}>{tennant.Name}</option>))}
                   </ListInput>
-                  <ListButton onClick={() => { setTenantPopupOpen(true) }}>Add new tenant</ListButton>
+                  <ListButton onClick={() => { setTennantPopupOpen(true) }}>Add new tennant</ListButton>
                 </List>
               </Col>
               <Col>
@@ -150,7 +150,8 @@ const BookingsPage = () => {
               <Col>
                 <List noHairlines>
                   <ListInput name='channel' type="select" label="Channel" onChange={handleChange} disabled={readOnly}>
-                    {settings.channels.values.map(item => (<option key={item} value={item}>{item}</option>))}
+                    {settings.filter(item => item.docId === 'channels')[0]
+                      ?.values.map(item => (<option key={item} value={item}>{item}</option>))}
                   </ListInput>
                 </List>
               </Col>
@@ -178,18 +179,18 @@ const BookingsPage = () => {
     )
   }
 
-  function AddTenant({ handleTenantClose }) {
+  function Addtennant({ handletennantClose }) {
     const [canSave, setCanSave] = useState(false)
     const [formData, setFormData] = useState({})
     const [pickerOpen, setPickerOpen] = useState(false)
     const [uploads, setUploads] = useState([])
 
     function handleSave() {
-      f7.store.dispatch('addTenant', { ...formData, uploads })
-      handleTenantClose()
+      f7.store.dispatch('addtennant', { ...formData, uploads })
+      handletennantClose()
     }
     function handleChange() {
-      let data = f7.form.convertToData('#newBookingTenantForm')
+      let data = f7.form.convertToData('#newBookingtennantForm')
       console.log({ data })
       setFormData(data)
     }
@@ -202,15 +203,15 @@ const BookingsPage = () => {
 
     return (
       <Page>
-        <Navbar title="Add new tenant">
+        <Navbar title="Add new tennant">
           {canSave && <Button onClick={handleSave}><Icon material='save' /></Button>}
           <NavRight>
-            <Button onClick={handleTenantClose}>
+            <Button onClick={handletennantClose}>
               <Icon material="close"></Icon>
             </Button>
           </NavRight>
         </Navbar>
-        <form id="newBookingTenantForm" className="form-store-data">
+        <form id="newBookingtennantForm" className="form-store-data">
           <Block>
             <Row>
               <Col>
@@ -287,18 +288,18 @@ const BookingsPage = () => {
         <List mediaList>
           {
             bookings.map(booking => {
-              let tenant = tenants.filter(tenant => tenant.id === booking.Tenant[0])[0]
-              let property = properties.filter(property => property.id === booking.Property[0])[0]
-              let unit = units.filter(unit => unit.id === booking.Unit[0])[0]
+              let tennant = tennants.filter(tennant => tennant.docId === booking.tennant.id)[0]
+              let property = properties.filter(property => property.docId === booking.property.id)[0]
+              let unit = units.filter(unit => unit.docId === booking.unit.id)[0]
               return (
                 <ListItem
-                  key={booking.id}
-                  link={`/bookings/${booking.id}`}
+                  key={booking.docId}
+                  link={`/bookings/${booking.docId}`}
                   title={
                     <div style={{ display: "flex", gap: 16 }}>
 
                       <Chip
-                        text={tenant.Name}
+                        text={tennant.name}
                         media="T"
                         mediaBgColor="black"
                       >
@@ -345,13 +346,13 @@ const BookingsPage = () => {
         <AddBooking handleClose={handleClose} />
       </Popup>
       <Popup
-        className="newTenant"
-        opened={tenantPopupOpen}
-        onPopupClosed={handleTenantClose}
-        onPopupSwipeClose={handleTenantClose}
-        onPopupClose={handleTenantClose}
+        className="newtennant"
+        opened={tennantPopupOpen}
+        onPopupClosed={handletennantClose}
+        onPopupSwipeClose={handletennantClose}
+        onPopupClose={handletennantClose}
       >
-        <AddTenant handleTenantClose={handleTenantClose} />
+        <Addtennant handletennantClose={handletennantClose} />
       </Popup>
     </Page>
   );

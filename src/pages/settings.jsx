@@ -1,38 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { Page, Navbar, Button, Block, List, ListItem, ListInput, Stepper, ListButton, Icon, useStore, Input, Popup, NavRight, f7 } from 'framework7-react';
+import { Page, Navbar, Button, Block, List, ListItem, ListInput, Stepper, Icon, useStore, Popup, NavRight, f7 } from 'framework7-react';
+import _, { initial } from 'lodash'
+import store from '../js/store';
+import { createOne, updateOne } from '../utils/firebase';
+import { doc } from 'firebase/firestore'
+import { db } from '../utils/firebase'
 
 const SettingsPage = () => {
     const settings = useStore('settings');
     const properties = useStore('properties');
+    // debugger;
     const [editProperties, setEditProperties] = useState(false)
-    const initialProperties = properties.reduce((acc, property) => {
-        return { ...acc, [property.id]: property.Name }
-    }, {})
+    const initialProperties = [...Object.keys(properties).map(key => ({ id: key, name: properties[key].name }))]
     const [editedProperties, setEditedProperties] = useState(initialProperties)
     const [editChannels, setEditChannels] = useState(false)
     const [editedChannels, setEditedChannels] = useState(settings.channels.values)
     const [canSaveChannels, setCanSaveChannels] = useState(false)
-    const [nOfChannels, setNofChannels] = useState(editedChannels.length)
     const [editedCategories, setEditedCategories] = useState(settings.expenseCategories.values)
     const [editCategories, setEditCategories] = useState(false)
     const [canSaveCategories, setCanSaveCategories] = useState(false)
-    const [nOfCategories, setNofCategories] = useState(editedCategories.length)
     const [popupOpen, setPopupOpen] = useState(false)
 
     function handleAddProperty() { setPopupOpen(true) }
     function handleClose() { setPopupOpen(false) }
+
+    function handlePropertyChange({ id, name }) {
+        // console.log({ id, name })
+        let update = editedProperties
+        update.map((property, index) => {
+            if (property.id === id) {
+                update[index].name = name
+            }
+        })
+        // console.log({ update })
+        setEditedProperties(prev => ([...update]))
+    }
     function handleSaveProperties() {
-        // console.log(JSON.stringify(editedProperties))
-        // console.log(JSON.stringify(initialProperties))
-        if (JSON.stringify(editedProperties) !== JSON.stringify(initialProperties)) {
-            // console.log('saving properties')
-            f7.store.dispatch('saveProperties', editedProperties)
+        console.log({ initialProperties, editedProperties })
+        if (!_.isEqual(initialProperties, editedProperties)) {
+            // console.log("saving")
+            let update = editedProperties.map(property => ({
+                id: property.id,
+                name: property.name
+            }))
+            f7.store.dispatch('updateMany', { collectionName: 'properties', update })
         }
         setEditProperties(false)
-    }
-
-    function handleAddChannel() {
-        setNofChannels(nOfChannels + 1)
     }
     function handleChannelEdit({ name, index }) {
         let temp = editedChannels
@@ -40,13 +53,9 @@ const SettingsPage = () => {
         setEditedChannels([...temp])
     }
     function handleSaveChannels() {
-        f7.store.dispatch('saveSettings', { id: settings.channels.id, values: editedChannels })
+        f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'channels', payload: { values: editedChannels } })
         setEditChannels(false)
         setCanSaveChannels(false)
-    }
-
-    function handleAddCategory() {
-        setNofCategories(nOfCategories + 1)
     }
     function handleCategoryEdit({ name, index }) {
         let temp = editedCategories
@@ -54,33 +63,59 @@ const SettingsPage = () => {
         setEditedCategories([...temp])
     }
     function handleSaveCategories() {
-        f7.store.dispatch('saveSettings', { id: settings.expenseCategories.id, values: editedCategories })
+        f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'expenseCategories', payload: { values: editedCategories } })
         setEditCategories(false)
         setCanSaveCategories(false)
     }
 
     useEffect(() => {
+        // console.log({ editedChannels })
         setCanSaveChannels(
-            editedChannels.every(item => item.length > 3) &&
-            editedChannels !== settings.channels.values
+            editChannels &&
+            editedChannels.every((channel, index) => channel.length > 3) &&
+            !editedChannels.every((channel, index) => channel === settings.channels[index])
         )
     }, [editedChannels])
 
     useEffect(() => {
+        // console.log({ editedCategories })
         setCanSaveCategories(
-            editedCategories.every(item => item?.length > 3) &&
-            editedCategories !== settings.expenseCategories.values
+            editCategories &&
+            editedCategories.every(category => category.length > 3) &&
+            !editedCategories.every((category, index) => category === settings.expenseCategories[index])
         )
     }, [editedCategories])
+
+    useEffect(() => {
+        setEditedProperties([...Object.keys(properties).map(key => ({ id: key, name: properties[key].name }))])
+    }, [properties])
 
     const AddProperty = () => {
         const [canSave, setCanSave] = useState(false)
         const [property, setProperty] = useState({
             name: "",
+            units: [],
             rooms: 1
         })
         function handleNewPropertySave() {
-            f7.store.dispatch('addProperty', property)
+
+            f7.store.dispatch('createOne', { collectionName: 'properties', payload: { name: property.name, units: [] } })
+                .then(ref => {
+                    // console.log('property created: ', ref)
+                    let promises = [...Array(property.rooms)].map(async (item, index) => {
+                        let payload = {
+                            name: `Room ${index + 1}`,
+                            property: doc(db, 'properties/' + ref)
+                        }
+                        return await createOne('units', payload)
+                    })
+                    Promise.all(promises).then(res => {
+                        // console.log('units created: ', { res })
+                        const payload = { units: res.map(id => doc(db, 'units/' + id)) }
+                        // console.log({ payload })
+                        updateOne({ collectionName: 'properties', id: ref, payload })
+                    })
+                })
             handleClose()
         }
 
@@ -127,37 +162,36 @@ const SettingsPage = () => {
                                 {editProperties || <Button onClick={() => setEditProperties(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {properties.map((item, index) => (
-                            <ListInput key={item.id} name={item.id} readonly={!editProperties} onChange={(e) => setEditedProperties({ ...editedProperties, [item.id]: e.target.value })} defaultValue={item.Name} >
+                        {editedProperties.map(prop => (
+                            <ListInput key={prop.id} name={prop.name} readonly={!editProperties}
+                                defaultValue={prop.name}
+                                onChange={(e) => handlePropertyChange({ id: prop.id, name: e.target.value })}
+                            >
                             </ListInput>
                         ))}
 
                     </List>
-                </form>
-                <form>
                     <List noHairlines>
                         <ListItem >
                             <h3 slot="header">Booking channels</h3>
                             <div style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
                                 {canSaveChannels && <Button onClick={() => handleSaveChannels()}><Icon material="save" /></Button>}
-                                {editChannels && <Button onClick={() => handleAddChannel()}><Icon material="add" /></Button>}
+                                {editChannels && <Button onClick={() => setEditedChannels([...editedChannels, ''])}><Icon material="add" /></Button>}
                                 {editChannels || <Button onClick={() => setEditChannels(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {[...Array(nOfChannels).keys()].map((index) => <ListInput key={index} name={"channel." + index} onChange={(e) => handleChannelEdit({ name: e.target.value, index })} readonly={!editChannels} defaultValue={editedChannels[index]} />)}
+                        {editedChannels.map((channel, index) => <ListInput key={index} name={"channel." + index} onChange={(e) => handleChannelEdit({ name: e.target.value, index })} readonly={!editChannels} defaultValue={channel} />)}
                     </List>
-                </form>
-                <form>
                     <List noHairlines>
                         <ListItem >
                             <h3 slot="header">Expense categories</h3>
                             <div style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
                                 {canSaveCategories && <Button onClick={() => handleSaveCategories()}><Icon material="save" /></Button>}
-                                {editCategories && <Button onClick={() => handleAddCategory()}><Icon material="add" /></Button>}
+                                {editCategories && <Button onClick={() => setEditedCategories([...editedCategories, ''])}><Icon material="add" /></Button>}
                                 {editCategories || <Button onClick={() => setEditCategories(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {[...Array(nOfCategories).keys()].map((index) => <ListInput key={index} name={"expenseCategory." + index} onChange={(e) => handleCategoryEdit({ name: e.target.value, index })} readonly={!editCategories} defaultValue={editedCategories[index]} />)}
+                        {editedCategories.map((category, index) => <ListInput key={index} name={"expenseCategory." + index} onChange={(e) => handleCategoryEdit({ name: e.target.value, index })} readonly={!editCategories} defaultValue={category} />)}
                     </List>
                 </form>
             </Block>

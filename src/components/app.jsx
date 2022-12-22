@@ -45,7 +45,7 @@ const MyApp = () => {
   const [selected, setSelected] = useState('properties')
 
   useEffect(() => {
-    store.dispatch('getSettings');
+    // store.dispatch('getData');
   }, [])
 
   return (
