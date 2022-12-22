@@ -121,9 +121,8 @@ function PropertiesPage({ f7router }) {
 
 
   useEffect(() => {
-    console.log({ units })
     units.length > 0 && setResources(
-      _.sortBy(units, (item => { return Number(item.name.substring(5, item.name.length)) }))
+      units
         .map(unit => {
           let { property_revenue, property_expenses, property_profit, unit_revenue, booked_days } = getUnitData(unit.docId, unit.property.id)
           return ({
@@ -145,8 +144,8 @@ function PropertiesPage({ f7router }) {
       return ({
         id: booking.docId,
         title: tenants.filter(tenant => tenant.docId === booking.tenant.id)[0].name,
-        start: dayjs(booking.checkIn.toDate()).format('DD.MM.YYYY'),
-        end: dayjs(booking.checkOut.toDate()).format('DD.MM.YYYY'),
+        start: dayjs(booking.checkIn.toDate()).format('YYYY-MM-DD'),
+        end: dayjs(booking.checkOut.toDate()).format('YYYY-MM-DD'),
         allDay: true,
         resourceId: booking.unit.id,
         // color: booking.Type === 'Monthly' ? 'teal' : 'purple'
