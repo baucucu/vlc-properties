@@ -17,7 +17,7 @@ import dayjs from 'dayjs'
 import currency from 'currency.js';
 import useFirestoreListener from "react-firestore-listener"
 import { doc, arrayUnion } from 'firebase/firestore'
-import { db } from '../utils/firebase'
+import { db, auth } from '../utils/firebase'
 import _ from 'lodash'
 
 
@@ -34,6 +34,11 @@ const BookingPage = ({ f7route }) => {
   const [selectedProperty, setSelectedProperty] = useState()
   const [selectedUnit, setSelectedUnit] = useState()
   const [selectableUnits, setSelectableUnits] = useState([])
+
+  useEffect(() => {
+    // console.log({ auth })
+    // debugger;
+  }, [])
 
   useEffect(() => {
     console.log({ bookings })

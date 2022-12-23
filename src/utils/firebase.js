@@ -21,6 +21,9 @@ import {
     addDoc
 } from "firebase/firestore";
 
+import { google } from 'googleapis'
+const drive = google.drive('v3');
+
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -34,8 +37,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('https://www.googleapis.com/auth/drive.file');
+googleProvider.addScope('https://www.googleapis.com/auth/gmail.send')
 const signInWithGoogle = async () => {
     try {
         const res = await signInWithPopup(auth, googleProvider);
@@ -73,22 +77,6 @@ const getRecords = (collectionName) => {
     } catch (e) { console.log({ e }) }
 }
 
-const getRecordById = async (collectionName, id) => {
-    const ref = query(collection(db, collectionName, id))
-    const docSnap = await getDoc(ref)
-    if (docSnap.exists()) {
-        console.log(docSnap.data())
-    } else {
-        console.log(`Document ${id} does not exist in collection ${collectionName}`)
-    }
-}
-
-async function updateRecordById(collectionName, id, payload) {
-    console.log({ received: { collectionName, id, payload } })
-    const ref = doc(db, collectionName, id)
-    await setDoc(ref, payload, { merge: true });
-}
-
 async function updateOne({ collectionName, id, payload }) {
     console.log({ saving: { collectionName, id, payload } })
     const ref = doc(db, collectionName, id)
@@ -96,11 +84,20 @@ async function updateOne({ collectionName, id, payload }) {
 }
 
 async function createOne(collectionName, payload) {
+    console.log({ received: payload })
     const ref = doc(collection(db, collectionName))
     const created = await setDoc(ref, payload)
     return ref.id
 
 }
+
+async function getTemplates() {
+    drive.files.list({
+        corpora: 'drive',
+        driveId: 
+    })
+}
+
 
 export {
     // analytics,
