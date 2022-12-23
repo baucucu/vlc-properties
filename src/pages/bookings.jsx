@@ -40,9 +40,9 @@ const BookingsPage = () => {
         deposit: Number(formData.deposit),
         rent: Number(formData.rent),
         notes: formData.notes,
-        date: new Date(),
-        checkIn: new Date(formData.checkIn),
-        checkOut: new Date(formData.checkOut),
+        date: dayjs().toISOString(),
+        checkIn: dayjs(formData.checkIn).toISOString(),
+        checkOut: dayjs(formData.checkOut).toISOString(),
         tenant: doc(db, 'tenants', formData.tenant),
         unit: doc(db, 'units', formData.unit),
         property: doc(db, 'properties', formData.property)
