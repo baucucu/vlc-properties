@@ -6,8 +6,7 @@ import { doc, arrayUnion } from 'firebase/firestore'
 import { db } from '../utils/firebase'
 import _ from 'lodash';
 import dayjs from 'dayjs'
-import customParseFormat from 'dayjs/plugin/customParseFormat'
-dayjs.extend(customParseFormat)
+
 
 const BookingsPage = () => {
   // Array of API discovery doc URLs for APIs

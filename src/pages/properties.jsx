@@ -9,10 +9,8 @@ import _ from 'lodash'
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import minMax from 'dayjs/plugin/minMax';
-import customParseFormat from 'dayjs/plugin/customParseFormat'
 dayjs.extend(isBetween);
 dayjs.extend(minMax);
-dayjs.extend(customParseFormat)
 
 function PropertiesPage({ f7router }) {
   const properties = useFirestoreListener({ collection: "properties" })

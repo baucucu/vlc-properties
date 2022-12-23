@@ -19,8 +19,6 @@ import { doc, arrayUnion } from 'firebase/firestore'
 import { db, auth } from '../utils/firebase'
 import _ from 'lodash'
 import dayjs from 'dayjs'
-import customParseFormat from 'dayjs/plugin/customParseFormat'
-dayjs.extend(customParseFormat)
 
 
 const BookingPage = ({ f7route }) => {

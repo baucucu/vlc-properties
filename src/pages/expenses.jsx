@@ -75,7 +75,17 @@ const ExpensesPage = () => {
         .map(index => {
           let payload = {}
           group[index].forEach(el => {
-            payload[el.property] = el.property === 'property' ? doc(db, 'properties', el.value) : el.property === 'date' ? new Date(el.value) : el.property === 'amount' ? Number(el.value) : el.value
+            if (el.property === property) {
+              payload[el.property] = doc(db, 'properties', el.value)
+            } else if (el.property === 'date') {
+              let dateParts = formData.date.split("/")
+              let date = new Date(`${dateParts[1]}/${dateParts[0]}/${dateParts[2]}`)
+              payload[el.property] = date
+            } else if (el.property === 'amount') {
+              payload[el.property] = Number(el.value)
+            } else {
+              payload[el.property] = el.value
+            }
           })
           return payload
         })
@@ -147,11 +157,14 @@ const ExpensesPage = () => {
             <List noHairlines>
               <ListInput
                 name={index + ".date"}
-                type="date"
                 defaultValue={today}
-                format="DD MMM YYYY"
                 placeholder="Please choose..."
                 label="Expense date"
+                type='datepicker'
+                calendarParams={{
+                  locale: "en",
+                  dateFormat: 'dd/mm/yyyy'
+                }}
                 required
                 onChange={handleChange}
               />
