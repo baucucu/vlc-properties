@@ -7,8 +7,7 @@ import Drive from 'react-drive';
 
 
 const PropertyPage = ({ f7route }) => {
-  console.log({ key: import.meta.env.VITE_GOOGLE_API_KEY })
-  debugger;
+
   const properties = useFirestoreListener({ collection: "properties" })
   const [property, setProperty] = useState()
   const token = auth.currentUser.getIdToken()
