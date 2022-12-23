@@ -41,8 +41,7 @@ const PropertyPage = ({ f7route }) => {
           <div className="library-copy">
             <Drive
               clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
-              client_id={import.meta.env.VITE_GOOGLE_CLIENT_ID}
-              apiKey={import.meta.env.VITE_GOOGLE_API_KEY}
+              apiKey={import.meta.env.VITE_FIREBASE_API_KEY}
               token={token}
               onEvent={() => handleEvent()}
             >
