@@ -171,7 +171,7 @@ const BookingPage = ({ f7route }) => {
                     events: [{
                       date: dayjs(booking.checkIn.toDate())
                     }],
-                    minDate: dayjs().format('DD.MM.YYYY'),
+                    minDate: dayjs(),
                     value: [dayjs(booking.checkIn.toDate())],
                     locale: "en",
                     dateFormat: 'dd/mm/yyyy'
@@ -190,7 +190,7 @@ const BookingPage = ({ f7route }) => {
                     events: [{
                       date: dayjs(booking.checkOut.toDate())
                     }],
-                    minDate: dayjs().format('DD.MM.YYYY'),
+                    minDate: dayjs(),
                     value: [dayjs(booking.checkOut.toDate())],
                     locale: "en",
                     dateFormat: 'dd/mm/yyyy'
