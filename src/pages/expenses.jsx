@@ -75,7 +75,7 @@ const ExpensesPage = () => {
         .map(index => {
           let payload = {}
           group[index].forEach(el => {
-            if (el.property === property) {
+            if (el.property === 'property') {
               payload[el.property] = doc(db, 'properties', el.value)
             } else if (el.property === 'date') {
               let dateParts = formData.date.split("/")
