@@ -125,25 +125,30 @@ const BookingPage = ({ f7route }) => {
       </Navbar>
 
       {booking && <Block>
-        <form id="bookingForm" className="form-store-data"><h2 slot="header">Details</h2>
+        <form id="bookingForm" className="form-store-data">
+          <List noHairlines style={{ margin: 0 }}>
+            <ListItem >
+              <h2 slot="header" style={{ margin: 0 }}>Details</h2>
+            </ListItem>
+          </List >
           <Row>
             <Col>
-              <List noHairlines>
+              <List noHairlines style={{ margin: 0 }}>
                 <ListInput name='date' label="Booking date" type='datepicker' disabled />
               </List>
             </Col>
             <Col small>
-              <List noHairlines>
+              <List noHairlines style={{ margin: 0 }}>
                 <ListInput name="rent" label="Rent" disabled={readOnly} />
               </List>
             </Col>
             <Col small>
-              <List noHairlines>
+              <List noHairlines style={{ margin: 0 }}>
                 <ListInput name="deposit" label="Deposit" disabled={readOnly} />
               </List>
             </Col>
             <Col>
-              <List noHairlines>
+              <List noHairlines style={{ margin: 0 }}>
                 <ListInput name='channel' type="select" label="Channel" disabled={readOnly}>
                   {settings.filter(item => item.docId === 'channels')[0].values.map(item => (<option key={item} value={item}>{item}</option>))}
                 </ListInput>
@@ -152,7 +157,7 @@ const BookingPage = ({ f7route }) => {
           </Row>
           <Row>
             <Col>
-              <List noHairlines>
+              <List noHairlines style={{ margin: 0 }}>
                 <ListInput
                   name="checkIn"
                   label="Check in"
@@ -169,7 +174,7 @@ const BookingPage = ({ f7route }) => {
               </List>
             </Col>
             <Col small>
-              <List noHairlines>
+              <List noHairlines style={{ margin: 0 }}>
                 <ListInput
                   name="checkOut"
                   label="Check out"
@@ -186,21 +191,21 @@ const BookingPage = ({ f7route }) => {
               </List>
             </Col>
             <Col small>
-              <List noHairlines>
+              <List noHairlines style={{ margin: 0 }}>
                 <ListInput name="property" label="Property" type='select' defaultValue={booking.property.id} onChange={(e) => handlePropertyChange({ id: e.target.value })} disabled={readOnly}>
                   {properties.map(property => (<option key={property.docId} value={property.docId} >{property.name}</option>))}
                 </ListInput>
               </List>
             </Col>
             <Col small>
-              <List noHairlines>
+              <List noHairlines style={{ margin: 0 }}>
                 <ListInput name="unit" label="Room" type='select' defaultValue={booking.unit.id} onChange={(e) => handleUnitChange({ id: e.target.value })} disabled={readOnly}>
                   {_.sortBy(selectableUnits, item => item.name).map(unit => (<option key={unit.docId} value={unit.docId}>{unit.name}</option>))}
                 </ListInput>
               </List>
             </Col>
             <Col small>
-              <List noHairlines>
+              <List noHairlines style={{ margin: 0 }}>
                 <ListInput name="tenant" label="Tenant" type='select' defaultValue={booking.tenant.id} onChange={(e) => handleTenantChange({ id: e.target.value })} disabled={readOnly}>
                   {tenants.map(tenant => (<option key={tenant.docId} value={tenant.docId}>{tenant.name}</option>))}
                 </ListInput>
@@ -217,16 +222,12 @@ const BookingPage = ({ f7route }) => {
               </List>
             </Col> */}
           </Row>
-          <Row>
-          </Row>
-          <Row>
-
-            {/* <Col small>
-              <List noHairlines>
-                <ListInput name="totalRevenue" label="Total revenue" disabled />
-              </List>
-            </Col> */}
-          </Row>
+          <List noHairlines>
+            <ListItem >
+              <h2 slot="header">Contract</h2>
+            </ListItem>
+          </List>
+          <Row />
           <List noHairlines>
             <ListItem >
               <h2 slot="header">Notes</h2>
