@@ -9,6 +9,7 @@ import _ from 'lodash';
 
 
 const BookingsPage = () => {
+  // Array of API discovery doc URLs for APIs
   const settings = useFirestoreListener({ collection: "settings" })
   const properties = useFirestoreListener({ collection: "properties" })
   const tenants = useFirestoreListener({ collection: "tenants" })
@@ -52,6 +53,7 @@ const BookingsPage = () => {
           bookings: arrayUnion(ref)
         }
         f7.store.dispatch('updateOne', { collectionName: 'tenants', id: formData.tenant, payload })
+        f7.store.dispatch('createContract', { booking: ref })
       })
       let increment = dayjs(formData.checkOut).diff(dayjs(formData.checkIn), 'day') < 30 ? 'day' : 'month'
       let day = formData.checkIn

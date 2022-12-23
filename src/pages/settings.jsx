@@ -180,11 +180,11 @@ const SettingsPage = () => {
                             </ListInput>
                         ))}
                     </List>
-                    <List noHairlines mediaList>
+                    {/* <List noHairlines mediaList>
                         {_.sortBy(editedProperties, item => item.name).map(item => (
                             <ListItem key={item.id} link={`/properties/${item.id}`} title={item.name} />
                         ))}
-                    </List>
+                    </List> */}
                     <List noHairlines>
                         <ListItem >
                             <h3 slot="header">Booking channels</h3>
