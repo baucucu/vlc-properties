@@ -78,7 +78,7 @@ const ExpensesPage = () => {
             if (el.property === 'property') {
               payload[el.property] = doc(db, 'properties', el.value)
             } else if (el.property === 'date') {
-              let dateParts = formData.date.split("/")
+              let dateParts = el.value.split("/")
               let date = new Date(`${dateParts[1]}/${dateParts[0]}/${dateParts[2]}`)
               payload[el.property] = date
             } else if (el.property === 'amount') {
