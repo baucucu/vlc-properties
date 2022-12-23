@@ -26,28 +26,8 @@ var routes = [
     component: PropertiesPage,
   },
   {
-    path: '/property/:propertyId',
-    async: function ({ router, to, resolve }) {
-      const app = router.app;
-
-      // Show Preloader
-      app.preloader.show();
-
-      // User ID from request
-      const { propertyId } = to.params;
-
-      app.preloader.hide();
-      resolve(
-        {
-          component: PropertyPage,
-        },
-        {
-          props: {
-            property: f7.store.state.properties.filter(property => property.id === propertyId)[0],
-          }
-        }
-      );
-    },
+    path: '/properties/:id',
+    component: PropertyPage
   },
   {
     path: '/bookings/',

@@ -176,7 +176,13 @@ const SettingsPage = () => {
                                 defaultValue={item.name}
                                 onChange={(e) => handlePropertyChange({ id: item.id, name: e.target.value })}
                             >
+                                test
                             </ListInput>
+                        ))}
+                    </List>
+                    <List noHairlines mediaList>
+                        {_.sortBy(editedProperties, item => item.name).map(item => (
+                            <ListItem key={item.id} link={`/properties/${item.id}`} title={item.name} />
                         ))}
                     </List>
                     <List noHairlines>
