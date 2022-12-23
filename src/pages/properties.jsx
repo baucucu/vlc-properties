@@ -3,14 +3,16 @@ import { Page, Popup, Navbar, Block, Link, Chip, List, ListItem, useStore, CardH
 import '@fullcalendar/react/dist/vdom';
 import FullCalendar from '@fullcalendar/react';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
-import dayjs from 'dayjs';
-import isBetween from 'dayjs/plugin/isBetween';
-import minMax from 'dayjs/plugin/minMax';
-dayjs.extend(isBetween);
-dayjs.extend(minMax);
 import currency from 'currency.js';
 import useFirestoreListener from "react-firestore-listener"
 import _ from 'lodash'
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+import minMax from 'dayjs/plugin/minMax';
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+dayjs.extend(isBetween);
+dayjs.extend(minMax);
+dayjs.extend(customParseFormat)
 
 function PropertiesPage({ f7router }) {
   const properties = useFirestoreListener({ collection: "properties" })

@@ -13,12 +13,14 @@ import {
   NavRight,
   f7
 } from 'framework7-react';
-import dayjs from 'dayjs'
 import currency from 'currency.js';
 import useFirestoreListener from "react-firestore-listener"
 import { doc, arrayUnion } from 'firebase/firestore'
 import { db, auth } from '../utils/firebase'
 import _ from 'lodash'
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+dayjs.extend(customParseFormat)
 
 
 const BookingPage = ({ f7route }) => {
@@ -82,8 +84,14 @@ const BookingPage = ({ f7route }) => {
 
   const handleSave = () => {
     let data = f7.form.getFormData('#bookingForm')
+    const checkInParts = formData.checkIn.split('/')
+    const checkIn = dayjs(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`)
+    const checkOutParts = formData.checkOut.split('/')
+    const checkOut = dayjs(`${checkOutParts[1]}/${checkOutParts[0]}/${checkOutParts[2]}`)
     const payload = {
       ...data,
+      checkIn: new Date(checkIn),
+      checkOut: new Date(checkOut),
       unit: doc(db, 'units', selectedUnit),
       property: doc(db, 'properties', selectedProperty),
       tenant: doc(db, 'tenants', selectedTenant),

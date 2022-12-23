@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { f7, Page, Navbar, Block, List, ListItem, useStore, Chip, Badge, Button, Popup, NavRight, Icon, Row, Col, ListInput, ListButton } from 'framework7-react';
-import dayjs from 'dayjs';
 import { PickerInline } from 'filestack-react';
 import useFirestoreListener from "react-firestore-listener"
 import { doc, arrayUnion } from 'firebase/firestore'
 import { db } from '../utils/firebase'
 import _ from 'lodash';
-
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+dayjs.extend(customParseFormat)
 
 const BookingsPage = () => {
   // Array of API discovery doc URLs for APIs
@@ -35,14 +36,19 @@ const BookingsPage = () => {
 
     async function handleSave() {
       console.log({ formData })
+      debugger;
+      const checkInParts = formData.checkIn.split('/')
+      const checkIn = dayjs(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`)
+      const checkOutParts = formData.checkOut.split('/')
+      const checkOut = dayjs(`${checkOutParts[1]}/${checkOutParts[0]}/${checkOutParts[2]}`)
       let payload = {
         channel: formData.channel,
         deposit: Number(formData.deposit),
         rent: Number(formData.rent),
         notes: formData.notes,
-        date: dayjs().toISOString(),
-        checkIn: dayjs(formData.checkIn).toISOString(),
-        checkOut: dayjs(formData.checkOut).toISOString(),
+        date: new Date(),
+        checkIn: new Date(checkIn),
+        checkOut: new Date(checkOut),
         tenant: doc(db, 'tenants', formData.tenant),
         unit: doc(db, 'units', formData.unit),
         property: doc(db, 'properties', formData.property)

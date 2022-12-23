@@ -34,7 +34,6 @@
     "framework7": "^7.0.9",
     "framework7-icons": "^5.0.5",
     "framework7-react": "^7.0.9",
-    "gapi-script": "^1.2.0",
     "googleapis": "^110.0.0",
     "lodash": "^4.17.21",
     "material-icons": "^1.13.1",
