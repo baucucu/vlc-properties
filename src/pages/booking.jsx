@@ -172,7 +172,9 @@ const BookingPage = ({ f7route }) => {
                       date: dayjs(booking.checkIn.toDate())
                     }],
                     minDate: dayjs().format('DD.MM.YYYY'),
-                    value: [dayjs(booking.checkIn.toDate())]
+                    value: [dayjs(booking.checkIn.toDate())],
+                    locale: "en",
+                    dateFormat: 'dd/mm/yyyy'
                   }}
                   disabled={readOnly}
                 />
@@ -189,7 +191,9 @@ const BookingPage = ({ f7route }) => {
                       date: dayjs(booking.checkOut.toDate())
                     }],
                     minDate: dayjs().format('DD.MM.YYYY'),
-                    value: [dayjs(booking.checkOut.toDate())]
+                    value: [dayjs(booking.checkOut.toDate())],
+                    locale: "en",
+                    dateFormat: 'dd/mm/yyyy'
                   }}
                   disabled={readOnly}
                 />

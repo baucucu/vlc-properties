@@ -21,8 +21,8 @@ import {
     addDoc
 } from "firebase/firestore";
 
-import { google } from 'googleapis'
-const drive = google.drive('v3');
+// import { google } from 'googleapis'
+// const drive = google.drive('v3');
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -91,12 +91,6 @@ async function createOne(collectionName, payload) {
 
 }
 
-async function getTemplates() {
-    drive.files.list({
-        corpora: 'drive',
-        driveId: 
-    })
-}
 
 
 export {

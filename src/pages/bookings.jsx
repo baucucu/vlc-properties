@@ -156,7 +156,9 @@ const BookingsPage = () => {
                     label="Check in"
                     type='datepicker'
                     calendarParams={{
-                      minDate: dayjs().format('DD.MM.YYYY'),
+                      minDate: dayjs(),
+                      locale: "en",
+                      dateFormat: 'dd/mm/yyyy'
                     }}
                     disabled={readOnly}
                     onChange={handleChange}
@@ -170,7 +172,9 @@ const BookingsPage = () => {
                     label="Check out"
                     type='datepicker'
                     calendarParams={{
-                      minDate: dayjs().format('DD.MM.YYYY'),
+                      minDate: dayjs(),
+                      locale: "en",
+                      dateFormat: 'dd/mm/yyyy'
                     }}
                     disabled={readOnly}
                     onChange={handleChange}
