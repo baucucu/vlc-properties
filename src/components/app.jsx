@@ -45,7 +45,7 @@ const MyApp = () => {
   const [selected, setSelected] = useState('properties')
 
   useEffect(() => {
-    // store.dispatch('getData');
+    store.dispatch('getContractTemplates');
   }, [])
 
   return (

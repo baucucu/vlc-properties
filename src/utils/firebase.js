@@ -22,7 +22,7 @@ import {
 } from "firebase/firestore";
 
 // import { google } from 'googleapis'
-// const drive = google.drive('v3');
+
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -30,16 +30,25 @@ const firebaseConfig = {
     projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
     storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
     messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    scopes: [
+        'https://www.googleapis.com/auth/drive.file',
+        'https://www.googleapis.com/auth/gmail.send',
+    ],
+    discoveryDocs: [
+        'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
+        'https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest',
+    ]
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+// const analytics = getAnalytics(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('https://www.googleapis.com/auth/drive.file');
-googleProvider.addScope('https://www.googleapis.com/auth/gmail.send')
+googleProvider.addScope('https://www.googleapis.com/auth/gmail.send');
 const signInWithGoogle = async () => {
     try {
         const res = await signInWithPopup(auth, googleProvider);
@@ -76,6 +85,17 @@ const getRecords = (collectionName) => {
         });
     } catch (e) { console.log({ e }) }
 }
+const getDocumentOnce = async ({ collectionName, id }) => {
+    console.log({ collectionName, id })
+    const docRef = doc(db, collectionName, id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        return docSnap.data()
+    } else {
+        return null
+    }
+}
+
 
 async function updateOne({ collectionName, id, payload }) {
     console.log({ saving: { collectionName, id, payload } })
@@ -91,7 +111,10 @@ async function createOne(collectionName, payload) {
 
 }
 
-
+async function deleteOne(collectionName, id) {
+    const ref = doc(db, collectionName, id)
+    await deleteDoc(ref)
+}
 
 export {
     // analytics,
@@ -101,6 +124,7 @@ export {
     logout,
     getRecords,
     updateOne,
-    createOne
+    createOne,
+    getDocumentOnce
 };
 export default app

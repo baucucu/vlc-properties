@@ -57,6 +57,7 @@ const TenantsPage = () => {
             <Col>
               <List noHairlines>
                 <ListInput name="phone" label="Phone" onChange={handleChange} />
+                <ListInput name="country" label="Country" onChange={handleChange} />
                 <ListInput
                   name="idNumber"
                   label="ID number"

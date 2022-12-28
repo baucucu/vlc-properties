@@ -4,6 +4,7 @@ import {
   Navbar,
   List,
   ListInput,
+  Input,
   ListItem,
   Row,
   Button,
@@ -11,17 +12,24 @@ import {
   Col,
   Icon,
   NavRight,
-  f7
+  Card,
+  CardContent,
+  CardHeader,
+  CardFooter,
+  f7,
+  useStore
 } from 'framework7-react';
 import currency from 'currency.js';
 import useFirestoreListener from "react-firestore-listener"
-import { doc, arrayUnion } from 'firebase/firestore'
-import { db, auth } from '../utils/firebase'
+import { doc } from 'firebase/firestore'
+import { db, auth, getDocumentOnce } from '../utils/firebase'
 import _ from 'lodash'
 import dayjs from 'dayjs'
-
+import googleDocsLogo from '../assets/google_docs_logo.png'
+import store from '../js/store';
 
 const BookingPage = ({ f7route }) => {
+  const templates = useStore('templates')
   const settings = useFirestoreListener({ collection: "settings" })
   const tenants = useFirestoreListener({ collection: "tenants" })
   const properties = useFirestoreListener({ collection: "properties" })
@@ -35,19 +43,27 @@ const BookingPage = ({ f7route }) => {
   const [selectedUnit, setSelectedUnit] = useState()
   const [selectableUnits, setSelectableUnits] = useState([])
 
-  useEffect(() => {
-    // console.log({ auth })
-    // debugger;
-  }, [])
+  const [selectedTemplate, setSelectedTemplate] = useState()
+
+  async function generateContract() {
+    const payload = {
+      template: selectedTemplate,
+      tenant: await getDocumentOnce({ collectionName: 'tenants', id: booking.tenant.id }),
+      property: await getDocumentOnce({ collectionName: 'properties', id: booking.property.id }),
+      unit: await getDocumentOnce({ collectionName: 'units', id: booking.unit.id }),
+      booking: await getDocumentOnce({ collectionName: 'bookings', id: booking.docId }),
+    }
+    store.dispatch('generateContract', { payload })
+  }
 
   useEffect(() => {
-    console.log({ bookings })
+    // console.log({ bookings })
     let temp = bookings.filter(item => item.docId === f7route.params.id)?.[0]
     settings.length > 0 && setBooking(temp)
   }, [bookings, settings])
 
   useEffect(() => {
-    console.log({ units })
+    // console.log({ units })
     if (units?.length > 0 && selectedProperty) { setSelectableUnits(units.filter(item => item.docId === selectedProperty)?.[0]) }
   }, [units])
 
@@ -82,8 +98,6 @@ const BookingPage = ({ f7route }) => {
 
   const handleSave = () => {
     let data = f7.form.convertToData('#bookingForm')
-    // debugger;
-    console.log({ data, selectedProperty, selectedUnit, selectedTenant })
     const checkInParts = data.checkIn.split('.')
     const checkIn = new Date(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`)
     const checkOutParts = data.checkOut.split('.')
@@ -128,6 +142,8 @@ const BookingPage = ({ f7route }) => {
 
   useEffect(() => { console.log("selectedUnit changed: ", { selectedUnit }) }, [selectedUnit])
   useEffect(() => { console.log("selectableUnits changed: ", { selectableUnits }) }, [selectableUnits])
+
+
 
   useEffect(() => {
     console.log("selectedProperty changed: ", { selectedProperty })
@@ -234,23 +250,44 @@ const BookingPage = ({ f7route }) => {
                 </ListInput>
               </List>
             </Col>
-            {/* <Col>
-              <List noHairlines>
-                <ListInput name='duration' label="Duration" disabled />
-              </List>
-            </Col>
-            <Col>
-              <List noHairlines>
-                <ListInput name='durationUnits' label="Units" disabled />
-              </List>
-            </Col> */}
           </Row>
           <List noHairlines>
             <ListItem >
               <h2 slot="header">Contract</h2>
             </ListItem>
           </List>
-          <Row />
+          <Row>
+            <Col >
+              <Card>
+                <CardHeader>Contract template</CardHeader>
+                <CardContent>
+                  <List noHairlines>
+                    <ListInput style={{ listStyleType: 'none' }} className='col-40' name="contract" type='select' defaultValue={templates[0].id} onChange={(e) => setSelectedTemplate(e.target.value)}>
+                      {templates.map(template => (<option key={template.id} value={template.id}>{template.name}</option>))}
+                    </ListInput>
+                  </List>
+                </CardContent>
+                <CardFooter>
+                  <Button disabled={!selectedTemplate} onClick={async () => await generateContract()}>Generate contract</Button>
+                </CardFooter>
+              </Card>
+            </Col>
+            <Col>
+              <Card>
+                <CardHeader>Contracts</CardHeader>
+                <CardContent>
+                  <List noHairlines>
+                    <ListItem style={{ listStyleType: 'none' }} after="Preview" title="Contract" className='col' link="#" target='_blank'>
+                      <img slot="media" src={googleDocsLogo} width={16} style={{ marginRight: 4 }} />
+                    </ListItem>
+                  </List>
+                </CardContent>
+                <CardFooter>
+                  <Button>Send to tenant</Button>
+                </CardFooter>
+              </Card>
+            </Col>
+          </Row>
           <List noHairlines>
             <ListItem >
               <h2 slot="header">Notes</h2>
@@ -268,7 +305,7 @@ const BookingPage = ({ f7route }) => {
           </List>
         </form>
       </Block>}
-    </Page>
+    </Page >
   );
 }
 

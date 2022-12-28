@@ -8,6 +8,7 @@ import {
 import currency from 'currency.js';
 import dayjs from 'dayjs';
 import { f7 } from 'framework7-react';
+import axios from 'axios';
 
 const store = createStore({
   state: {
@@ -19,9 +20,13 @@ const store = createStore({
     bookings: {},
     selected: [],
     booking: undefined,
-    settings: {}
+    settings: {},
+    templates: [],
   },
   getters: {
+    templates: ({ state }) => {
+      return state.templates
+    },
     properties({ state }) {
       return state.properties
     },
@@ -51,6 +56,18 @@ const store = createStore({
     }
   },
   actions: {
+    generateContract({ state, dispatch }, { payload }) {
+      console.log({ payload })
+      axios.post('https://eogu1ng0k7fa2z2.m.pipedream.net', { payload }).then(res => {
+        console.log({ res })
+      })
+    },
+    getContractTemplates({ state }) {
+      axios.get('https://eo47m6860e33ebo.m.pipedream.net').then(res => {
+        // console.log({ res })
+        state.templates = res.data.files
+      })
+    },
     setProperties({ state, dispatch }, { properties }) {
       console.log({ received: properties })
     },
