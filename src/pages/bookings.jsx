@@ -6,6 +6,7 @@ import { doc, arrayUnion } from 'firebase/firestore'
 import { db } from '../utils/firebase'
 import _ from 'lodash';
 import dayjs from 'dayjs'
+import currency from 'currency.js';
 
 
 const BookingsPage = () => {
@@ -35,19 +36,20 @@ const BookingsPage = () => {
 
     async function handleSave() {
       console.log({ formData })
-      debugger;
       const checkInParts = formData.checkIn.split('/')
-      const checkIn = dayjs(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`)
+      const checkIn = dayjs(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`).unix()
       const checkOutParts = formData.checkOut.split('/')
-      const checkOut = dayjs(`${checkOutParts[1]}/${checkOutParts[0]}/${checkOutParts[2]}`)
+      const checkOut = dayjs(`${checkOutParts[1]}/${checkOutParts[0]}/${checkOutParts[2]}`).unix()
+      const rent = Number(currency(formData.rent).value)
+      const amount = Number(currency(formData.amount).value)
       let payload = {
         channel: formData.channel,
-        deposit: Number(formData.deposit),
-        rent: Number(formData.rent),
+        amount,
+        rent,
         notes: formData.notes,
         date: new Date(),
-        checkIn: new Date(checkIn),
-        checkOut: new Date(checkOut),
+        checkIn: new Date(checkIn * 1000),
+        checkOut: new Date(checkOut * 1000),
         tenant: doc(db, 'tenants', formData.tenant),
         unit: doc(db, 'units', formData.unit),
         property: doc(db, 'properties', formData.property)
@@ -190,12 +192,12 @@ const BookingsPage = () => {
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="rent" type="number" label="Rent" onChange={handleChange} disabled={readOnly} />
+                  <ListInput name="rent" type="number" label="Monthly rent" onChange={handleChange} disabled={readOnly} />
                 </List>
               </Col>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="deposit" type="number" label="Deposit" onChange={handleChange} disabled={readOnly} />
+                  <ListInput name="amount" type="number" label="Total amount" onChange={handleChange} disabled={readOnly} />
                 </List>
               </Col>
             </Row>
@@ -263,31 +265,25 @@ const BookingsPage = () => {
         <form id="newBookingtenantForm" className="form-store-data">
           <Block>
             <Row>
-              <Col>
-                <List noHairlines>
-                  <ListInput name="name" label="Name" onChange={handleChange} />
-                  <ListInput name="email" label="Email" onChange={handleChange} />
-                </List>
-              </Col>
-              <Col>
-                <List noHairlines>
-                  <ListInput name="phone" label="Phone" onChange={handleChange} />
-                  <ListInput
-                    name="idNumber"
-                    label="ID number"
-                    onChange={handleChange}
-                  >
-                  </ListInput>
-                </List>
-              </Col>
+              <List noHairlines className='col'>
+                <ListInput name="name" label="Name" onChange={handleChange} />
+                <ListInput name="email" label="Email" onChange={handleChange} />
+                <ListInput name="phone" label="Phone" onChange={handleChange} />
+              </List>
+
+              <List noHairlines className='col'>
+                <ListInput name="country" label="Country" onChange={handleChange} />
+                <ListInput
+                  name="idNumber"
+                  label="ID number"
+                  onChange={handleChange}
+                />
+
+              </List>
             </Row>
-            <Row>
-              <Col>
-                <List noHairlines>
-                  <ListInput name="address" label="Permanent address" onChange={handleChange} />
-                </List>
-              </Col>
-            </Row>
+            <List noHairlines>
+              <ListInput name="address" label="Permanent address" onChange={handleChange} />
+            </List>
             <List noHairlines>
               <ListItem >
                 <h2 slot="header">Files</h2>

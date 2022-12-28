@@ -70,20 +70,22 @@ const BookingPage = ({ f7route }) => {
   useEffect(() => {
     console.log({ booking })
     if (booking) {
+      // debugger;
+      setSelectedUnit(booking.unit.id)
       setSelectedTenant(booking.tenant.id)
       setSelectedProperty(booking.property.id)
-      setSelectedUnit(booking.unit.id)
+
       let data = {
-        date: dayjs(booking.date.toDate()).format('DD.MM.YYYY'),
+        date: dayjs(booking.date.toDate()).format('DD/MM/YYYY'),
         name: booking.name,
         channel: booking.channel,
-        checkIn: dayjs(booking.checkIn.toDate()).format('DD.MM.YYYY'),
-        checkOut: dayjs(booking.checkOut.toDate()).format('DD.MM.YYYY'),
-        unit: selectedUnit,
-        tenant: selectedTenant,
-        property: selectedProperty,
+        checkIn: dayjs(booking.checkIn.toDate()).format('DD/MM/YYYY'),
+        checkOut: dayjs(booking.checkOut.toDate()).format('DD/MM/YYYY'),
+        unit: booking.unit.id,
+        tenant: booking.tenant.id,
+        property: booking.property.id,
         rent: currency(booking.rent, { symbol: '€', decimal: ',', separator: '.' }).format(),
-        deposit: currency(booking.deposit, { symbol: '€', decimal: ',', separator: '.' }).format(),
+        amount: currency(booking.amount, { symbol: '€', decimal: ',', separator: '.' }).format(),
         notes: booking.notes
       }
       f7.form.fillFromData("#bookingForm", data)
@@ -98,23 +100,27 @@ const BookingPage = ({ f7route }) => {
 
   const handleSave = () => {
     let data = f7.form.convertToData('#bookingForm')
-    const checkInParts = data.checkIn.split('.')
-    const checkIn = new Date(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`)
-    const checkOutParts = data.checkOut.split('.')
-    const checkOut = new Date(`${checkOutParts[1]}/${checkOutParts[0]}/${checkOutParts[2]}`)
-    const dateInParts = data.date.split('.')
-    const date = new Date(`${dateInParts[1]}/${dateInParts[0]}/${dateInParts[2]}`)
     debugger;
+    const checkInParts = data.checkIn.split('/')
+    const checkIn = dayjs(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`).unix()
+    const checkOutParts = data.checkOut.split('/')
+    const checkOut = dayjs(`${checkOutParts[1]}/${checkOutParts[0]}/${checkOutParts[2]}`).unix()
+    // const dateInParts = data.date.split('/')
+    // const date = dayjs(`${dateInParts[1]}/${dateInParts[0]}/${dateInParts[2]}`)
+    const rent = Number(currency(data.rent, { symbol: '€', decimal: ',', separator: '.' }).value)
+    const amount = Number(currency(data.amount, { symbol: '€', decimal: ',', separator: '.' }).value)
+
     const payload = {
-      date,
-      rent: currency(data.rent, { symbol: '€', decimal: ',', separator: '.' }).value,
-      deposit: currency(data.deposit, { symbol: '€', decimal: ',', separator: '.' }).value,
-      checkIn,
-      checkOut,
-      unit: doc(db, 'units', selectedUnit),
-      property: doc(db, 'properties', selectedProperty),
-      tenant: doc(db, 'tenants', selectedTenant),
+      channel: data.channel,
+      amount,
+      rent,
       notes: data.notes,
+      // date,
+      checkIn: new Date(checkIn * 1000),
+      checkOut: new Date(checkOut * 1000),
+      tenant: doc(db, 'tenants', selectedTenant || booking.tenant.id),
+      unit: doc(db, 'units', selectedUnit || booking.unit.id),
+      property: doc(db, 'properties', selectedProperty || booking.property.id),
     }
     console.log({ payload })
     f7.store.dispatch('updateOne', { collectionName: 'bookings', id: booking.docId, payload })
@@ -174,12 +180,12 @@ const BookingPage = ({ f7route }) => {
             </Col>
             <Col small>
               <List noHairlines style={{ margin: 0 }}>
-                <ListInput name="rent" label="Rent" disabled={readOnly} />
+                <ListInput name="rent" label="Monthly rent" disabled={readOnly} />
               </List>
             </Col>
             <Col small>
               <List noHairlines style={{ margin: 0 }}>
-                <ListInput name="deposit" label="Deposit" disabled={readOnly} />
+                <ListInput name="amount" label="Total amount" disabled={readOnly} />
               </List>
             </Col>
             <Col>

@@ -63,9 +63,11 @@ const store = createStore({
       })
     },
     getContractTemplates({ state }) {
+      f7.preloader.show()
       axios.get('https://eo47m6860e33ebo.m.pipedream.net').then(res => {
         // console.log({ res })
         state.templates = res.data.files
+        f7.preloader.hide()
       })
     },
     setProperties({ state, dispatch }, { properties }) {

@@ -50,34 +50,25 @@ const TenantPage = ({ f7route }) => {
       {tenant && <Block>
         <form id="tenantForm" className="form-store-data">
           <Row>
-            <Col>
-              <List noHairlines>
-                <ListInput name="name" label="Name" readonly={readOnly} />
-                <ListInput name="email" label="Email" readonly={readOnly} />
+            <List noHairlines className='col'>
+              <ListInput name="name" label="Name" readonly={readOnly} />
+              <ListInput name="email" label="Email" readonly={readOnly} />
+              <ListInput name="phone" label="Phone" readonly={readOnly} />
+            </List>
 
-              </List>
-            </Col>
-            <Col>
-              <Block>
-                <List noHairlines>
-                  <ListInput name="phone" label="Phone" readonly={readOnly} />
-                  <ListInput
-                    name="idNumber"
-                    label="ID number"
-                    readonly={readOnly}
-                  />
+            <List noHairlines className='col'>
+              <ListInput name="country" label="Country" readonly={readOnly} />
+              <ListInput
+                name="idNumber"
+                label="ID number"
+                readonly={readOnly}
+              />
 
-                </List>
-              </Block>
-            </Col>
+            </List>
           </Row>
-          <Row>
-            <Col>
-              <List noHairlines>
-                <ListInput name="address" label="Permanent address" readonly={readOnly} />
-              </List>
-            </Col>
-          </Row>
+          <List noHairlines>
+            <ListInput name="address" label="Permanent address" readonly={readOnly} />
+          </List>
           {uploads?.length > 0 && <List noHairlines>
             <ListItem >
               <h2 slot="header">Files</h2>

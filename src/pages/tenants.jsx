@@ -47,33 +47,25 @@ const TenantsPage = () => {
         </Navbar>
         <form id="newTenantForm" className="form-store-data">
           <Row>
-            <Col>
-              <List noHairlines>
-                <ListInput name="name" label="Name" onChange={handleChange} />
-                <ListInput name="email" label="Email" onChange={handleChange} />
+            <List noHairlines className='col'>
+              <ListInput name="name" label="Name" onChange={handleChange} />
+              <ListInput name="email" label="Email" onChange={handleChange} />
+              <ListInput name="phone" label="Phone" onChange={handleChange} />
+            </List>
 
-              </List>
-            </Col>
-            <Col>
-              <List noHairlines>
-                <ListInput name="phone" label="Phone" onChange={handleChange} />
-                <ListInput name="country" label="Country" onChange={handleChange} />
-                <ListInput
-                  name="idNumber"
-                  label="ID number"
-                  onChange={handleChange}
-                />
+            <List noHairlines className='col'>
+              <ListInput name="country" label="Country" onChange={handleChange} />
+              <ListInput
+                name="idNumber"
+                label="ID number"
+                onChange={handleChange}
+              />
 
-              </List>
-            </Col>
+            </List>
           </Row>
-          <Row>
-            <Col>
-              <List noHairlines>
-                <ListInput name="address" label="Permanent address" onChange={handleChange} />
-              </List>
-            </Col>
-          </Row>
+          <List noHairlines>
+            <ListInput name="address" label="Permanent address" onChange={handleChange} />
+          </List>
           <List noHairlines>
             <ListItem >
               <h2 slot="header">Files</h2>
