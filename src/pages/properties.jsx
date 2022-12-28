@@ -11,6 +11,7 @@ import isBetween from 'dayjs/plugin/isBetween';
 import minMax from 'dayjs/plugin/minMax';
 dayjs.extend(isBetween);
 dayjs.extend(minMax);
+import { getNumberFromString } from '../utils/utils';
 
 function PropertiesPage({ f7router }) {
   const properties = useFirestoreListener({ collection: "properties" })
@@ -128,6 +129,7 @@ function PropertiesPage({ f7router }) {
           return ({
             id: unit.docId,
             unit: unit.name,
+            priority: getNumberFromString(unit.name),
             property: properties.filter(property => property.docId === unit.property.id)[0].name,
             property_revenue,
             property_expenses,
@@ -136,7 +138,7 @@ function PropertiesPage({ f7router }) {
             booked_days,
             // occupancy
           })
-        }))
+        }).sort((a, b) => a.priority - b.priority))
   }, [month, bookings])
 
   useEffect(() => {
@@ -176,9 +178,8 @@ function PropertiesPage({ f7router }) {
           plugins={[resourceTimelinePlugin]}
           schedulerLicenseKey='CC-Attribution-NonCommercial-NoDerivatives'
           initialView='resourceTimelineMonth'
-          resourceOrder='unit,property'
+          resourceOrder='priority'
           nowIndicator
-
           eventClick={function (info) {
             let recordId = info.event._def.publicId
             console.log({ recordId })

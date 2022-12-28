@@ -81,15 +81,16 @@ const BookingPage = ({ f7route }) => {
   }
 
   const handleSave = () => {
-    let data = f7.form.getFormData('#bookingForm')
-    const checkInParts = formData.checkIn.split('/')
+    let data = f7.form.convertToData('#bookingForm')
+    debugger;
+    const checkInParts = data.checkIn.split('.')
     const checkIn = dayjs(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`)
-    const checkOutParts = formData.checkOut.split('/')
+    const checkOutParts = data.checkOut.split('.')
     const checkOut = dayjs(`${checkOutParts[1]}/${checkOutParts[0]}/${checkOutParts[2]}`)
     const payload = {
       ...data,
-      checkIn: new Date(checkIn),
-      checkOut: new Date(checkOut),
+      checkIn,
+      checkOut,
       unit: doc(db, 'units', selectedUnit),
       property: doc(db, 'properties', selectedProperty),
       tenant: doc(db, 'tenants', selectedTenant),
