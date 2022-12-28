@@ -52,6 +52,7 @@ const BookingPage = ({ f7route }) => {
       property: await getDocumentOnce({ collectionName: 'properties', id: booking.property.id }),
       unit: await getDocumentOnce({ collectionName: 'units', id: booking.unit.id }),
       booking: await getDocumentOnce({ collectionName: 'bookings', id: booking.docId }),
+      bookingId: booking.docId,
     }
     store.dispatch('generateContract', { payload })
   }
@@ -70,7 +71,6 @@ const BookingPage = ({ f7route }) => {
   useEffect(() => {
     console.log({ booking })
     if (booking) {
-      // debugger;
       setSelectedUnit(booking.unit.id)
       setSelectedTenant(booking.tenant.id)
       setSelectedProperty(booking.property.id)
@@ -100,7 +100,6 @@ const BookingPage = ({ f7route }) => {
 
   const handleSave = () => {
     let data = f7.form.convertToData('#bookingForm')
-    debugger;
     const checkInParts = data.checkIn.split('/')
     const checkIn = dayjs(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`).unix()
     const checkOutParts = data.checkOut.split('/')
@@ -283,9 +282,10 @@ const BookingPage = ({ f7route }) => {
                 <CardHeader>Contracts</CardHeader>
                 <CardContent>
                   <List noHairlines>
-                    <ListItem style={{ listStyleType: 'none' }} after="Preview" title="Contract" className='col' link="#" target='_blank'>
+                    {booking.contracts.map(contract => (<ListItem key={contract.id} style={{ listStyleType: 'none' }} title={contract.name} className='col' >
                       <img slot="media" src={googleDocsLogo} width={16} style={{ marginRight: 4 }} />
-                    </ListItem>
+                      <a slot="link" class="link external" href={`https://docs.google.com/document/d/${contract.id}/edit#`} target='blank'>Open contract</a>
+                    </ListItem>))}
                   </List>
                 </CardContent>
                 <CardFooter>

@@ -9,6 +9,7 @@ import currency from 'currency.js';
 import dayjs from 'dayjs';
 import { f7 } from 'framework7-react';
 import axios from 'axios';
+import { arrayUnion } from 'firebase/firestore'
 
 const store = createStore({
   state: {
@@ -60,9 +61,11 @@ const store = createStore({
       console.log({ payload })
       axios.post('https://eogu1ng0k7fa2z2.m.pipedream.net', { payload }).then(res => {
         console.log({ res })
+        updateOne({ collectionName: 'bookings', id: payload.bookingId, payload: { contracts: arrayUnion(res.data.file) } })
       })
     },
     getContractTemplates({ state }) {
+      if (state.templates.length > 0) return
       f7.preloader.show()
       axios.get('https://eo47m6860e33ebo.m.pipedream.net').then(res => {
         // console.log({ res })

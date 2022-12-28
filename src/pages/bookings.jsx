@@ -72,7 +72,6 @@ const BookingsPage = () => {
           amount: Number(formData.rent),
           date: new Date(day)
         }
-        // debugger;
         f7.store.dispatch('createOne', { collectionName: 'revenue', payload })
         day = dayjs(day).add(1, increment)
       } while (dayjs(day).isBefore(dayjs(formData.checkOut)))
