@@ -82,18 +82,25 @@ const BookingPage = ({ f7route }) => {
 
   const handleSave = () => {
     let data = f7.form.convertToData('#bookingForm')
-    debugger;
+    // debugger;
+    console.log({ data, selectedProperty, selectedUnit, selectedTenant })
     const checkInParts = data.checkIn.split('.')
-    const checkIn = dayjs(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`)
+    const checkIn = new Date(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`)
     const checkOutParts = data.checkOut.split('.')
-    const checkOut = dayjs(`${checkOutParts[1]}/${checkOutParts[0]}/${checkOutParts[2]}`)
+    const checkOut = new Date(`${checkOutParts[1]}/${checkOutParts[0]}/${checkOutParts[2]}`)
+    const dateInParts = data.date.split('.')
+    const date = new Date(`${dateInParts[1]}/${dateInParts[0]}/${dateInParts[2]}`)
+    debugger;
     const payload = {
-      ...data,
+      date,
+      rent: currency(data.rent, { symbol: '€', decimal: ',', separator: '.' }).value,
+      deposit: currency(data.deposit, { symbol: '€', decimal: ',', separator: '.' }).value,
       checkIn,
       checkOut,
       unit: doc(db, 'units', selectedUnit),
       property: doc(db, 'properties', selectedProperty),
       tenant: doc(db, 'tenants', selectedTenant),
+      notes: data.notes,
     }
     console.log({ payload })
     f7.store.dispatch('updateOne', { collectionName: 'bookings', id: booking.docId, payload })
