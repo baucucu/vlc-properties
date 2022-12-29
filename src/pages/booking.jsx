@@ -282,7 +282,7 @@ const BookingPage = ({ f7route }) => {
                 <CardHeader>Contracts</CardHeader>
                 <CardContent>
                   <List noHairlines>
-                    {booking?.contracts?.map(contract => (<ListItem key={contract.id} style={{ listStyleType: 'none' }} title={contract.name} className='col' >
+                    {booking.contracts && booking?.contracts?.map(contract => (<ListItem key={contract.id} style={{ listStyleType: 'none' }} title={contract.name} className='col' >
                       <img slot="media" src={googleDocsLogo} width={16} style={{ marginRight: 4 }} />
                       <a slot="link" class="link external" href={`https://docs.google.com/document/d/${contract.id}/edit#`} target='blank'>Open contract</a>
                     </ListItem>))}
