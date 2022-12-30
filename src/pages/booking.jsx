@@ -44,6 +44,7 @@ const BookingPage = ({ f7route }) => {
   const [selectableUnits, setSelectableUnits] = useState([])
 
   const [selectedTemplate, setSelectedTemplate] = useState()
+  const [selectedContract, setSelectedContract] = useState()
 
   async function generateContract() {
     const payload = {
@@ -85,10 +86,13 @@ const BookingPage = ({ f7route }) => {
         tenant: booking.tenant.id,
         property: booking.property.id,
         rent: currency(booking.rent, { symbol: '€', decimal: ',', separator: '.' }).format(),
+        deposit: currency(booking.deposit, { symbol: '€', decimal: ',', separator: '.' }).format(),
         amount: currency(booking.amount, { symbol: '€', decimal: ',', separator: '.' }).format(),
+        yearlyRent: currency(booking.yearlyRent, { symbol: '€', decimal: ',', separator: '.' }).format(),
         notes: booking.notes
       }
       f7.form.fillFromData("#bookingForm", data)
+      if (booking?.contracts?.length > 0) { setSelectedContract(booking.contracts[booking.contracts.length - 1]) }
     }
   }, [booking])
 
@@ -107,14 +111,17 @@ const BookingPage = ({ f7route }) => {
     // const dateInParts = data.date.split('/')
     // const date = dayjs(`${dateInParts[1]}/${dateInParts[0]}/${dateInParts[2]}`)
     const rent = Number(currency(data.rent, { symbol: '€', decimal: ',', separator: '.' }).value)
+    const yearlyRent = Number(currency(data.yearlyRent, { symbol: '€', decimal: ',', separator: '.' }).value)
     const amount = Number(currency(data.amount, { symbol: '€', decimal: ',', separator: '.' }).value)
+    const deposit = Number(currency(data.deposit, { symbol: '€', decimal: ',', separator: '.' }).value)
 
     const payload = {
       channel: data.channel,
       amount,
       rent,
+      yearlyRent,
+      deposit,
       notes: data.notes,
-      // date,
       checkIn: new Date(checkIn * 1000),
       checkOut: new Date(checkOut * 1000),
       tenant: doc(db, 'tenants', selectedTenant || booking.tenant.id),
@@ -158,7 +165,7 @@ const BookingPage = ({ f7route }) => {
 
   return (
     <Page name="form">
-      <Navbar title="Booking " backLink="Back">
+      <Navbar title='Booking' backLink="Back">
         {readOnly && <Button onClick={() => setReadOnly(false)}><Icon small material='edit' /></Button>}
         {readOnly || <Button small onClick={handleSave}><Icon material='save' /></Button>}
         {readOnly || <NavRight><Button small onClick={handleCancel} ><Icon material='close' /></Button></NavRight>}
@@ -177,16 +184,6 @@ const BookingPage = ({ f7route }) => {
                 <ListInput name='date' label="Booking date" type='datepicker' disabled />
               </List>
             </Col>
-            <Col small>
-              <List noHairlines style={{ margin: 0 }}>
-                <ListInput name="rent" label="Monthly rent" disabled={readOnly} />
-              </List>
-            </Col>
-            <Col small>
-              <List noHairlines style={{ margin: 0 }}>
-                <ListInput name="amount" label="Total amount" disabled={readOnly} />
-              </List>
-            </Col>
             <Col>
               <List noHairlines style={{ margin: 0 }}>
                 <ListInput name='channel' type="select" label="Channel" disabled={readOnly}>
@@ -194,6 +191,29 @@ const BookingPage = ({ f7route }) => {
                 </ListInput>
               </List>
             </Col>
+          </Row>
+          <Row>
+            <Col small>
+              <List noHairlines style={{ margin: 0 }}>
+                <ListInput name="rent" label="Monthly rent" disabled={readOnly} />
+              </List>
+            </Col>
+            <Col small>
+              <List noHairlines style={{ margin: 0 }}>
+                <ListInput name="yearlyRent" label="Yearly rent" disabled={readOnly} />
+              </List>
+            </Col>
+            <Col small>
+              <List noHairlines style={{ margin: 0 }}>
+                <ListInput name="deposit" label="Deposit" disabled={readOnly} />
+              </List>
+            </Col>
+            <Col small>
+              <List noHairlines style={{ margin: 0 }}>
+                <ListInput name="amount" label="Total amount" disabled={readOnly} />
+              </List>
+            </Col>
+
           </Row>
           <Row>
             <Col>
@@ -260,40 +280,43 @@ const BookingPage = ({ f7route }) => {
             <ListItem >
               <h2 slot="header">Contract</h2>
             </ListItem>
+            <Row>
+              <Col >
+                <Card>
+                  <CardHeader>Contract template</CardHeader>
+                  <CardContent>
+                    <List noHairlines>
+                      <ListInput name="template" type='select' defaultValue={templates[0].id} onChange={(e) => setSelectedTemplate(e.target.value)}>
+                        {templates.filter(template => template.name !== 'Contracts').map(template => (<option key={template.id} value={template.id}>{template.name}</option>))}
+                      </ListInput>
+                    </List>
+                  </CardContent>
+                  <CardFooter>
+                    <Button disabled={!selectedTemplate} onClick={async () => await generateContract()}>Generate contract</Button>
+                  </CardFooter>
+                </Card>
+              </Col>
+              <Col>
+                {selectedContract && <Card>
+                  <CardHeader>Contracts</CardHeader>
+                  <CardContent>
+                    <List noHairlines>
+                      <ListInput type='select' name='contract' onChange={(e) => setSelectedContract(e.target.value)} defaultValue={selectedContract.id}>
+                        {booking.contracts && booking.contracts.map(contract => (<option key={contract.id} value={contract.id}>{contract.name}</option>))}
+                        {/* <img slot="media" src={googleDocsLogo} width={16} style={{ marginRight: 4 }} /> */}
+                      </ListInput>
+                    </List>
+                  </CardContent>
+                  <CardFooter>
+                    <a className="link external" href={`https://docs.google.com/document/d/${selectedContract.id}/edit#`} target='blank'>
+                      <b>OPEN CONTRACT</b>
+                    </a>
+                    <Button>Send to tenant</Button>
+                  </CardFooter>
+                </Card>}
+              </Col>
+            </Row>
           </List>
-          <Row>
-            <Col >
-              <Card>
-                <CardHeader>Contract template</CardHeader>
-                <CardContent>
-                  <List noHairlines>
-                    <ListInput style={{ listStyleType: 'none' }} className='col-40' name="contract" type='select' defaultValue={templates[0].id} onChange={(e) => setSelectedTemplate(e.target.value)}>
-                      {templates.map(template => (<option key={template.id} value={template.id}>{template.name}</option>))}
-                    </ListInput>
-                  </List>
-                </CardContent>
-                <CardFooter>
-                  <Button disabled={!selectedTemplate} onClick={async () => await generateContract()}>Generate contract</Button>
-                </CardFooter>
-              </Card>
-            </Col>
-            <Col>
-              <Card>
-                <CardHeader>Contracts</CardHeader>
-                <CardContent>
-                  <List noHairlines>
-                    {booking.contracts && booking?.contracts?.map(contract => (<ListItem key={contract.id} style={{ listStyleType: 'none' }} title={contract.name} className='col' >
-                      <img slot="media" src={googleDocsLogo} width={16} style={{ marginRight: 4 }} />
-                      <a class="link external" href={`https://docs.google.com/document/d/${contract.id}/edit#`} target='blank'>Open contract</a>
-                    </ListItem>))}
-                  </List>
-                </CardContent>
-                <CardFooter>
-                  <Button>Send to tenant</Button>
-                </CardFooter>
-              </Card>
-            </Col>
-          </Row>
           <List noHairlines>
             <ListItem >
               <h2 slot="header">Notes</h2>

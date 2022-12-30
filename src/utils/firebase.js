@@ -96,7 +96,6 @@ const getDocumentOnce = async ({ collectionName, id }) => {
     }
 }
 
-
 async function updateOne({ collectionName, id, payload }) {
     console.log({ saving: { collectionName, id, payload } })
     const ref = doc(db, collectionName, id)

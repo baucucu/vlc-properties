@@ -41,11 +41,15 @@ const BookingsPage = () => {
       const checkOutParts = formData.checkOut.split('/')
       const checkOut = dayjs(`${checkOutParts[1]}/${checkOutParts[0]}/${checkOutParts[2]}`).unix()
       const rent = Number(currency(formData.rent).value)
+      const yearlyRent = Number(currency(formData.yearlyRent).value)
       const amount = Number(currency(formData.amount).value)
+      const deposit = Number(currency(formData.deposit).value)
       let payload = {
         channel: formData.channel,
         amount,
         rent,
+        deposit,
+        yearlyRent,
         notes: formData.notes,
         date: new Date(),
         checkIn: new Date(checkIn * 1000),
@@ -192,6 +196,18 @@ const BookingsPage = () => {
               <Col small>
                 <List noHairlines>
                   <ListInput name="rent" type="number" label="Monthly rent" onChange={handleChange} disabled={readOnly} />
+                </List>
+              </Col>
+              <Col small>
+                <List noHairlines>
+                  <ListInput name="yearlyRent" type="number" label="Yearly rent" onChange={handleChange} disabled={readOnly} />
+                </List>
+              </Col>
+            </Row>
+            <Row>
+              <Col small>
+                <List noHairlines>
+                  <ListInput name="deposit" type="number" label="Deposit" onChange={handleChange} disabled={readOnly} />
                 </List>
               </Col>
               <Col small>

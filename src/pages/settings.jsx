@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Page, Navbar, Button, Block, List, ListItem, ListInput, Stepper, Icon, Popup, NavRight, f7 } from 'framework7-react';
+import { Page, Navbar, Button, Block, List, ListItem, ListInput, Stepper, Icon, Popup, NavRight, Row, Col, f7 } from 'framework7-react';
 import _ from 'lodash'
 import { createOne, updateOne } from '../utils/firebase';
 import { doc } from 'firebase/firestore'
@@ -21,21 +21,31 @@ const SettingsPage = () => {
     const [editedCategories, setEditedCategories] = useState([])
     const [editCategories, setEditCategories] = useState(false)
     const [canSaveCategories, setCanSaveCategories] = useState(false)
+    const [editEmail, setEditEmail] = useState(false)
+    const [emailTemplate, setEmailTemplate] = useState({
+        title: "",
+        body: ""
+    })
 
     const [popupOpen, setPopupOpen] = useState(false)
 
     function handleAddProperty() { setPopupOpen(true) }
     function handleClose() { setPopupOpen(false) }
 
-    function handlePropertyChange({ id, name }) {
-        // console.log({ id, name })
+    function saveEmail() {
+        const { title, body } = emailTemplate
+        f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'emailTemplate', payload: { title, body } })
+        setEditEmail(false)
+    }
+
+    function handlePropertyChange({ id, name, address }) {
         let update = editedProperties
         update.map((property, index) => {
             if (property.id === id) {
-                update[index].name = name
+                if (name) { update[index].name = name }
+                if (address) { update[index].address = address }
             }
         })
-        // console.log({ update })
         setEditedProperties(prev => ([...update]))
     }
     function handleSaveProperties() {
@@ -97,18 +107,20 @@ const SettingsPage = () => {
     useEffect(() => {
         setEditedChannels(settings.filter(item => item.docId === 'channels')[0]?.values || [])
         setEditedCategories(settings.filter(item => item.docId === 'expenseCategories')[0]?.values || [])
+        setEmailTemplate(settings.filter(item => item.docId === 'emailTemplate')[0] || { title: "", body: "" })
     }, [settings])
 
     const AddProperty = () => {
         const [canSave, setCanSave] = useState(false)
         const [property, setProperty] = useState({
             name: "",
+            address: "",
             units: [],
             rooms: 1
         })
         function handleNewPropertySave() {
 
-            f7.store.dispatch('createOne', { collectionName: 'properties', payload: { name: property.name, units: [] } })
+            f7.store.dispatch('createOne', { collectionName: 'properties', payload: { name: property.name, address: property.address, units: [] } })
                 .then(ref => {
                     // console.log('property created: ', ref)
                     let promises = [...Array(property.rooms)].map(async (item, index) => {
@@ -147,6 +159,7 @@ const SettingsPage = () => {
                 <Block>
                     <List>
                         <ListInput name="propertyName" label="Property name" placeholder="Enter name" onChange={(e) => { setProperty({ ...property, name: e.target.value }) }}></ListInput>
+                        <ListInput name="propertyAddress" label Property address placeholder='Enter address' onChange={(e) => { setProperty({ ...property, address: e.target.value }) }}></ListInput>
                         <ListItem label="# of rooms">
                             <small className="display-block">Number of rooms</small>
                             <Stepper name="propertyRooms" value={property.rooms} min={1} onStepperChange={(e) => { setProperty({ ...property, rooms: e }) }}></Stepper>
@@ -172,12 +185,21 @@ const SettingsPage = () => {
                             </div>
                         </ListItem>
                         {_.sortBy(editedProperties, item => item.name).map(item => (
-                            <ListInput key={item.id} name={item.name} readonly={!editProperties}
-                                defaultValue={item.name}
-                                onChange={(e) => handlePropertyChange({ id: item.id, name: e.target.value })}
-                            >
-                                test
-                            </ListInput>
+                            <Row key={item.id}>
+
+                                <ListInput className='col-30' name={item.name} readonly={!editProperties} style={{ listStyleType: 'none' }}
+                                    floatingLabel
+                                    label="Property name"
+                                    defaultValue={item.name}
+                                    onChange={(e) => handlePropertyChange({ id: item.id, name: e.target.value })}
+                                />
+                                <ListInput className='col-70' name={item.address} readonly={!editProperties} style={{ listStyleType: 'none' }}
+                                    floatingLabel
+                                    label="Property address"
+                                    defaultValue={item.address}
+                                    onChange={(e) => handlePropertyChange({ id: item.id, address: e.target.value })}
+                                />
+                            </Row>
                         ))}
                     </List>
                     {/* <List noHairlines mediaList>
@@ -206,6 +228,17 @@ const SettingsPage = () => {
                             </div>
                         </ListItem>
                         {_.sortBy(editedCategories, item => item).map((category, index) => <ListInput key={index} name={"expenseCategory." + index} onChange={(e) => handleCategoryEdit({ name: e.target.value, index })} readonly={!editCategories} defaultValue={category} />)}
+                    </List>
+                    <List noHairlines>
+                        <ListItem >
+                            <h3 slot="header">Contract email template</h3>
+                            <div style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
+                                {editEmail && <Button onClick={() => saveEmail()}><Icon material="save" /></Button>}
+                                {editEmail || <Button onClick={() => setEditEmail(true)}><Icon material="edit" /></Button>}
+                            </div>
+                        </ListItem>
+                        <ListInput floatingLabel label="Title" name="emailTitle" type='text' readonly={!editEmail} defaultValue={emailTemplate.title} onChange={(e) => setEmailTemplate({ ...emailTemplate, title: e.target.value })}></ListInput>
+                        <ListInput floatingLabel label="Body" name="emailBody" type='textarea' readonly={!editEmail} defaultValue={emailTemplate.body} onChange={(e) => setEmailTemplate({ ...emailTemplate, body: e.target.value })}></ListInput>
                     </List>
                 </form>
             </Block>
