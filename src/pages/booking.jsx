@@ -326,7 +326,7 @@ const BookingPage = ({ f7route }) => {
                     <a className="link external" href={`https://docs.google.com/document/d/${selectedContract.id}/edit#`} target='blank'>
                       <b>OPEN CONTRACT</b>
                     </a>
-                    <Button>Send to tenant</Button>
+                    <Button onClick={async () => await sendContract()}>Send to tenant</Button>
                   </CardFooter>
                 </Card>}
               </Col>
