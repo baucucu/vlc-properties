@@ -59,16 +59,18 @@ const store = createStore({
   actions: {
     generateContract({ state, dispatch }, { payload }) {
       console.log({ payload })
+      f7.preloader.show()
       axios.post('https://eogu1ng0k7fa2z2.m.pipedream.net', { payload }).then(res => {
         console.log({ res })
-        updateOne({ collectionName: 'bookings', id: payload.bookingId, payload: { contracts: arrayUnion(res.data.file) } })
+        updateOne({ collectionName: 'bookings', id: payload.bookingId, payload: { contracts: arrayUnion(res.data.file) } }).then(() => f7.preloader.hide())
       })
     },
     sendContract({ state, dispatch }, { payload }) {
       console.log({ payload })
+      f7.preloader.show()
       axios.post('https://eo2zrkwk4y39fg3.m.pipedream.net', { payload }).then(res => {
         console.log({ res })
-        updateOne({ collectionName: 'bookings', id: payload.bookingId, payload: { log: arrayUnion(res.data.email) } })
+        updateOne({ collectionName: 'bookings', id: payload.bookingId, payload: { log: arrayUnion(res.data) } }).then(() => f7.preloader.hide())
       })
     },
     getContractTemplates({ state }) {

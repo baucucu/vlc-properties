@@ -46,6 +46,10 @@ const BookingPage = ({ f7route }) => {
   const [selectedTemplate, setSelectedTemplate] = useState()
   const [selectedContract, setSelectedContract] = useState()
 
+  useEffect(() => {
+    console.log({ selectedContract })
+  }, [selectedContract])
+
   async function generateContract() {
     const payload = {
       template: selectedTemplate,
@@ -60,16 +64,18 @@ const BookingPage = ({ f7route }) => {
 
   async function sendContract() {
     let { title, body } = settings.filter(item => item.docId === 'emailTemplate')[0]
+
     const payload = {
-      contract: selectedContract,
       title,
       body,
+      contract: { ...selectedContract, pdf: `https://docs.google.com/document/d/${selectedContract.id}/export?format=pdf` },
       tenant: await getDocumentOnce({ collectionName: 'tenants', id: booking.tenant.id }),
       property: await getDocumentOnce({ collectionName: 'properties', id: booking.property.id }),
       unit: await getDocumentOnce({ collectionName: 'units', id: booking.unit.id }),
       booking: await getDocumentOnce({ collectionName: 'bookings', id: booking.docId }),
       bookingId: booking.docId,
     }
+    debugger;
     store.dispatch('sendContract', { payload })
   }
 
