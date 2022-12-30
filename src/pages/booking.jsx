@@ -58,6 +58,21 @@ const BookingPage = ({ f7route }) => {
     store.dispatch('generateContract', { payload })
   }
 
+  async function sendContract() {
+    let { title, body } = settings.filter(item => item.docId === 'emailTemplate')[0]
+    const payload = {
+      contract: selectedContract,
+      title,
+      body,
+      tenant: await getDocumentOnce({ collectionName: 'tenants', id: booking.tenant.id }),
+      property: await getDocumentOnce({ collectionName: 'properties', id: booking.property.id }),
+      unit: await getDocumentOnce({ collectionName: 'units', id: booking.unit.id }),
+      booking: await getDocumentOnce({ collectionName: 'bookings', id: booking.docId }),
+      bookingId: booking.docId,
+    }
+    store.dispatch('sendContract', { payload })
+  }
+
   useEffect(() => {
     // console.log({ bookings })
     let temp = bookings.filter(item => item.docId === f7route.params.id)?.[0]

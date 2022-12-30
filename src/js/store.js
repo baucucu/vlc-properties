@@ -64,6 +64,13 @@ const store = createStore({
         updateOne({ collectionName: 'bookings', id: payload.bookingId, payload: { contracts: arrayUnion(res.data.file) } })
       })
     },
+    sendContract({ state, dispatch }, { payload }) {
+      console.log({ payload })
+      axios.post('https://eo2zrkwk4y39fg3.m.pipedream.net', { payload }).then(res => {
+        console.log({ res })
+        updateOne({ collectionName: 'bookings', id: payload.bookingId, payload: { log: arrayUnion(res.data.email) } })
+      })
+    },
     getContractTemplates({ state }) {
       if (state.templates.length > 0) return
       f7.preloader.show()
