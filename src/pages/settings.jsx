@@ -110,6 +110,24 @@ const SettingsPage = () => {
         setEmailTemplate(settings.filter(item => item.docId === 'emailTemplate')[0] || { title: "", body: "" })
     }, [settings])
 
+    function handleChannelDelete(channel) {
+        f7.dialog.confirm('Are you sure you want to delete this channel?', 'Delete Channel', () => {
+            f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'channels', payload: { values: editedChannels.filter(item => item !== channel) } })
+        })
+    }
+
+    function handlePropertyDelete(property) {
+        f7.dialog.confirm('Are you sure you want to delete this property?', 'Delete Property', () => {
+            f7.store.dispatch('deleteOne', { collectionName: 'properties', id: property.docId })
+        })
+    }
+
+    function handleCategoryDelete(category) {
+        f7.dialog.confirm('Are you sure you want to delete this expense category?', 'Delete Category', () => {
+            f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'expenseCategories', payload: { values: editedCategories.filter(item => item !== category) } })
+        })
+    }
+
     const AddProperty = () => {
         const [canSave, setCanSave] = useState(false)
         const [property, setProperty] = useState({
@@ -188,14 +206,18 @@ const SettingsPage = () => {
                             <Row key={item.id}>
 
                                 <ListInput className='col-30' name={item.name} readonly={!editProperties} style={{ listStyleType: 'none' }}
-                                    floatingLabel
-                                    label="Property name"
+
+                                    placeholder="Property name"
                                     defaultValue={item.name}
                                     onChange={(e) => handlePropertyChange({ id: item.id, name: e.target.value })}
-                                />
+                                >
+                                    {editProperties && <Button slot='content-end' onClick={() => handlePropertyDelete(item)}>
+                                        <Icon material="delete" />
+                                    </Button>}
+                                </ListInput>
                                 <ListInput className='col-70' name={item.address} readonly={!editProperties} style={{ listStyleType: 'none' }}
-                                    floatingLabel
-                                    label="Property address"
+
+                                    placeholder="Property address"
                                     defaultValue={item.address}
                                     onChange={(e) => handlePropertyChange({ id: item.id, address: e.target.value })}
                                 />
@@ -211,23 +233,27 @@ const SettingsPage = () => {
                         <ListItem >
                             <h3 slot="header">Booking channels</h3>
                             <div style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
-                                {canSaveChannels && <Button onClick={() => handleSaveChannels()}><Icon material="save" /></Button>}
+                                {editChannels && <Button onClick={() => handleSaveChannels()}><Icon material="save" /></Button>}
                                 {editChannels && <Button onClick={() => setEditedChannels([...editedChannels, ''])}><Icon material="add" /></Button>}
                                 {editChannels || <Button onClick={() => setEditChannels(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {_.sortBy(editedChannels, item => item).map((channel, index) => <ListInput key={index} name={"channel." + index} onChange={(e) => handleChannelEdit({ name: e.target.value, index })} readonly={!editChannels} defaultValue={channel} />)}
+                        {_.sortBy(editedChannels, item => item).map((channel, index) => <ListInput key={index} name={"channel." + index} onChange={(e) => handleChannelEdit({ name: e.target.value, index })} readonly={!editChannels} defaultValue={channel} >
+                            {editChannels && <Button slot='content-end' onClick={() => handleChannelDelete(channel)}><Icon material='delete'></Icon></Button>}
+                        </ListInput>)}
                     </List>
                     <List noHairlines>
                         <ListItem >
                             <h3 slot="header">Expense categories</h3>
                             <div style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
-                                {canSaveCategories && <Button onClick={() => handleSaveCategories()}><Icon material="save" /></Button>}
+                                {editCategories && <Button onClick={() => handleSaveCategories()}><Icon material="save" /></Button>}
                                 {editCategories && <Button onClick={() => setEditedCategories([...editedCategories, ''])}><Icon material="add" /></Button>}
                                 {editCategories || <Button onClick={() => setEditCategories(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {_.sortBy(editedCategories, item => item).map((category, index) => <ListInput key={index} name={"expenseCategory." + index} onChange={(e) => handleCategoryEdit({ name: e.target.value, index })} readonly={!editCategories} defaultValue={category} />)}
+                        {_.sortBy(editedCategories, item => item).map((category, index) => <ListInput key={index} name={"expenseCategory." + index} onChange={(e) => handleCategoryEdit({ name: e.target.value, index })} readonly={!editCategories} defaultValue={category} >
+                            {editCategories && <Button slot='content-end' onClick={() => handleCategoryDelete(category)}><Icon material='delete'></Icon></Button>}
+                        </ListInput>)}
                     </List>
                     <List noHairlines>
                         <ListItem >
@@ -237,8 +263,8 @@ const SettingsPage = () => {
                                 {editEmail || <Button onClick={() => setEditEmail(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        <ListInput floatingLabel label="Title" name="emailTitle" type='text' readonly={!editEmail} defaultValue={emailTemplate.title} onChange={(e) => setEmailTemplate({ ...emailTemplate, title: e.target.value })}></ListInput>
-                        <ListInput floatingLabel label="Body" name="emailBody" type='textarea' readonly={!editEmail} defaultValue={emailTemplate.body} onChange={(e) => setEmailTemplate({ ...emailTemplate, body: e.target.value })}></ListInput>
+                        <ListInput label="Title" name="emailTitle" type='text' readonly={!editEmail} defaultValue={emailTemplate.title} onChange={(e) => setEmailTemplate({ ...emailTemplate, title: e.target.value })}></ListInput>
+                        <ListInput label="Body" name="emailBody" type='textarea' readonly={!editEmail} defaultValue={emailTemplate.body} onChange={(e) => setEmailTemplate({ ...emailTemplate, body: e.target.value })}></ListInput>
                     </List>
                 </form>
             </Block>
