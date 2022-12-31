@@ -38,11 +38,19 @@ const TenantPage = ({ f7route }) => {
     setReadOnly(true)
   }
 
+  function handleDelete() {
+    f7.dialog.confirm('Are you sure you want to delete this tenant?', () => {
+      store.dispatch('deleteOne', { collectionName: 'tenants', id: tenant.docId })
+      f7.views.main.router.back()
+    })
+  }
+
   return (
     <Page>
       <Navbar title={tenant?.name} backLink style={{ gap: 16 }}>
         {readOnly && <Button onClick={() => setReadOnly(false)}><Icon material='edit' /></Button>}
         {readOnly || <Button small onClick={handleSave}><Icon material='save' /></Button>}
+        {readOnly || <Button small onClick={handleDelete}>Delete</Button>}
         {readOnly || <NavRight>
           <Button small onClick={handleCancel}><Icon material='close' /></Button>
         </NavRight>}

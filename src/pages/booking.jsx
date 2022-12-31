@@ -173,6 +173,14 @@ const BookingPage = ({ f7route }) => {
     console.log({ id, formData })
   }
 
+  function handleDelete() {
+    f7.dialog.confirm('Are you sure you want to delete this booking?', 'Delete Booking', () => {
+      f7.store.dispatch('deleteOne', { collectionName: 'bookings', id: booking.docId }).then(res => {
+        f7.views.main.router.back()
+      })
+    })
+  }
+
   useEffect(() => { console.log("selectedUnit changed: ", { selectedUnit }) }, [selectedUnit])
   useEffect(() => { console.log("selectableUnits changed: ", { selectableUnits }) }, [selectableUnits])
 
@@ -189,6 +197,7 @@ const BookingPage = ({ f7route }) => {
       <Navbar title='Booking' backLink="Back">
         {readOnly && <Button onClick={() => setReadOnly(false)}><Icon small material='edit' /></Button>}
         {readOnly || <Button small onClick={handleSave}><Icon material='save' /></Button>}
+        {readOnly || <Button onClick={handleDelete}>Delete</Button>}
         {readOnly || <NavRight><Button small onClick={handleCancel} ><Icon material='close' /></Button></NavRight>}
       </Navbar>
 
