@@ -29,6 +29,7 @@ import routes from '../js/routes';
 import store from '../js/store';
 import LoginPage from '../pages/login';
 import { logout } from '../utils/firebase'
+import TenantForm from './tenantForm';
 
 const MyApp = () => {
 
@@ -43,10 +44,6 @@ const MyApp = () => {
   };
 
   const [selected, setSelected] = useState('properties')
-
-  useEffect(() => {
-    store.dispatch('getContractTemplates');
-  }, [])
 
   return (
     <App {...f7params} light>
@@ -98,7 +95,7 @@ const MyApp = () => {
       {/* Your main view, should have "view-main" class */}
       <View main className="safe-areas" url="/" />
       <LoginPage />
-
+      <TenantForm />
     </App>
   )
 }

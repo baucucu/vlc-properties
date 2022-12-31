@@ -24,6 +24,7 @@ const store = createStore({
     booking: undefined,
     settings: {},
     templates: [],
+    tenantId: undefined,
   },
   getters: {
     templates: ({ state }) => {
@@ -55,9 +56,18 @@ const store = createStore({
     },
     settings({ state }) {
       return state.settings
+    },
+    templates({ state }) {
+      return state.templates
+    },
+    tenantId({ state }) {
+      return state.tenantId
     }
   },
   actions: {
+    setTenantId({ state }, { tenantId }) {
+      state.tenantId = tenantId
+    },
     generateContract({ state, dispatch }, { payload }) {
       console.log({ payload })
       f7.preloader.show()
@@ -94,7 +104,7 @@ const store = createStore({
         'tennants',
         'expenses',
         'revenue',
-        'settings'
+        'settings',
       ].map(collectionName => {
         getRecords(collectionName)
       })

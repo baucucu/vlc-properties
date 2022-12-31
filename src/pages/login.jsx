@@ -1,14 +1,19 @@
 import React, { useEffect } from 'react';
-import { Page, View, Block, Button, f7, List, LoginScreen } from 'framework7-react';
+import { Page, View, Block, Button, f7, List, LoginScreen, useStore } from 'framework7-react';
 import { auth, signInWithGoogle } from "../utils/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import googleLogo from '../assets/google-logo.png'
+import { id } from 'framework7/shared/utils';
 
 const LoginPage = () => {
 
     const [user, loading, error] = useAuthState(auth);
+    const tenantId = useStore('tenantId')
 
     useEffect(() => {
+
+
+        // debugger;
         if (loading) {
             // maybe trigger a loading screen
             return;
@@ -16,6 +21,9 @@ const LoginPage = () => {
         // console.log({ user })
         if (!!user) {
             f7.loginScreen.close('#authScreen')
+            store.dispatch('getContractTemplates');
+        } else if (tenantId) {
+            f7.loginScreen.open('#tenantFormScreen')
         } else {
             f7.loginScreen.open('#authScreen')
         }

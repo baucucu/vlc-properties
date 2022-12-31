@@ -12,8 +12,9 @@ import minMax from 'dayjs/plugin/minMax';
 dayjs.extend(isBetween);
 dayjs.extend(minMax);
 import { getNumberFromString } from '../utils/utils';
+import store from '../js/store';
 
-function PropertiesPage({ f7router }) {
+function PropertiesPage({ f7router, f7route }) {
   const properties = useFirestoreListener({ collection: "properties" })
   const expenses = useFirestoreListener({ collection: "expenses" })
   const units = useFirestoreListener({ collection: "units" })
@@ -115,6 +116,11 @@ function PropertiesPage({ f7router }) {
 
     setMonth(currentView.currentStart)
   }
+  useEffect(() => {
+    console.log('f7route.query?.tenantId', f7route.query?.tenantId)
+    f7.store.dispatch('setTenantId', { tenantId: f7route.query?.tenantId })
+  }, [])
+
   useEffect(() => {
     setMonth(dayjs().startOf('month'))
   }, [])
