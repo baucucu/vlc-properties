@@ -18,7 +18,8 @@ import {
     doc,
     onSnapshot,
     updateDoc,
-    addDoc
+    addDoc,
+    deleteDoc
 } from "firebase/firestore";
 
 // import { google } from 'googleapis'
@@ -112,7 +113,7 @@ async function createOne(collectionName, payload) {
 
 async function deleteOne(collectionName, id) {
     const ref = doc(db, collectionName, id)
-    await deleteDoc(ref)
+    return await deleteDoc(ref)
 }
 
 export {
@@ -124,6 +125,7 @@ export {
     getRecords,
     updateOne,
     createOne,
+    deleteOne,
     getDocumentOnce
 };
 export default app

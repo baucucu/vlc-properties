@@ -8,6 +8,7 @@ import _ from 'lodash';
 import useFirestoreListener from "react-firestore-listener"
 import { doc, arrayUnion } from 'firebase/firestore'
 import { db } from '../utils/firebase'
+import store from '../js/store';
 
 const ExpensesPage = () => {
   const properties = useFirestoreListener({ collection: "properties" })
@@ -16,13 +17,19 @@ const ExpensesPage = () => {
   const [selected, setSelected] = useState([])
   const [events, setEvents] = useState([])
   const [popupOpen, setPopupOpen] = useState(false);
-  console.log({ properties })
-  console.log({ expenses })
-  console.log({ settings })
+  const [editPopupOpen, setEditPopupOpen] = useState(false);
+  const [expense, setExpense] = useState({})
 
   function handleClose() {
     setPopupOpen(false);
   }
+  function handleEditPopupClose() {
+    setEditPopupOpen(false);
+  }
+
+  useEffect(() => {
+    // console.log({ expense })
+  }, [expense])
 
   useEffect(() => {
     setSelected(properties.map(item => item.docId))
@@ -30,7 +37,6 @@ const ExpensesPage = () => {
 
   useEffect(() => {
     const ss = f7.smartSelect.get('#propertiesFilter > .smart-select')
-    // const ss = f7.smartSelect.get('#propertiesFilter')
     ss.on('close', function (el) {
       let options = Array.from(el.selectEl.selectedOptions).map(option => option.value)
       console.log({ options })
@@ -62,6 +68,164 @@ const ExpensesPage = () => {
     ss.setValue(selected)
 
   }, [selected, expenses])
+
+  function EditExpense({ handleEditPopupClose, expense }) {
+    const [canSave, setCanSave] = useState(false)
+    const [formData, setFormData] = useState({})
+
+    useEffect(() => {
+      console.log({ formData })
+      if (Object.keys(formData).length > 0) {
+        let emptyFields = Object.keys(formData).filter(key => formData[key] === '')
+        if (emptyFields.length === 0) { setCanSave(true) }
+      }
+    }, [formData])
+
+    useEffect(() => {
+      console.log({ expense })
+      if (Object.keys(expense).length > 0) {
+        let data = {
+          property: expense.property.id,
+          date: expense.date,
+          category: expense.category,
+          description: expense.description,
+          amount: expense.amount
+        }
+        console.log({ initial: data })
+        setFormData(data)
+      }
+    }, [expense])
+
+    function handleChange({ prop, value }) {
+      const data = { ...formData }
+      data[prop] = value
+      setFormData(data)
+    }
+
+    function handleSave() {
+      console.log({ save: formData })
+      let data = {
+        property: doc(db, "properties", formData.property),
+        date: new Date(formData.date.seconds * 1000),
+        category: formData.category,
+        description: formData.description,
+        amount: formData.amount
+      }
+      console.log({ saving: data })
+      store.dispatch('updateOne', { collectionName: 'expenses', id: expense.docId, payload: data }).then(res => {
+        console.log({ res })
+        handleEditPopupClose()
+      })
+    }
+
+    function handleDelete() {
+      f7.dialog.confirm('Are you sure you want to delete this expense?', 'Delete expense', () => {
+        store.dispatch('deleteOne', { collectionName: 'expenses', id: expense.docId }).then(res => {
+          console.log({ res })
+          handleEditPopupClose()
+        })
+      })
+    }
+    return (
+      <Page>
+        <Navbar title="Edit expense">
+          {canSave && <Button onClick={handleSave}><Icon material='save' /></Button>}
+          <Button onClick={() => handleDelete()}>Delete</Button>
+          <NavRight>
+            <Button onClick={handleEditPopupClose}>
+              <Icon material="close"></Icon>
+            </Button>
+          </NavRight>
+        </Navbar>
+        {Object.keys(formData).length > 0 && <Block form id='editForm' className="form-store-data">
+          <Row>
+            <Col >
+              <List noHairlines>
+                <ListInput
+                  name={"amount"}
+                  type="number"
+                  min={0}
+                  label="Amount"
+                  defaultValue={formData.amount}
+                  inner-start={<p>€</p>}
+                  placeholder="Enter amount"
+                  required
+                  onChange={(e) => handleChange({ prop: "amount", value: e.target.value })}
+                />
+              </List>
+            </Col>
+            <Col>
+              <List noHairlines>
+                <ListInput
+                  name={"date"}
+                  placeholder="Please choose..."
+                  label="Expense date"
+                  type='datepicker'
+                  calendarParams={{
+                    events: [{
+                      date: dayjs.unix(formData.date.seconds)
+                    }],
+                    value: [dayjs.unix(formData.date.seconds)],
+                    locale: "en",
+                    dateFormat: 'dd/mm/yyyy'
+                  }}
+                  required
+                  onCalendarChange={(value) => handleChange({ prop: "date", value: { seconds: dayjs(value[0]).unix() } })}
+                />
+              </List>
+            </Col>
+            <Col>
+              <List noHairlines>
+                <ListInput
+                  name={"property"}
+                  type="select"
+                  placeholder="Please choose..."
+                  defaultValue={formData.property}
+                  required
+                  label="Property"
+                  onChange={(e) => handleChange({ prop: "property", value: e.target.value })}
+                >
+                  {_.sortBy(properties, item => item.name).map(item => <option key={item.docId} value={item.docId}>{item.name}</option>)}
+                </ListInput>
+              </List>
+            </Col>
+          </Row>
+          <Row>
+            <Col width="35">
+              <List noHairlines>
+                <ListInput
+                  name={"category"}
+                  type="select"
+                  defaultValue={formData.category}
+                  placeholder="Please choose..."
+                  required
+                  label="Category"
+                  onChange={(e) => handleChange({ prop: "category", value: e.target.value })}
+                >
+                  {_.sortBy(settings.filter(item => item.docId === 'expenseCategories')[0]?.values, item => item)
+                    .map(category => <option key={category} value={category}>{category}</option>)}
+                </ListInput>
+              </List>
+            </Col>
+            <Col width="65">
+              <List noHairlines>
+                <ListInput
+                  name={"description"}
+                  label="Description"
+                  type="textarea"
+                  defaultValue={formData.description}
+                  resizable
+                  required
+                  placeholder="Enter description here"
+                  onChange={(e) => handleChange({ prop: "description", value: e.target.value })}
+                />
+              </List>
+            </Col>
+          </Row>
+        </Block >}
+      </Page>
+    )
+  }
 
   function AddExpenses({ handleClose }) {
     const [rows, setRows] = useState(1)
@@ -111,6 +275,7 @@ const ExpensesPage = () => {
       // console.log({ emptyFields })
       if (formData.length > 0 && emptyFields.length === 0) { setCanSave(true) } else { setCanSave(false) }
     }, [formData])
+
     return (
       <Page>
         <Navbar title="Add new expenses">
@@ -248,6 +413,12 @@ const ExpensesPage = () => {
                 var amountEl = info.el.getElementsByClassName('fc-list-event-dot')[0];
                 amountEl.style.display = "none";
               }}
+              eventClick={function (info) {
+                let expenseId = info.event._def.publicId
+                info.jsEvent.preventDefault()
+                setExpense(expenses.filter(item => item.docId === expenseId)[0])
+                setEditPopupOpen(true)
+              }}
               headerToolbar={{
                 left: 'today prev next',
                 center: 'title',
@@ -271,6 +442,15 @@ const ExpensesPage = () => {
         onPopupClose={handleClose}
       >
         <AddExpenses handleClose={handleClose} />
+      </Popup>
+      <Popup
+        className="edit"
+        opened={editPopupOpen}
+        onPopupClosed={handleEditPopupClose}
+        onPopupSwipeClose={handleEditPopupClose}
+        onPopupClose={handleEditPopupClose}
+      >
+        <EditExpense handleEditPopupClose={handleEditPopupClose} expense={expense} />
       </Popup>
     </Page>
   );

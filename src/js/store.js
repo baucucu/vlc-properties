@@ -3,7 +3,8 @@ import { createStore } from 'framework7/lite';
 import {
   getRecords,
   updateOne,
-  createOne
+  createOne,
+  deleteOne
 } from '../utils/firebase'
 import currency from 'currency.js';
 import dayjs from 'dayjs';
@@ -116,6 +117,10 @@ const store = createStore({
     async createOne({ state, dispatch }, { collectionName, payload }) {
       console.log({ received: { collectionName, payload } })
       return await createOne(collectionName, payload)
+    },
+    async deleteOne({ state, dispatch }, { collectionName, id }) {
+      console.log({ received: { collectionName, id } })
+      return await deleteOne(collectionName, id)
     },
     setSelected({ state }, options) {
       // console.log({ options })
