@@ -21,6 +21,7 @@ import {
     addDoc,
     deleteDoc
 } from "firebase/firestore";
+import { f7 } from 'framework7-react';
 
 // import { google } from 'googleapis'
 
@@ -108,7 +109,25 @@ async function createOne(collectionName, payload) {
     const ref = doc(collection(db, collectionName))
     const created = await setDoc(ref, payload)
     return ref.id
+}
 
+async function addToSubcollection({ tenantId, fileId, payload }) {
+    console.log({ received: { tenantId, payload } })
+    f7.preloader.show()
+    const ref = doc(db, 'tenants', tenantId, 'uploads', fileId)
+    return setDoc(ref, payload).then(res => {
+        f7.preloader.hide()
+        return res
+    })
+}
+
+async function removeFromSubcollection({ tenantId, fileId }) {
+    f7.preloader.show()
+    const ref = doc(db, 'tenants', tenantId, 'uploads', fileId)
+    return deleteDoc(ref).then(res => {
+        f7.preloader.hide()
+        return res
+    })
 }
 
 async function deleteOne(collectionName, id) {
@@ -126,6 +145,10 @@ export {
     updateOne,
     createOne,
     deleteOne,
-    getDocumentOnce
+    getDocumentOnce,
+    addToSubcollection,
+    removeFromSubcollection,
+    collection,
+    onSnapshot
 };
 export default app

@@ -21,7 +21,7 @@ const LoginPage = () => {
         // console.log({ user })
         if (!!user) {
             f7.loginScreen.close('#authScreen')
-            store.dispatch('getContractTemplates');
+            f7.store.dispatch('getContractTemplates');
         } else if (tenantId) {
             f7.loginScreen.open('#tenantFormScreen')
         } else {

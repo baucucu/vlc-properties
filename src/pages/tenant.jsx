@@ -1,34 +1,56 @@
 import React, { useEffect, useState } from 'react';
 import { Page, Navbar, Block, BlockTitle, List, ListItem, useStore, Row, Col, ListInput, Icon, Button, f7, NavRight } from 'framework7-react';
 import store from '../js/store';
-import { PickerInline } from 'filestack-react';
+import { PickerInline, PickerOverlay } from 'filestack-react';
 import useFirestoreListener from "react-firestore-listener"
-
+import { db, addToSubcollection, removeFromSubcollection, collection, onSnapshot } from '../utils/firebase'
+import RequestForm from '../components/requestForm'
 
 const TenantPage = ({ f7route }) => {
   const tenants = useFirestoreListener({ collection: "tenants" })
   const [readOnly, setReadOnly] = useState(true)
   const [tenant, setTenant] = useState()
-  console.log({ tenant })
   const [pickerOpen, setPickerOpen] = useState(false)
   const [uploads, setUploads] = useState(tenant?.uploads || [])
-  console.log({ tenant })
+  const [requestPopupOpen, setRequestPopupOpen] = useState(false)
 
   useEffect(() => {
     setTenant(tenants.filter(item => item.docId === f7route.params.id)[0])
   }, [tenants])
 
   useEffect(() => {
-    f7.form.fillFromData("#tenantForm", tenant)
-    setUploads(tenant?.uploads || [])
+    console.log({ tenant })
+    if (tenant) {
+      f7.form.fillFromData("#tenantForm", tenant)
+      let uploadsRef = collection(db, "tenants", tenant.docId, "uploads");
+
+      onSnapshot(uploadsRef, (querySnapshot) => {
+        setUploads([])
+        querySnapshot.forEach((doc) => {
+          setUploads(uploads => [...uploads, doc.data()])
+        });
+      });
+    }
   }, [tenant])
 
-  const handleSave = () => {
+  const handleSave = async () => {
     let data = f7.form.convertToData('#tenantForm')
     console.log({ data })
     if (JSON.stringify(data) !== JSON.stringify(tenant)) {
-      setUploads(tenant.up)
-      store.dispatch('updateOne', { collectionName: 'tenants', id: tenant.docId, payload: { ...data, uploads } })
+      f7.store.dispatch('updateOne', { collectionName: 'tenants', id: tenant.docId, payload: { ...data } }).then(async res => {
+        let promises = uploads.map(async file => {
+          console.log({ saving: file })
+          return await addToSubcollection({
+            tenantId: tenant.docId,
+            fileId: file.handle,
+            payload: file
+          })
+        })
+        return await Promise.all(promises).then(res => {
+          f7.dialog.alert('Tenant information saved.')
+          return res
+        })
+      })
     }
     setReadOnly(true)
   }
@@ -40,15 +62,29 @@ const TenantPage = ({ f7route }) => {
 
   function handleDelete() {
     f7.dialog.confirm('Are you sure you want to delete this tenant?', () => {
-      store.dispatch('deleteOne', { collectionName: 'tenants', id: tenant.docId })
+      f7.store.dispatch('deleteOne', { collectionName: 'tenants', id: tenant.docId })
       f7.views.main.router.back()
     })
+  }
+
+  async function handleUploadDelete(id) {
+    console.log({ id })
+    f7.preloader.show()
+    return await removeFromSubcollection({
+      tenantId: tenant.docId,
+      fileId: id
+    })
+  }
+
+  function handleRequestPopupClose() {
+    setRequestPopupOpen(false)
   }
 
   return (
     <Page>
       <Navbar title={tenant?.name} backLink style={{ gap: 16 }}>
         {readOnly && <Button onClick={() => setReadOnly(false)}><Icon material='edit' /></Button>}
+        <Button onClick={() => { setRequestPopupOpen(true) }}><Icon material="contact_mail" /></Button>
         {readOnly || <Button small onClick={handleSave}><Icon material='save' /></Button>}
         {readOnly || <Button small onClick={handleDelete}>Delete</Button>}
         {readOnly || <NavRight>
@@ -81,10 +117,11 @@ const TenantPage = ({ f7route }) => {
             </ListItem>
             {uploads.map(file => <ListItem key={file.id || file.handle} mediaItem title={file.filename}>
               <img src={file.url} width={40} slot="media" />
+              {readOnly || <Button slot='content-end' onClick={() => handleUploadDelete(file.handle)}><Icon material='delete'></Icon></Button>}
             </ListItem>)}
           </List>}
           {readOnly || <Button onClick={() => setPickerOpen(true)}>Add files</Button>}
-          {pickerOpen && <PickerInline
+          {pickerOpen && <PickerOverlay
             apikey={import.meta.env.VITE_FILESTACK_KEY}
             pickerOptions={{}}
             onUploadDone={(res) => {
@@ -109,6 +146,7 @@ const TenantPage = ({ f7route }) => {
           </List>
         </form>
       </Block>}
+      {tenant && <RequestForm requestPopupOpen={requestPopupOpen} handleRequestPopupClose={handleRequestPopupClose} tenant={tenant} />}
     </Page>
   );
 }

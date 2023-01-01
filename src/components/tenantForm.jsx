@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Page, LoginScreen, Block, BlockTitle, List, ListItem, useStore, Row, Col, ListInput, Icon, Button, f7, NavRight, Popup } from 'framework7-react';
 import useFirestoreListener from 'react-firestore-listener';
 import { PickerInline, PickerOverlay } from 'filestack-react';
+import { arrayRemove } from 'firebase/firestore';
+import { db, collection, onSnapshot, addToSubcollection, removeFromSubcollection } from '../utils/firebase';
 export default function TenantForm() {
 
     const tenants = useFirestoreListener({ collection: 'tenants' })
@@ -21,19 +23,54 @@ export default function TenantForm() {
     }, [tenantId, tenants])
 
     useEffect(() => {
-        console.log({ tenantForm: tenant })
-        f7.form.fillFromData('#tenantForm', tenant)
+        console.log({ tenant })
+        if (tenant) {
+            f7.form.fillFromData("#tenantForm", tenant)
+            let uploadsRef = collection(db, "tenants", tenant.docId, "uploads");
+
+            onSnapshot(uploadsRef, (querySnapshot) => {
+                setUploads([])
+                querySnapshot.forEach((doc) => {
+                    setUploads(uploads => [...uploads, doc.data()])
+                });
+            });
+        }
     }, [tenant])
 
-    function handleSave() {
+    async function handleSave() {
         let data = f7.form.convertToData('#tenantForm')
-        data.uploads = uploads
+        console.log({ data })
+        if (JSON.stringify(data) !== JSON.stringify(tenant)) {
+            f7.store.dispatch('updateOne', { collectionName: 'tenants', id: tenant.docId, payload: { ...data } }).then(async res => {
+                let promises = uploads.map(async file => {
+                    console.log({ saving: file })
+                    return await addToSubcollection({
+                        tenantId: tenant.docId,
+                        fileId: file.handle,
+                        payload: file
+                    })
+                })
+                return await Promise.all(promises).then(res => {
+                    f7.dialog.alert('Your information has been saved. You can now close this window.', 'Success', () => {
+                        window.close()
+                    })
+                    return res
+                })
+            })
+        }
+        setReadOnly(true)
+    }
+
+
+    async function handleUploadDelete(id) {
+        console.log({ id })
         f7.preloader.show()
-        f7.store.dispatch('updateOne', { collectionName: 'tenants', id: tenant.docId, payload: data }).then(res => {
-            f7.preloader.hide()
-            f7.dialog.alert('Data updated successfully. You can close this window now.')
+        return await removeFromSubcollection({
+            tenantId: tenant.docId,
+            fileId: id
         })
     }
+
 
     return (
         <LoginScreen
@@ -55,6 +92,7 @@ export default function TenantForm() {
                             </ListItem>
                             {uploads.map(file => <ListItem key={file.id || file.handle} mediaItem title={file.filename}>
                                 <img src={file.url} width={40} slot="media" />
+                                <Button slot='content-end' onClick={() => handleUploadDelete(file.handle)}><Icon material='delete'></Icon></Button>
                             </ListItem>)}
                         </List>}
                         <Button onClick={() => setPickerOpen(true)}>Add files</Button>

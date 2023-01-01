@@ -65,6 +65,17 @@ const store = createStore({
     }
   },
   actions: {
+    async addUploads({ state, dispatch }, { tenantId, uploads }) {
+      let promises = uploads.map(async file => {
+        return await db.collection('tenants').doc(tenantId).collection('uploads').doc(file.uploadId).set(file)
+      })
+      return Promise.all(promises).then((res) => {
+        return res
+      })
+    },
+    async removeUpload({ state, dispatch }, { tenantId, fileId }) {
+      return await db.collection('tenants').doc(tenantId).collection('uploads').doc(fileId).delete()
+    },
     setTenantId({ state }, { tenantId }) {
       state.tenantId = tenantId
     },
