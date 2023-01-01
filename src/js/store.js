@@ -65,6 +65,14 @@ const store = createStore({
     }
   },
   actions: {
+    async sendEmail({ state, dispatch }, { title, body, to }) {
+      f7.preloader.show()
+      return await axios.post('https://eo2zrkwk4y39fg3.m.pipedream.net', { title, body, to }).then(res => {
+        console.log({ res })
+        f7.preloader.hide()
+        f7.dialog.alert('Email sent')
+      })
+    },
     async addUploads({ state, dispatch }, { tenantId, uploads }) {
       let promises = uploads.map(async file => {
         return await db.collection('tenants').doc(tenantId).collection('uploads').doc(file.uploadId).set(file)

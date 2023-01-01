@@ -4,7 +4,12 @@ import useFirestoreListener from 'react-firestore-listener';
 export default function RequestForm({ requestPopupOpen, handleRequestPopupClose, tenant }) {
 
 
-    function handleSend() { }
+    function handleSend() {
+        f7.form.getFormData('#requestEmail').then(data => {
+            console.log(data)
+            f7.dispatch('sendEmail', { title: data.title, body: data.body, to: tenant.email })
+        })
+    }
 
     return (
         <Popup
@@ -23,7 +28,7 @@ export default function RequestForm({ requestPopupOpen, handleRequestPopupClose,
                         <List noHairlines>
                             <ListInput label="Title" type="text" name="title" defaultValue="Request for information" />
                             <ListInput label="Email" type="textarea" name="body" resizable
-                                defaultValue={`Hi ${tenant.name},\n\nPlease follow this link to fill in your information: https://vlc-properties.vercel.app//?tenantId=${tenant.docId} .\n\nRegards,\nSteve\nVLC Property Management`}
+                                defaultValue={`Hi ${tenant.name},\n\nPlease follow this link to fill in your information: https://vlc-properties.vercel.app//?tenantId=${tenant.docId}\n\nRegards,\nSteve\nVLC Property Management`}
                             />
                             <Button fill raised onClick={() => handleSend()}>Send</Button>
                         </List>
