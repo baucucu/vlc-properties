@@ -67,10 +67,11 @@ const store = createStore({
   actions: {
     async sendEmail({ state, dispatch }, { title, body, to }) {
       f7.preloader.show()
-      return await axios.post('https://eo2zrkwk4y39fg3.m.pipedream.net', { title, body, to }).then(res => {
+      return axios.post('https://eok3tdbn3q3vyva.m.pipedream.net', { title, body, to }).then(res => {
         console.log({ res })
         f7.preloader.hide()
         f7.dialog.alert('Email sent')
+        return res
       })
     },
     async addUploads({ state, dispatch }, { tenantId, uploads }) {

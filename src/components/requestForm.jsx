@@ -5,9 +5,10 @@ export default function RequestForm({ requestPopupOpen, handleRequestPopupClose,
 
 
     function handleSend() {
-        f7.form.getFormData('#requestEmail').then(data => {
-            console.log(data)
-            f7.dispatch('sendEmail', { title: data.title, body: data.body, to: tenant.email })
+        let data = f7.form.convertToData('#requestForm')
+        console.log({ data })
+        f7.store.dispatch('sendEmail', { title: data.title, body: data.body, to: tenant.email }).then(res => {
+            handleRequestPopupClose()
         })
     }
 
@@ -24,7 +25,7 @@ export default function RequestForm({ requestPopupOpen, handleRequestPopupClose,
                     </NavRight>
                 </Navbar>
                 <Block>
-                    <form id="tenantForm" className="form-store-data">
+                    <form id="requestForm" className="form-store-data">
                         <List noHairlines>
                             <ListInput label="Title" type="text" name="title" defaultValue="Request for information" />
                             <ListInput label="Email" type="textarea" name="body" resizable
