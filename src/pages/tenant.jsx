@@ -84,7 +84,7 @@ const TenantPage = ({ f7route }) => {
     <Page>
       <Navbar title={tenant?.name} backLink style={{ gap: 16 }}>
         {readOnly && <Button onClick={() => setReadOnly(false)}><Icon material='edit' /></Button>}
-        <Button onClick={() => { setRequestPopupOpen(true) }}><Icon material="contact_mail" /></Button>
+        {readOnly && <Button onClick={() => { setRequestPopupOpen(true) }}><Icon material="contact_mail" /></Button>}
         {readOnly || <Button small onClick={handleSave}><Icon material='save' /></Button>}
         {readOnly || <Button small onClick={handleDelete}>Delete</Button>}
         {readOnly || <NavRight>
