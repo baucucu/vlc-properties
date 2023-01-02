@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { f7, Page, Navbar, Block, List, ListItem, useStore, Chip, Badge, Button, Popup, NavRight, Icon, Row, Col, ListInput, ListButton } from 'framework7-react';
-import { PickerInline } from 'filestack-react';
+import React, { useState, useEffect, useRef } from 'react'
+import { f7, Page, Navbar, Block, List, ListItem, useStore, Chip, Badge, Button, Popup, NavRight, Icon, Row, Col, ListInput, ListButton } from 'framework7-react'
+import { PickerInline } from 'filestack-react'
 import useFirestoreListener from "react-firestore-listener"
 import { doc, arrayUnion } from 'firebase/firestore'
 import { db } from '../utils/firebase'
-import _ from 'lodash';
+import _ from 'lodash'
 import dayjs from 'dayjs'
-import currency from 'currency.js';
+import currency from 'currency.js'
+import Timestamp from 'firebase-firestore-timestamp'
 
 
 const BookingsPage = () => {
@@ -36,10 +37,13 @@ const BookingsPage = () => {
 
     async function handleSave() {
       // console.log({ formData })
-      const checkInParts = formData.checkIn.split('/')
-      const checkIn = dayjs(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`).unix()
-      const checkOutParts = formData.checkOut.split('/')
-      const checkOut = dayjs(`${checkOutParts[1]}/${checkOutParts[0]}/${checkOutParts[2]}`).unix()
+      debugger;
+      let [d1, m1, y1] = formData.checkIn.split('/')
+      let date = new Date(y1, m1, d1).setHours(14, 0, 0, 0)
+      const checkIn = Timestamp.fromMillis(date)
+      const [d2, m2, y2] = formData.checkOut.split('/')
+      date = new Date(y2, m2, d2).setHours(8, 0, 0, 0)
+      const checkOut = Timestamp.fromMillis(date)
       const rent = Number(currency(formData.rent).value)
       const yearlyRent = Number(currency(formData.yearlyRent).value)
       const amount = Number(currency(formData.amount).value)
@@ -52,8 +56,8 @@ const BookingsPage = () => {
         yearlyRent,
         notes: formData.notes,
         date: new Date(),
-        checkIn: new Date(checkIn * 1000),
-        checkOut: new Date(checkOut * 1000),
+        checkIn,
+        checkOut,
         tenant: doc(db, 'tenants', formData.tenant),
         unit: doc(db, 'units', formData.unit),
         property: doc(db, 'properties', formData.property)

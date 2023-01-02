@@ -12,49 +12,11 @@ import { arrayUnion } from 'firebase/firestore'
 
 const store = createStore({
   state: {
-    // properties: {},
-    // units: {},
-    // tennants: {},
-    // expenses: {},
-    // revenue: {},
-    // bookings: {},
-    // selected: [],
-    // settings: {},
     templates: [],
     booking: undefined,
     tenantId: undefined,
   },
   getters: {
-    // templates: ({ state }) => {
-    //   return state.templates
-    // },
-    // properties({ state }) {
-    //   return state.properties
-    // },
-    // selected({ state }) {
-    //   return state.selected
-    // },
-    // units({ state }) {
-    //   return state.units
-    // },
-    // tennants({ state }) {
-    //   return state.tennants
-    // },
-    // expenses({ state }) {
-    //   return state.expenses
-    // },
-    // revenue({ state }) {
-    //   return state.revenue
-    // },
-    // bookings({ state }) {
-    //   return state.bookings
-    // },
-    // booking({ state }) {
-    //   return state.booking
-    // },
-    // settings({ state }) {
-    //   return state.settings
-    // },
     templates({ state }) {
       return state.templates
     },

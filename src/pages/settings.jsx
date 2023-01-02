@@ -21,22 +21,11 @@ const SettingsPage = () => {
     const [editedCategories, setEditedCategories] = useState([])
     const [editCategories, setEditCategories] = useState(false)
     const [canSaveCategories, setCanSaveCategories] = useState(false)
-    const [editEmail, setEditEmail] = useState(false)
-    const [emailTemplate, setEmailTemplate] = useState({
-        title: "",
-        body: ""
-    })
 
     const [popupOpen, setPopupOpen] = useState(false)
 
     function handleAddProperty() { setPopupOpen(true) }
     function handleClose() { setPopupOpen(false) }
-
-    function saveEmail() {
-        const { title, body } = emailTemplate
-        f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'emailTemplate', payload: { title, body } })
-        setEditEmail(false)
-    }
 
     function handlePropertyChange({ id, name, address }) {
         let update = editedProperties
@@ -79,7 +68,6 @@ const SettingsPage = () => {
     function handleSaveCategories() {
         f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'expenseCategories', payload: { values: editedCategories } })
         setEditCategories(false)
-        setCanSaveCategories(false)
     }
 
     useEffect(() => {
@@ -92,22 +80,12 @@ const SettingsPage = () => {
     }, [editedChannels])
 
     useEffect(() => {
-        // console.log({ editedCategories })
-        setCanSaveCategories(
-            editCategories &&
-            editedCategories.every(category => category.length > 3) &&
-            !_.isEqual(editedCategories, settings.filter(item => item.docId === 'expenseCategories')[0])
-        )
-    }, [editedCategories])
-
-    useEffect(() => {
         setEditedProperties([...properties.map(item => ({ id: item.docId, name: item.name }))])
     }, [properties])
 
     useEffect(() => {
         setEditedChannels(settings.filter(item => item.docId === 'channels')[0]?.values || [])
         setEditedCategories(settings.filter(item => item.docId === 'expenseCategories')[0]?.values || [])
-        setEmailTemplate(settings.filter(item => item.docId === 'emailTemplate')[0] || { title: "", body: "" })
     }, [settings])
 
     function handleChannelDelete(channel) {
@@ -255,17 +233,7 @@ const SettingsPage = () => {
                             {editCategories && <Button slot='content-end' onClick={() => handleCategoryDelete(category)}><Icon material='delete'></Icon></Button>}
                         </ListInput>)}
                     </List>
-                    {/* <List noHairlines>
-                        <ListItem >
-                            <h3 slot="header">Contract email template</h3>
-                            <div style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
-                                {editEmail && <Button onClick={() => saveEmail()}><Icon material="save" /></Button>}
-                                {editEmail || <Button onClick={() => setEditEmail(true)}><Icon material="edit" /></Button>}
-                            </div>
-                        </ListItem>
-                        <ListInput label="Title" name="emailTitle" type='text' readonly={!editEmail} defaultValue={emailTemplate.title} onChange={(e) => setEmailTemplate({ ...emailTemplate, title: e.target.value })}></ListInput>
-                        <ListInput label="Body" name="emailBody" type='textarea' readonly={!editEmail} defaultValue={emailTemplate.body} onChange={(e) => setEmailTemplate({ ...emailTemplate, body: e.target.value })}></ListInput>
-                    </List> */}
+
                 </form>
             </Block>
             <Popup

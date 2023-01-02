@@ -19,8 +19,10 @@ import {
     onSnapshot,
     updateDoc,
     addDoc,
-    deleteDoc
+    deleteDoc,
+    Timestamp
 } from "firebase/firestore";
+
 import { f7 } from 'framework7-react';
 
 // import { google } from 'googleapis'
@@ -134,11 +136,11 @@ async function deleteOne(collectionName, id) {
     const ref = doc(db, collectionName, id)
     return await deleteDoc(ref)
 }
-
 export {
     // analytics,
     auth,
     db,
+    Timestamp,
     signInWithGoogle,
     logout,
     getRecords,
