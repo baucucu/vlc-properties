@@ -5,6 +5,7 @@ import { PickerInline, PickerOverlay } from 'filestack-react';
 import useFirestoreListener from "react-firestore-listener"
 import { db, addToSubcollection, removeFromSubcollection, collection, onSnapshot } from '../utils/firebase'
 import RequestForm from '../components/requestForm'
+import { FileIcon } from '@drawbotics/file-icons';
 
 const TenantPage = ({ f7route }) => {
   const tenants = useFirestoreListener({ collection: "tenants" })
@@ -115,8 +116,9 @@ const TenantPage = ({ f7route }) => {
             <ListItem >
               <h2 slot="header">Files</h2>
             </ListItem>
-            {uploads.map(file => <ListItem key={file.id || file.handle} mediaItem title={file.filename}>
-              <img src={file.url} width={40} slot="media" />
+            {uploads.map(file => <ListItem key={file.id || file.handle} mediaItem>
+              <a href={file.url} className='link external' target="blank" slot='title'>{file.filename}</a>
+              <FileIcon file={file.filename.split('.').pop()} slot='media' style={{ width: 44 }} />
               {readOnly || <Button slot='content-end' onClick={() => handleUploadDelete(file.handle)}><Icon material='delete'></Icon></Button>}
             </ListItem>)}
           </List>}

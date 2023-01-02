@@ -3,6 +3,8 @@ import { f7, Page, Navbar, Block, List, ListItem, ListInput, Button, NavRight, I
 import { PickerInline } from 'filestack-react';
 import useFirestoreListener from "react-firestore-listener"
 import _ from 'lodash';
+import { FileIcon } from '@drawbotics/file-icons';
+
 
 
 const TenantsPage = () => {
@@ -70,8 +72,10 @@ const TenantsPage = () => {
             <ListItem >
               <h2 slot="header">Files</h2>
             </ListItem>
-            {uploads.map(file => <ListItem key={file.handle} mediaItem title={file.filename}>
-              {file.url ? <img src={file.url} width={40} slot="media" /> : <Icon material="file" />}
+            {uploads.map(file => <ListItem key={file.id || file.handle} mediaItem>
+              <a href={file.url} className='link external' target="blank" slot='title'>{file.filename}</a>
+              <FileIcon file={file.filename.split('.').pop()} slot='media' style={{ width: 44 }} />
+              {/* {readOnly || <Button slot='content-end' onClick={() => handleUploadDelete(file.handle)}><Icon material='delete'></Icon></Button>} */}
             </ListItem>)}
           </List>
           <Button onClick={() => setPickerOpen(true)}>Add files</Button>
