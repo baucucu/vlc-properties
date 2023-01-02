@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { f7, Page, Navbar, Block, List, ListItem, ListInput, Button, NavRight, Icon, useStore, Popup, Row, Link, theme, Searchbar } from 'framework7-react';
+import { f7, Page, Navbar, Block, List, ListItem, ListInput, Button, NavRight, Icon, Chip, Popup, Row, Link, theme, Searchbar } from 'framework7-react';
 import { PickerInline } from 'filestack-react';
 import useFirestoreListener from "react-firestore-listener"
 import _ from 'lodash';
@@ -120,7 +120,7 @@ const TenantsPage = () => {
           ></Link>
         </NavRight>
         <Searchbar
-          className="tenants-searchbar searchbar-init"
+          className="tenants-searchbar"
           expandable
           searchContainer=".search-list"
           searchIn=".item-title"
@@ -134,7 +134,7 @@ const TenantsPage = () => {
         </List>
         <List className='search-list searchbar-found'>
           {_.sortBy(tenants, item => item.name).map(tenant => (<ListItem key={tenant.docId} link={`/tenants/${tenant.docId}`} title={tenant.name}>
-            <Icon slot="media" material="person" />
+            <Chip slot='media' color='black'>{tenant.name.match(/\b(\w)/g).join('').substring(0, 2)}</Chip>
           </ListItem>))}
         </List>
       </Block>
