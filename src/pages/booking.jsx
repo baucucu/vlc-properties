@@ -99,7 +99,7 @@ const BookingPage = ({ f7route }) => {
 
 
   useEffect(() => {
-    console.log({ booking })
+    // console.log({ booking })
     if (booking) {
       setSelectedUnit(booking.unit.id)
       setSelectedTenant(booking.tenant.id)
@@ -160,7 +160,7 @@ const BookingPage = ({ f7route }) => {
       unit: doc(db, 'units', selectedUnit || booking.unit.id),
       property: doc(db, 'properties', selectedProperty || booking.property.id),
     }
-    console.log({ payload })
+    // console.log({ payload })
     f7.store.dispatch('updateOne', { collectionName: 'bookings', id: booking.docId, payload })
     setReadOnly(true)
   }
@@ -169,19 +169,19 @@ const BookingPage = ({ f7route }) => {
   const handlePropertyChange = ({ id }) => {
     setSelectedProperty(id)
     let formData = f7.form.getFormData('#bookingForm')
-    console.log({ id, formData })
+    // console.log({ id, formData })
   }
 
   const handleUnitChange = ({ id }) => {
     setSelectedUnit(id)
     let formData = f7.form.getFormData('#bookingForm')
-    console.log({ id, formData })
+    // console.log({ id, formData })
   }
 
   const handleTenantChange = ({ id }) => {
     setSelectedTenant(id)
     let formData = f7.form.getFormData('#bookingForm')
-    console.log({ id, formData })
+    // console.log({ id, formData })
   }
 
   function handleDelete() {
@@ -192,13 +192,13 @@ const BookingPage = ({ f7route }) => {
     })
   }
 
-  useEffect(() => { console.log("selectedUnit changed: ", { selectedUnit }) }, [selectedUnit])
-  useEffect(() => { console.log("selectableUnits changed: ", { selectableUnits }) }, [selectableUnits])
+  // useEffect(() => { console.log("selectedUnit changed: ", { selectedUnit }) }, [selectedUnit])
+  // useEffect(() => { console.log("selectableUnits changed: ", { selectableUnits }) }, [selectableUnits])
 
 
 
   useEffect(() => {
-    console.log("selectedProperty changed: ", { selectedProperty })
+    // console.log("selectedProperty changed: ", { selectedProperty })
     setSelectableUnits(units.filter(unit => unit.property.id === selectedProperty))
     setSelectedUnit(selectableUnits[0])
   }, [selectedProperty])

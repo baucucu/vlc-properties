@@ -117,7 +117,7 @@ function PropertiesPage({ f7router, f7route }) {
     setMonth(currentView.currentStart)
   }
   useEffect(() => {
-    console.log('f7route.query?.tenantId', f7route.query?.tenantId)
+    // console.log('f7route.query?.tenantId', f7route.query?.tenantId)
     f7.store.dispatch('setTenantId', { tenantId: f7route.query?.tenantId })
   }, [])
 
@@ -188,7 +188,7 @@ function PropertiesPage({ f7router, f7route }) {
           nowIndicator
           eventClick={function (info) {
             let recordId = info.event._def.publicId
-            console.log({ recordId })
+            // console.log({ recordId })
             f7router.navigate(`/bookings/${recordId}`)
           }}
           resourceAreaColumns={[

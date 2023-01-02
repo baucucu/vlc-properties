@@ -35,7 +35,7 @@ const BookingsPage = () => {
     let [formData, setFormData] = useState({})
 
     async function handleSave() {
-      console.log({ formData })
+      // console.log({ formData })
       const checkInParts = formData.checkIn.split('/')
       const checkIn = dayjs(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`).unix()
       const checkOutParts = formData.checkOut.split('/')
@@ -58,7 +58,7 @@ const BookingsPage = () => {
         unit: doc(db, 'units', formData.unit),
         property: doc(db, 'properties', formData.property)
       }
-      console.log({ payload })
+      // console.log({ payload })
       f7.store.dispatch('createOne', { collectionName: 'bookings', payload }).then(ref => {
         payload = {
           bookings: arrayUnion(ref)
@@ -84,7 +84,7 @@ const BookingsPage = () => {
     }
     function handleChange() {
       let data = f7.form.convertToData('#newBookingForm')
-      console.log({ data })
+      // console.log({ data })
       setFormData(data)
     }
     const handlePropertyChange = ({ id }) => {
@@ -95,7 +95,7 @@ const BookingsPage = () => {
     useEffect(() => { console.log({ settings }) }, [])
 
     useEffect(() => {
-      console.log({ popupOpen, tenantPopupOpen })
+      // console.log({ popupOpen, tenantPopupOpen })
     }, [popupOpen, tenantPopupOpen])
 
     useEffect(() => {
@@ -103,9 +103,9 @@ const BookingsPage = () => {
     }, [selectedProperty])
 
     useEffect(() => {
-      console.log("formData changed: ", { formData })
+      // console.log("formData changed: ", { formData })
       let emptyFields = Object.keys(formData).filter(key => formData[key] === '' && key !== 'notes')
-      console.log({ emptyFields })
+      // console.log({ emptyFields })
       if (Object.keys(formData).length > 0 && emptyFields.length === 0) { setCanSave(true) } else { setCanSave(false) }
     }, [formData])
 
@@ -247,7 +247,7 @@ const BookingsPage = () => {
     const [uploads, setUploads] = useState([])
 
     function handleSave() {
-      console.log({ formData, uploads })
+      // console.log({ formData, uploads })
       let payload = {
         ...formData,
         uploads
@@ -257,13 +257,13 @@ const BookingsPage = () => {
     }
     function handleChange() {
       let data = f7.form.convertToData('#newBookingtenantForm')
-      console.log({ data })
+      // console.log({ data })
       setFormData(data)
     }
     useEffect(() => {
-      console.log("formData changed: ", { formData })
+      // console.log("formData changed: ", { formData })
       let emptyFields = Object.keys(formData).filter(key => formData[key] === '' && key !== 'notes')
-      console.log({ emptyFields })
+      // console.log({ emptyFields })
       if (emptyFields.length === 0) { setCanSave(true) } else { setCanSave(false) }
     }, [formData])
 
@@ -312,7 +312,7 @@ const BookingsPage = () => {
               apikey={import.meta.env.VITE_FILESTACK_KEY}
               pickerOptions={{}}
               onUploadDone={(res) => {
-                console.log(res);
+                // console.log(res);
                 setUploads([...uploads, ...res.filesUploaded])
                 setPickerOpen(false)
               }}

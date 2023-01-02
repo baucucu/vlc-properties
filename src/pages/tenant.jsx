@@ -19,7 +19,7 @@ const TenantPage = ({ f7route }) => {
   }, [tenants])
 
   useEffect(() => {
-    console.log({ tenant })
+    // console.log({ tenant })
     if (tenant) {
       f7.form.fillFromData("#tenantForm", tenant)
       let uploadsRef = collection(db, "tenants", tenant.docId, "uploads");
@@ -35,11 +35,11 @@ const TenantPage = ({ f7route }) => {
 
   const handleSave = async () => {
     let data = f7.form.convertToData('#tenantForm')
-    console.log({ data })
+    // console.log({ data })
     if (JSON.stringify(data) !== JSON.stringify(tenant)) {
       f7.store.dispatch('updateOne', { collectionName: 'tenants', id: tenant.docId, payload: { ...data } }).then(async res => {
         let promises = uploads.map(async file => {
-          console.log({ saving: file })
+          // console.log({ saving: file })
           return await addToSubcollection({
             tenantId: tenant.docId,
             fileId: file.handle,
@@ -68,7 +68,7 @@ const TenantPage = ({ f7route }) => {
   }
 
   async function handleUploadDelete(id) {
-    console.log({ id })
+    // console.log({ id })
     f7.preloader.show()
     return await removeFromSubcollection({
       tenantId: tenant.docId,
@@ -125,7 +125,7 @@ const TenantPage = ({ f7route }) => {
             apikey={import.meta.env.VITE_FILESTACK_KEY}
             pickerOptions={{}}
             onUploadDone={(res) => {
-              console.log(res);
+              // console.log(res);
               setUploads([...uploads, ...res.filesUploaded])
               setPickerOpen(false)
             }}

@@ -25,13 +25,13 @@ const TenantsPage = () => {
     }
     function handleChange() {
       let data = f7.form.convertToData('#newTenantForm')
-      console.log({ data })
+      // console.log({ data })
       setFormData(data)
     }
     useEffect(() => {
-      console.log("formData changed: ", { formData })
+      // console.log("formData changed: ", { formData })
       let emptyFields = Object.keys(formData).filter(key => formData[key] === '' && key !== 'notes')
-      console.log({ emptyFields })
+      // console.log({ emptyFields })
       if (emptyFields.length === 0) { setCanSave(true) } else { setCanSave(false) }
     }, [formData])
 
@@ -79,7 +79,7 @@ const TenantsPage = () => {
             apikey={import.meta.env.VITE_FILESTACK_KEY}
             pickerOptions={{}}
             onUploadDone={(res) => {
-              console.log(res);
+              // console.log(res);
               setUploads([...uploads, ...res.filesUploaded])
               setPickerOpen(false)
             }}

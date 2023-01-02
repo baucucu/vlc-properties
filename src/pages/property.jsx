@@ -8,7 +8,7 @@ import { auth } from '../utils/firebase'
 const PropertyPage = ({ f7route }) => {
 
   useEffect(() => {
-    console.log({ properties, params: f7route.params })
+    // console.log({ properties, params: f7route.params })
     properties.length > 0 && setProperty(properties.filter(item => item.docId === f7route.params.id)[0])
   }, [properties])
 

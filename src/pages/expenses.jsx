@@ -39,11 +39,11 @@ const ExpensesPage = () => {
     const ss = f7.smartSelect.get('#propertiesFilter > .smart-select')
     ss.on('close', function (el) {
       let options = Array.from(el.selectEl.selectedOptions).map(option => option.value)
-      console.log({ options })
+      // console.log({ options })
       setSelected(options)
     })
   }, [])
-  useEffect(() => { console.log({ events }) }, [events])
+  // useEffect(() => { console.log({ events }) }, [events])
 
   useEffect(() => {
     console.log({ selected })
@@ -74,7 +74,7 @@ const ExpensesPage = () => {
     const [formData, setFormData] = useState({})
 
     useEffect(() => {
-      console.log({ formData })
+      // console.log({ formData })
       if (Object.keys(formData).length > 0) {
         let emptyFields = Object.keys(formData).filter(key => formData[key] === '')
         if (emptyFields.length === 0) { setCanSave(true) }
@@ -82,7 +82,7 @@ const ExpensesPage = () => {
     }, [formData])
 
     useEffect(() => {
-      console.log({ expense })
+      // console.log({ expense })
       if (Object.keys(expense).length > 0) {
         let data = {
           property: expense.property.id,
@@ -91,7 +91,7 @@ const ExpensesPage = () => {
           description: expense.description,
           amount: expense.amount
         }
-        console.log({ initial: data })
+        // console.log({ initial: data })
         setFormData(data)
       }
     }, [expense])
@@ -103,7 +103,7 @@ const ExpensesPage = () => {
     }
 
     function handleSave() {
-      console.log({ save: formData })
+      // console.log({ save: formData })
       let data = {
         property: doc(db, "properties", formData.property),
         date: new Date(formData.date.seconds * 1000),
@@ -111,9 +111,9 @@ const ExpensesPage = () => {
         description: formData.description,
         amount: formData.amount
       }
-      console.log({ saving: data })
+      // console.log({ saving: data })
       store.dispatch('updateOne', { collectionName: 'expenses', id: expense.docId, payload: data }).then(res => {
-        console.log({ res })
+        // console.log({ res })
         handleEditPopupClose()
       })
     }
@@ -121,7 +121,7 @@ const ExpensesPage = () => {
     function handleDelete() {
       f7.dialog.confirm('Are you sure you want to delete this expense?', 'Delete expense', () => {
         store.dispatch('deleteOne', { collectionName: 'expenses', id: expense.docId }).then(res => {
-          console.log({ res })
+          // console.log({ res })
           handleEditPopupClose()
         })
       })
@@ -233,7 +233,7 @@ const ExpensesPage = () => {
     let [formData, setFormData] = useState([])
 
     function handleSave() {
-      console.log({ formData })
+      // console.log({ formData })
       let group = _.groupBy(formData, 'index')
       let payloads = Object.keys(group)
         .map(index => {
@@ -253,13 +253,13 @@ const ExpensesPage = () => {
           })
           return payload
         })
-      console.log({ group, payloads })
+      // console.log({ group, payloads })
       payloads.map(payload => f7.store.dispatch('createOne', { collectionName: 'expenses', payload }))
       handleClose()
     }
     function handleChange() {
       let data = f7.form.convertToData('#expensesForm')
-      console.log({ data })
+      // console.log({ data })
       let res = Object.keys(data).map(key => {
         let index = key[0]
         let property = key.substring(2, key.length)

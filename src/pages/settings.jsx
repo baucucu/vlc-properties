@@ -49,10 +49,10 @@ const SettingsPage = () => {
         setEditedProperties(prev => ([...update]))
     }
     function handleSaveProperties() {
-        console.log({ editedProperties })
+        // console.log({ editedProperties })
         const initialProperties = properties.map(item => ({ id: item.docId, name: item.name }))
         if (!_.isEqual(initialProperties, editedProperties)) {
-            console.log("saving")
+            // console.log("saving")
             let update = editedProperties.map(property => ({
                 id: property.id,
                 name: property.name
