@@ -31,6 +31,7 @@
     "filestack-js": "^3.25.0",
     "filestack-react": "^4.0.1",
     "firebase": "^9.15.0",
+    "firebase-admin": "^11.4.1",
     "firebase-firestore-timestamp": "^1.0.4",
     "framework7": "^7.0.9",
     "framework7-icons": "^5.0.5",

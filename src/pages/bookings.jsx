@@ -7,8 +7,7 @@ import { db } from '../utils/firebase'
 import _ from 'lodash'
 import dayjs from 'dayjs'
 import currency from 'currency.js'
-import Timestamp from 'firebase-firestore-timestamp'
-
+import { Timestamp } from 'firebase/firestore'
 
 const BookingsPage = () => {
   // Array of API discovery doc URLs for APIs
@@ -36,8 +35,6 @@ const BookingsPage = () => {
     let [formData, setFormData] = useState({})
 
     async function handleSave() {
-      // console.log({ formData })
-      debugger;
       let [d1, m1, y1] = formData.checkIn.split('/')
       let date = new Date(y1, m1, d1).setHours(14, 0, 0, 0)
       const checkIn = Timestamp.fromMillis(date)

@@ -22,12 +22,14 @@ import {
 import currency from 'currency.js';
 import useFirestoreListener from "react-firestore-listener"
 import { doc } from 'firebase/firestore'
-import { db, auth, getDocumentOnce } from '../utils/firebase'
+import { db, getDocumentOnce } from '../utils/firebase'
 import _ from 'lodash'
 import dayjs from 'dayjs'
 import googleDocsLogo from '../assets/google_docs_logo.png'
 import store from '../js/store';
 import ContractEmailForm from '../components/contractForm'
+import { Timestamp } from 'firebase/firestore'
+
 
 const BookingPage = ({ f7route }) => {
   const templates = useStore('templates')
@@ -128,7 +130,6 @@ const BookingPage = ({ f7route }) => {
     f7.form.fillFromData("#bookingForm", data)
   }
 
-
   const handleCancel = () => {
     resetForm()
     setReadOnly(true)
@@ -136,12 +137,12 @@ const BookingPage = ({ f7route }) => {
 
   const handleSave = () => {
     let data = f7.form.convertToData('#bookingForm')
-    const checkInParts = data.checkIn.split('/')
-    const checkIn = dayjs(`${checkInParts[1]}/${checkInParts[0]}/${checkInParts[2]}`).unix()
-    const checkOutParts = data.checkOut.split('/')
-    const checkOut = dayjs(`${checkOutParts[1]}/${checkOutParts[0]}/${checkOutParts[2]}`).unix()
-    // const dateInParts = data.date.split('/')
-    // const date = dayjs(`${dateInParts[1]}/${dateInParts[0]}/${dateInParts[2]}`)
+    let [d1, m1, y1] = data.checkIn.split('/')
+    let date = new Date(y1, m1, d1).setHours(14, 0, 0, 0)
+    const checkIn = Timestamp.fromMillis(date)
+    const [d2, m2, y2] = data.checkOut.split('/')
+    date = new Date(y2, m2, d2).setHours(8, 0, 0, 0)
+    const checkOut = Timestamp.fromMillis(date)
     const rent = Number(currency(data.rent, { symbol: '€', decimal: ',', separator: '.' }).value)
     const yearlyRent = Number(currency(data.yearlyRent, { symbol: '€', decimal: ',', separator: '.' }).value)
     const amount = Number(currency(data.amount, { symbol: '€', decimal: ',', separator: '.' }).value)
@@ -154,8 +155,8 @@ const BookingPage = ({ f7route }) => {
       yearlyRent,
       deposit,
       notes: data.notes,
-      checkIn: new Date(checkIn * 1000),
-      checkOut: new Date(checkOut * 1000),
+      checkIn,
+      checkOut,
       tenant: doc(db, 'tenants', selectedTenant || booking.tenant.id),
       unit: doc(db, 'units', selectedUnit || booking.unit.id),
       property: doc(db, 'properties', selectedProperty || booking.property.id),
