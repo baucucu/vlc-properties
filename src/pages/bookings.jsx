@@ -92,7 +92,7 @@ const BookingsPage = () => {
     }
     const handleUnitChange = ({ id }) => { }
 
-    useEffect(() => { console.log({ settings }) }, [])
+    // useEffect(() => { console.log({ settings }) }, [])
 
     useEffect(() => {
       // console.log({ popupOpen, tenantPopupOpen })

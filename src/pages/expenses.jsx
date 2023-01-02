@@ -46,7 +46,7 @@ const ExpensesPage = () => {
   // useEffect(() => { console.log({ events }) }, [events])
 
   useEffect(() => {
-    console.log({ selected })
+    // console.log({ selected })
     let evs = expenses
       .filter(item => {
         return selected.find(propertyId => propertyId === item.property.id)
