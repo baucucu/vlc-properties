@@ -17,7 +17,7 @@ export default function RequestForm({ requestPopupOpen, handleRequestPopupClose,
             opened={requestPopupOpen}
         >
             <Page>
-                <Navbar>
+                <Navbar title="Send email to tenant">
                     <NavRight>
                         <Button onClick={handleRequestPopupClose}>
                             <Icon material="close"></Icon>

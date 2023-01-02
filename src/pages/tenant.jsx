@@ -56,7 +56,7 @@ const TenantPage = ({ f7route }) => {
   }
 
   const handleCancel = () => {
-    f7.form.fillFromData('#tenantForm', initialData)
+    f7.form.fillFromData('#tenantForm', tenant)
     setReadOnly(true)
   }
 

@@ -27,6 +27,7 @@ import _ from 'lodash'
 import dayjs from 'dayjs'
 import googleDocsLogo from '../assets/google_docs_logo.png'
 import store from '../js/store';
+import ContractEmailForm from '../components/contractForm'
 
 const BookingPage = ({ f7route }) => {
   const templates = useStore('templates')
@@ -46,9 +47,15 @@ const BookingPage = ({ f7route }) => {
   const [selectedTemplate, setSelectedTemplate] = useState()
   const [selectedContract, setSelectedContract] = useState()
 
+  const [contractPopupOpen, setContractPopupOpen] = useState(false)
+
   useEffect(() => {
     console.log({ selectedContract })
   }, [selectedContract])
+
+  function handleContractPopupClose() {
+    setContractPopupOpen(false)
+  }
 
   async function generateContract() {
     const payload = {
@@ -191,6 +198,8 @@ const BookingPage = ({ f7route }) => {
     setSelectableUnits(units.filter(unit => unit.property.id === selectedProperty))
     setSelectedUnit(selectableUnits[0])
   }, [selectedProperty])
+
+
 
   return (
     <Page name="form">
@@ -339,9 +348,9 @@ const BookingPage = ({ f7route }) => {
                   </CardContent>
                   <CardFooter>
                     <a className="link external" href={`https://docs.google.com/document/d/${selectedContract.id}/edit#`} target='blank'>
-                      <b>OPEN CONTRACT</b>
+                      <b>OPEN</b>
                     </a>
-                    <Button onClick={async () => await sendContract()}>Send to tenant</Button>
+                    <Button onClick={() => { setContractPopupOpen(true) }}>Send</Button>
                   </CardFooter>
                 </Card>}
               </Col>
@@ -364,6 +373,15 @@ const BookingPage = ({ f7route }) => {
           </List>
         </form>
       </Block>}
+      {booking && selectedContract && <ContractEmailForm
+        contractPopupOpen={contractPopupOpen}
+        handleContractPopupClose={handleContractPopupClose}
+        booking={booking}
+        contract={selectedContract}
+        property={properties.filter(property => property.docId === booking.property.id)[0]}
+        tenant={tenants.filter(tenant => tenant.docId === booking.tenant.id)[0]}
+        unit={units.filter(unit => unit.docId === booking.unit.id)[0]}
+      />}
     </Page >
   );
 }
