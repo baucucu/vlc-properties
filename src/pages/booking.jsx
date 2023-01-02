@@ -97,36 +97,40 @@ const BookingPage = ({ f7route }) => {
     if (units?.length > 0 && selectedProperty) { setSelectableUnits(units.filter(item => item.docId === selectedProperty)?.[0]) }
   }, [units])
 
+
   useEffect(() => {
     console.log({ booking })
     if (booking) {
       setSelectedUnit(booking.unit.id)
       setSelectedTenant(booking.tenant.id)
       setSelectedProperty(booking.property.id)
-
-      let data = {
-        date: dayjs(booking.date.toDate()).format('DD/MM/YYYY'),
-        name: booking.name,
-        channel: booking.channel,
-        checkIn: dayjs(booking.checkIn.toDate()).format('DD/MM/YYYY'),
-        checkOut: dayjs(booking.checkOut.toDate()).format('DD/MM/YYYY'),
-        unit: booking.unit.id,
-        tenant: booking.tenant.id,
-        property: booking.property.id,
-        rent: currency(booking.rent, { symbol: '€', decimal: ',', separator: '.' }).format(),
-        deposit: currency(booking.deposit, { symbol: '€', decimal: ',', separator: '.' }).format(),
-        amount: currency(booking.amount, { symbol: '€', decimal: ',', separator: '.' }).format(),
-        yearlyRent: currency(booking.yearlyRent, { symbol: '€', decimal: ',', separator: '.' }).format(),
-        notes: booking.notes
-      }
-      f7.form.fillFromData("#bookingForm", data)
       if (booking?.contracts?.length > 0) { setSelectedContract(booking.contracts[booking.contracts.length - 1]) }
+      resetForm()
     }
   }, [booking])
 
+  function resetForm() {
+    let data = {
+      date: dayjs(booking.date.toDate()).format('DD/MM/YYYY'),
+      name: booking.name,
+      channel: booking.channel,
+      checkIn: dayjs(booking.checkIn.toDate()).format('DD/MM/YYYY'),
+      checkOut: dayjs(booking.checkOut.toDate()).format('DD/MM/YYYY'),
+      unit: booking.unit.id,
+      tenant: booking.tenant.id,
+      property: booking.property.id,
+      rent: currency(booking.rent, { symbol: '€', decimal: ',', separator: '.' }).format(),
+      deposit: currency(booking.deposit, { symbol: '€', decimal: ',', separator: '.' }).format(),
+      amount: currency(booking.amount, { symbol: '€', decimal: ',', separator: '.' }).format(),
+      yearlyRent: currency(booking.yearlyRent, { symbol: '€', decimal: ',', separator: '.' }).format(),
+      notes: booking.notes
+    }
+    f7.form.fillFromData("#bookingForm", data)
+  }
+
 
   const handleCancel = () => {
-    f7.form.fillFromData('#bookingForm', booking)
+    resetForm()
     setReadOnly(true)
   }
 

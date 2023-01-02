@@ -255,7 +255,7 @@ const SettingsPage = () => {
                             {editCategories && <Button slot='content-end' onClick={() => handleCategoryDelete(category)}><Icon material='delete'></Icon></Button>}
                         </ListInput>)}
                     </List>
-                    <List noHairlines>
+                    {/* <List noHairlines>
                         <ListItem >
                             <h3 slot="header">Contract email template</h3>
                             <div style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
@@ -265,7 +265,7 @@ const SettingsPage = () => {
                         </ListItem>
                         <ListInput label="Title" name="emailTitle" type='text' readonly={!editEmail} defaultValue={emailTemplate.title} onChange={(e) => setEmailTemplate({ ...emailTemplate, title: e.target.value })}></ListInput>
                         <ListInput label="Body" name="emailBody" type='textarea' readonly={!editEmail} defaultValue={emailTemplate.body} onChange={(e) => setEmailTemplate({ ...emailTemplate, body: e.target.value })}></ListInput>
-                    </List>
+                    </List> */}
                 </form>
             </Block>
             <Popup
