@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { f7, Page, Navbar, Block, List, ListItem, ListInput, Button, NavRight, Icon, useStore, Popup, Row, Col } from 'framework7-react';
+import { f7, Page, Navbar, Block, List, ListItem, ListInput, Button, NavRight, Icon, useStore, Popup, Row, Link, theme, Searchbar } from 'framework7-react';
 import { PickerInline } from 'filestack-react';
 import useFirestoreListener from "react-firestore-listener"
 import _ from 'lodash';
@@ -111,11 +111,30 @@ const TenantsPage = () => {
     <Page>
       <Navbar title="Tenants">
         <Button onClick={() => setPopupOpen(true)}><Icon material="add" ></Icon></Button>
+        <NavRight>
+          <Link
+            searchbarEnable=".tenants-searchbar"
+            iconIos="f7:search"
+            iconAurora="f7:search"
+            iconMd="material:search"
+          ></Link>
+        </NavRight>
+        <Searchbar
+          className="tenants-searchbar searchbar-init"
+          expandable
+          searchContainer=".search-list"
+          searchIn=".item-title"
+          disableButton={!theme.aurora}
+        ></Searchbar>
       </Navbar>
       <Block>
-        <List>
-          {_.sortBy(tenants, item => item.name).map(tenant => (<ListItem key={tenant.docId} link={`/tenants/${tenant.docId}`} title={tenant.name}>
 
+        <List className="searchbar-not-found">
+          <ListItem title="Nothing found"></ListItem>
+        </List>
+        <List className='search-list searchbar-found'>
+          {_.sortBy(tenants, item => item.name).map(tenant => (<ListItem key={tenant.docId} link={`/tenants/${tenant.docId}`} title={tenant.name}>
+            <Icon slot="media" material="person" />
           </ListItem>))}
         </List>
       </Block>
