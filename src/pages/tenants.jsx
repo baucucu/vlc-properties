@@ -134,7 +134,7 @@ const TenantsPage = () => {
         </List>
         <List className='search-list searchbar-found'>
           {_.sortBy(tenants, item => item.name).map(tenant => (<ListItem key={tenant.docId} link={`/tenants/${tenant.docId}`} title={tenant.name}>
-            <Chip slot='media' color='black'>{tenant.name.match(/\b(\w)/g).join('').substring(0, 2)}</Chip>
+            {/* <Chip slot='media' color='black'>{tenant.name.match(/\b(\w)/g).join('').substring(0, 2)}</Chip> */}
           </ListItem>))}
         </List>
       </Block>

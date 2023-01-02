@@ -56,7 +56,7 @@ const SettingsPage = () => {
         setEditedChannels([...temp])
     }
     function handleSaveChannels() {
-        f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'channels', payload: { values: editedChannels } })
+        f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'channels', payload: { values: editedChannels.sort() } })
         setEditChannels(false)
         setCanSaveChannels(false)
     }
@@ -66,7 +66,7 @@ const SettingsPage = () => {
         setEditedCategories([...temp])
     }
     function handleSaveCategories() {
-        f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'expenseCategories', payload: { values: editedCategories } })
+        f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'expenseCategories', payload: { values: editedCategories.sort() } })
         setEditCategories(false)
     }
 
@@ -216,7 +216,7 @@ const SettingsPage = () => {
                                 {editChannels || <Button onClick={() => setEditChannels(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {_.sortBy(editedChannels, item => item).map((channel, index) => <ListInput key={index} name={"channel." + index} onChange={(e) => handleChannelEdit({ name: e.target.value, index })} readonly={!editChannels} defaultValue={channel} >
+                        {editedChannels.map((channel, index) => <ListInput key={index} name={"channel." + index} onChange={(e) => handleChannelEdit({ name: e.target.value, index })} readonly={!editChannels} defaultValue={channel} >
                             {editChannels && <Button slot='content-end' onClick={() => handleChannelDelete(channel)}><Icon material='delete'></Icon></Button>}
                         </ListInput>)}
                     </List>
@@ -229,7 +229,7 @@ const SettingsPage = () => {
                                 {editCategories || <Button onClick={() => setEditCategories(true)}><Icon material="edit" /></Button>}
                             </div>
                         </ListItem>
-                        {_.sortBy(editedCategories, item => item).map((category, index) => <ListInput key={index} name={"expenseCategory." + index} onChange={(e) => handleCategoryEdit({ name: e.target.value, index })} readonly={!editCategories} defaultValue={category} >
+                        {editedCategories.map((category, index) => <ListInput key={index} name={"expenseCategory." + index} onChange={(e) => handleCategoryEdit({ name: e.target.value, index })} readonly={!editCategories} defaultValue={category} >
                             {editCategories && <Button slot='content-end' onClick={() => handleCategoryDelete(category)}><Icon material='delete'></Icon></Button>}
                         </ListInput>)}
                     </List>

@@ -12,7 +12,6 @@ import minMax from 'dayjs/plugin/minMax';
 dayjs.extend(isBetween);
 dayjs.extend(minMax);
 import { getNumberFromString } from '../utils/utils';
-import store from '../js/store';
 
 function PropertiesPage({ f7router, f7route }) {
   const properties = useFirestoreListener({ collection: "properties" })
@@ -33,6 +32,15 @@ function PropertiesPage({ f7router, f7route }) {
     monthlyProfit: currency(0, { symbol: '€', decimal: ',', separator: '.' }).format(),
     ytdProfit: currency(0, { symbol: '€', decimal: ',', separator: '.' }).format(),
   })
+
+
+  // useEffect(() => {
+  //   let range1 = { start: dayjs('2023/01/04'), end: dayjs('2023/03/28') }
+  //   let range2 = { start: dayjs('2023/02/04').startOf('month'), end: dayjs('2023/01/04').endOf('month') }
+  //   let mergedRanges = mergeDateRanges([range1, range2])
+  //   console.log({ mergedRanges })
+  //   debugger;
+  // }, [])
 
   function getMonthlyFinance() {
     // debugger;
