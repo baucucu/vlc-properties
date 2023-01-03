@@ -5,7 +5,7 @@ import FullCalendar from '@fullcalendar/react';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import currency from 'currency.js';
 import useFirestoreListener from "react-firestore-listener"
-import _ from 'lodash'
+import _, { property } from 'lodash'
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import minMax from 'dayjs/plugin/minMax';
@@ -19,19 +19,20 @@ function PropertiesPage({ f7router, f7route }) {
   const units = useFirestoreListener({ collection: "units" })
   const bookings = useFirestoreListener({ collection: "bookings" })
   const tenants = useFirestoreListener({ collection: "tenants" })
-
   const [resources, setResources] = useState([]);
   const [events, setEvents] = useState([]);
   const [month, setMonth] = useState();
 
   const [finance, setFinance] = useState({
-    monthlyExpenses: currency(0, { symbol: '€', decimal: ',', separator: '.' }).format(),
-    ytdExpenses: currency(0, { symbol: '€', decimal: ',', separator: '.' }).format(),
-    monthlyRevenue: currency(0, { symbol: '€', decimal: ',', separator: '.' }).format(),
-    ytdRevenue: currency(0, { symbol: '€', decimal: ',', separator: '.' }).format(),
-    monthlyProfit: currency(0, { symbol: '€', decimal: ',', separator: '.' }).format(),
-    ytdProfit: currency(0, { symbol: '€', decimal: ',', separator: '.' }).format(),
+    monthlyExpenses: currency(0, { symbol: '€', decimal: '.', separator: ',' }).format(),
+    ytdExpenses: currency(0, { symbol: '€', decimal: '.', separator: ',' }).format(),
+    monthlyRevenue: currency(0, { symbol: '€', decimal: '.', separator: ',' }).format(),
+    ytdRevenue: currency(0, { symbol: '€', decimal: '.', separator: ',' }).format(),
+    monthlyProfit: currency(0, { symbol: '€', decimal: '.', separator: ',' }).format(),
+    ytdProfit: currency(0, { symbol: '€', decimal: '.', separator: ',' }).format(),
   })
+
+  useEffect(() => { console.log({ resources }) }, [resources])
 
   function getMonthlyFinance() {
     const monthlyExpenses = expenses
@@ -40,53 +41,65 @@ function PropertiesPage({ f7router, f7route }) {
     const ytdExpenses = expenses
       .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
-    const monthlyRevenue = events
-      .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
-      .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
-    const ytdRevenue = events
-      .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
-      .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
+    const monthlyRevenue = resources
+      .reduce((partialSum, a) => partialSum + currency(a.unit_month_revenue).value, 0) || 0
+    const ytdRevenue = resources
+      .reduce((partialSum, a) => partialSum + currency(a.unit_year_revenue).value, 0) || 0
     const monthlyProfit = monthlyRevenue - monthlyExpenses
     const ytdProfit = ytdRevenue - ytdExpenses
     // debugger;
     setFinance({
-      monthlyExpenses: currency(monthlyExpenses, { symbol: '€', decimal: ',', separator: '.' }).format(),
-      ytdExpenses: currency(ytdExpenses, { symbol: '€', decimal: ',', separator: '.' }).format(),
-      monthlyRevenue: currency(monthlyRevenue, { symbol: '€', decimal: ',', separator: '.' }).format(),
-      ytdRevenue: currency(ytdRevenue, { symbol: '€', decimal: ',', separator: '.' }).format(),
-      monthlyProfit: currency(monthlyProfit, { symbol: '€', decimal: ',', separator: '.' }).format(),
-      ytdProfit: currency(ytdProfit, { symbol: '€', decimal: ',', separator: '.' }).format(),
+      monthlyExpenses: currency(monthlyExpenses, { symbol: '€', decimal: '.', separator: ',' }).format(),
+      ytdExpenses: currency(ytdExpenses, { symbol: '€', decimal: '.', separator: ',' }).format(),
+      monthlyRevenue: currency(monthlyRevenue, { symbol: '€', decimal: '.', separator: ',' }).format(),
+      ytdRevenue: currency(ytdRevenue, { symbol: '€', decimal: '.', separator: ',' }).format(),
+      monthlyProfit: currency(monthlyProfit, { symbol: '€', decimal: '.', separator: ',' }).format(),
+      ytdProfit: currency(ytdProfit, { symbol: '€', decimal: '.', separator: ',' }).format(),
     })
   }
 
-  function getUnitData(unitId, propertyId) {
+  function getUnitData(unit) {
     let propertyRevenue = bookings
-      .filter(item => item.property.id === propertyId)
+      .filter(item => item.property.id === unit.property.id)
       .map(item => {
-        let interval = intersectDateRanges([
+        let monthly = intersectDateRanges([
           { start: dayjs(item.checkIn.toDate()), end: dayjs(item.checkOut.toDate()) },
           { start: dayjs(month).startOf('month'), end: dayjs(month).endOf('month') }
         ])
-        if (interval) {
-          let bookedDays = interval.end.diff(interval.start, 'day')
-          let totalDays = dayjs(item.checkOut.toDate()).diff(dayjs(item.checkIn.toDate()), 'day')
-          let monthRevenue = item.amount * bookedDays / totalDays
-          return ({ unit: item.unit.id, amount: monthRevenue, bookedDays })
-        } else return ({ unit: item.unit.id, amount: 0, bookedDays: 0 })
+        let yearly = intersectDateRanges([
+          { start: dayjs(item.checkIn.toDate()), end: dayjs(item.checkOut.toDate()) },
+          { start: dayjs(month).startOf('year'), end: dayjs(month).endOf('year') }
+        ])
+        let monthRevenue = 0
+        let yearRevenue = 0
+        let monthBookedDays = 0
+        if (monthly) {
+          monthBookedDays = monthly.end.diff(monthly.start, 'day')
+          let totalBookingDays = dayjs(item.checkOut.toDate()).diff(dayjs(item.checkIn.toDate()), 'day')
+          monthRevenue = item.amount * monthBookedDays / totalBookingDays
+
+        }
+        if (yearly) {
+          let yearBookedDays = yearly.end.diff(yearly.start, 'day')
+          let totalBookingDays = dayjs(item.checkOut.toDate()).diff(dayjs(item.checkIn.toDate()), 'day')
+          yearRevenue = item.amount * yearBookedDays / totalBookingDays
+        }
+        return ({ unit: item.unit.id, monthBookedDays, monthRevenue, yearRevenue })
       })
-    let propertyRevenueAmount = propertyRevenue.reduce((partialSum, a) => partialSum + a.amount, 0)
-    let bookedDays = propertyRevenue.reduce((partialSum, a) => partialSum + a.bookedDays, 0)
-    let unitRevenue = propertyRevenue.filter(item => item.unit === unitId)
-    let unitRevenueAmount = unitRevenue.reduce((partialSum, a) => partialSum + a.amount, 0)
+    let propertyRevenueAmount = propertyRevenue.reduce((partialSum, a) => partialSum + a.monthRevenue, 0)
+    let bookedDays = propertyRevenue.filter(item => item.unit === unit.docId).reduce((partialSum, a) => partialSum + a.monthBookedDays, 0)
+    let unitMonthRevenue = propertyRevenue.filter(item => item.unit === unit.docId).reduce((partialSum, a) => partialSum + a.monthRevenue, 0)
+    let unitYearRevenue = propertyRevenue.filter(item => item.unit === unit.docId)?.[0]?.yearRevenue || 0
     let propertyExpenses = expenses
-      .filter(item => item.property.id === propertyId)
+      .filter(item => item.property.id === unit.property.id)
       .filter(item => dayjs(month).month() === dayjs(item.date.toDate()).month() && dayjs(month).year() === dayjs(item.date.toDate()).year())
       .reduce((partialSum, a) => partialSum + a.amount, 0)
     return {
-      property_revenue: currency(propertyRevenueAmount, { symbol: '€', decimal: ',', separator: '.' }).format(),
-      property_expenses: currency(propertyExpenses, { symbol: '€', decimal: ',', separator: '.' }).format(),
-      property_profit: currency(propertyRevenueAmount, { symbol: '€', decimal: ',', separator: '.' }).subtract(propertyExpenses).format(),
-      unit_revenue: currency(unitRevenueAmount, { symbol: '€', decimal: ',', separator: '.' }).format(),
+      property_revenue: currency(propertyRevenueAmount, { symbol: '€', decimal: '.', separator: ',' }).format(),
+      property_expenses: currency(propertyExpenses, { symbol: '€', decimal: '.', separator: ',' }).format(),
+      property_profit: currency(propertyRevenueAmount, { symbol: '€', decimal: '.', separator: ',' }).subtract(propertyExpenses).format(),
+      unit_month_revenue: currency(unitMonthRevenue, { symbol: '€', decimal: '.', separator: ',' }).format(),
+      unit_year_revenue: currency(unitYearRevenue, { symbol: '€', decimal: '.', separator: ',' }).format(),
       booked_days: `${bookedDays} days`,
     }
   }
@@ -118,7 +131,7 @@ function PropertiesPage({ f7router, f7route }) {
     units.length > 0 && setResources(
       units
         .map(unit => {
-          let { property_revenue, property_expenses, property_profit, unit_revenue, booked_days } = getUnitData(unit.docId, unit.property.id)
+          let { property_revenue, property_expenses, property_profit, unit_month_revenue, unit_year_revenue, booked_days } = getUnitData(unit)
           return ({
             id: unit.docId,
             unit: unit.name,
@@ -127,7 +140,8 @@ function PropertiesPage({ f7router, f7route }) {
             property_revenue,
             property_expenses,
             property_profit,
-            unit_revenue,
+            unit_month_revenue,
+            unit_year_revenue,
             booked_days
           })
         }).sort((a, b) => a.priority - b.priority))
@@ -282,7 +296,7 @@ const Scorecard = (props) => {
     <Block textColor='white' inset strong className={`bg-color-${backgroundColor} elevation-10`}>
       <h2 style={{ opacity: 0.8 }}>{title}</h2>
       <h3 style={{ opacity: 0.8 }}>{dayjs(month).format("MMMM")}: {monthly}</h3>
-      <h3 style={{ opacity: 0.8 }}>YTD {dayjs(month).format("YYYY")}: {ytd}</h3>
+      <h3 style={{ opacity: 0.8 }}>{dayjs(month).format("YYYY")}: {ytd}</h3>
     </Block>
   )
 }
