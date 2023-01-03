@@ -63,12 +63,7 @@ export default function TenantForm() {
 
 
     async function handleUploadDelete(id) {
-        console.log({ id })
-        f7.preloader.show()
-        return await removeFromSubcollection({
-            tenantId: tenant.docId,
-            fileId: id
-        })
+        setUploads(uploads.filter(file => file.handle !== id))
     }
 
 
