@@ -83,8 +83,9 @@ function PropertiesPage({ f7router, f7route }) {
           let totalDays = dayjs(item.checkOut.toDate()).diff(dayjs(item.checkIn.toDate()), 'day')
           let monthRevenue = item.amount * bookedDays / totalDays
           return ({ unit: item.unit.id, amount: monthRevenue, bookedDays })
-        } else return false
+        } else return ({ unit: item.unit.id, amount: 0, bookedDays: 0 })
       })
+    debugger;
     let propertyRevenueAmount = propertyRevenue.reduce((partialSum, a) => partialSum + a.amount, 0)
     let bookedDays = propertyRevenue.reduce((partialSum, a) => partialSum + a.bookedDays, 0)
     let unitRevenue = propertyRevenue.filter(item => item.unit === unitId)

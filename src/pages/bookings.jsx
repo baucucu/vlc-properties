@@ -125,7 +125,7 @@ const BookingsPage = () => {
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="tenant" label="tenant" type='select' onChange={handleChange} disabled={readOnly}>
+                  <ListInput name="tenant" label="Tenant" type='select' onChange={handleChange} disabled={readOnly}>
                     {_.sortBy(tenants, item => item.name).map(tenant => (<option key={tenant.docId} value={tenant.docId}>{tenant.name}</option>))}
                   </ListInput>
                   <ListButton onClick={() => { setTenantPopupOpen(true) }}>Add new tenant</ListButton>
