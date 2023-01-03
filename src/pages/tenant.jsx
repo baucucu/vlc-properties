@@ -9,6 +9,7 @@ import { FileIcon } from '@drawbotics/file-icons';
 
 const TenantPage = ({ f7route }) => {
   const tenants = useFirestoreListener({ collection: "tenants" })
+  const bookings = useFirestoreListener({ collection: "bookings" })
   const [readOnly, setReadOnly] = useState(true)
   const [tenant, setTenant] = useState()
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -64,12 +65,11 @@ const TenantPage = ({ f7route }) => {
   function handleDelete() {
     f7.dialog.confirm('Are you sure you want to delete this tenant? This action will also delete all bookings for this tenant!', () => {
       f7.store.dispatch('deleteOne', { collectionName: 'tenants', id: tenant.docId }).then(res => {
-        let promises = bookings.filter(booking => booking.tenant.id === tenant.docId).map(item => {
-          f7.store.dispatch('deleteOne', { collectionName: 'bookings', id: item.docId })
+        let tenantBookings = bookings.filter(booking => booking.tenant.id === tenant.docId)
+        tenantBookings.forEach(booking => {
+          f7.store.dispatch('deleteOne', { collectionName: 'bookings', id: booking.docId })
         })
-        Promise.all(promises).then(res => {
-          f7.views.main.router.back()
-        })
+        f7.views.main.router.back()
       })
     })
   }

@@ -85,7 +85,7 @@ function PropertiesPage({ f7router, f7route }) {
           return ({ unit: item.unit.id, amount: monthRevenue, bookedDays })
         } else return ({ unit: item.unit.id, amount: 0, bookedDays: 0 })
       })
-    debugger;
+    // debugger;
     let propertyRevenueAmount = propertyRevenue.reduce((partialSum, a) => partialSum + a.amount, 0)
     let bookedDays = propertyRevenue.reduce((partialSum, a) => partialSum + a.bookedDays, 0)
     let unitRevenue = propertyRevenue.filter(item => item.unit === unitId)
