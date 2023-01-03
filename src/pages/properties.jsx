@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Page, Popup, Navbar, Block, Link, Chip, List, ListItem, useStore, CardHeader, CardContent, Segmented, Tabs, Tab, Button, Row, Col, Card, f7 } from 'framework7-react';
+import { Page, Navbar, Block, Row, Col, f7 } from 'framework7-react';
 import '@fullcalendar/react/dist/vdom';
 import FullCalendar from '@fullcalendar/react';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
@@ -18,12 +18,12 @@ function PropertiesPage({ f7router, f7route }) {
   const expenses = useFirestoreListener({ collection: "expenses" })
   const units = useFirestoreListener({ collection: "units" })
   const bookings = useFirestoreListener({ collection: "bookings" })
-  const revenue = useFirestoreListener({ collection: "revenue" })
   const tenants = useFirestoreListener({ collection: "tenants" })
 
   const [resources, setResources] = useState([]);
   const [events, setEvents] = useState([]);
   const [month, setMonth] = useState();
+
   const [finance, setFinance] = useState({
     monthlyExpenses: currency(0, { symbol: '€', decimal: ',', separator: '.' }).format(),
     ytdExpenses: currency(0, { symbol: '€', decimal: ',', separator: '.' }).format(),
@@ -33,32 +33,22 @@ function PropertiesPage({ f7router, f7route }) {
     ytdProfit: currency(0, { symbol: '€', decimal: ',', separator: '.' }).format(),
   })
 
-
-  // useEffect(() => {
-  //   let range1 = { start: dayjs('2023/01/04'), end: dayjs('2023/03/28') }
-  //   let range2 = { start: dayjs('2023/02/04').startOf('month'), end: dayjs('2023/01/04').endOf('month') }
-  //   let mergedRanges = mergeDateRanges([range1, range2])
-  //   console.log({ mergedRanges })
-  //   debugger;
-  // }, [])
-
   function getMonthlyFinance() {
-    // debugger;
     const monthlyExpenses = expenses
       .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const ytdExpenses = expenses
       .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
-    const monthlyRevenue = revenue
+    const monthlyRevenue = events
       .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
-    const ytdRevenue = revenue
+    const ytdRevenue = events
       .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const monthlyProfit = monthlyRevenue - monthlyExpenses
     const ytdProfit = ytdRevenue - ytdExpenses
-
+    // debugger;
     setFinance({
       monthlyExpenses: currency(monthlyExpenses, { symbol: '€', decimal: ',', separator: '.' }).format(),
       ytdExpenses: currency(ytdExpenses, { symbol: '€', decimal: ',', separator: '.' }).format(),
@@ -73,7 +63,6 @@ function PropertiesPage({ f7router, f7route }) {
     let propertyRevenue = bookings
       .filter(item => item.property.id === propertyId)
       .map(item => {
-        // debugger;
         let interval = intersectDateRanges([
           { start: dayjs(item.checkIn.toDate()), end: dayjs(item.checkOut.toDate()) },
           { start: dayjs(month).startOf('month'), end: dayjs(month).endOf('month') }
@@ -85,12 +74,10 @@ function PropertiesPage({ f7router, f7route }) {
           return ({ unit: item.unit.id, amount: monthRevenue, bookedDays })
         } else return ({ unit: item.unit.id, amount: 0, bookedDays: 0 })
       })
-    // debugger;
     let propertyRevenueAmount = propertyRevenue.reduce((partialSum, a) => partialSum + a.amount, 0)
     let bookedDays = propertyRevenue.reduce((partialSum, a) => partialSum + a.bookedDays, 0)
     let unitRevenue = propertyRevenue.filter(item => item.unit === unitId)
     let unitRevenueAmount = unitRevenue.reduce((partialSum, a) => partialSum + a.amount, 0)
-    // debugger;
     let propertyExpenses = expenses
       .filter(item => item.property.id === propertyId)
       .filter(item => dayjs(month).month() === dayjs(item.date.toDate()).month() && dayjs(month).year() === dayjs(item.date.toDate()).year())
@@ -101,7 +88,6 @@ function PropertiesPage({ f7router, f7route }) {
       property_profit: currency(propertyRevenueAmount, { symbol: '€', decimal: ',', separator: '.' }).subtract(propertyExpenses).format(),
       unit_revenue: currency(unitRevenueAmount, { symbol: '€', decimal: ',', separator: '.' }).format(),
       booked_days: `${bookedDays} days`,
-      occupancy: `${Number(bookedDays * 100 / dayjs(month).daysInMonth()).toFixed(0)}%`
     }
   }
 
@@ -124,7 +110,8 @@ function PropertiesPage({ f7router, f7route }) {
   useEffect(() => {
     setMonth(dayjs().startOf('month'))
   }, [])
-  useEffect(() => { getMonthlyFinance() }, [month, expenses, revenue])
+
+  useEffect(() => { getMonthlyFinance() }, [month, expenses, resources])
 
 
   useEffect(() => {
@@ -141,8 +128,7 @@ function PropertiesPage({ f7router, f7route }) {
             property_expenses,
             property_profit,
             unit_revenue,
-            booked_days,
-            // occupancy
+            booked_days
           })
         }).sort((a, b) => a.priority - b.priority))
   }, [month, bookings])

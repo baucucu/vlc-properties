@@ -36,10 +36,10 @@ const BookingsPage = () => {
 
     async function handleSave() {
       let [d1, m1, y1] = formData.checkIn.split('/')
-      let date = new Date(y1, m1, d1).setHours(14, 0, 0, 0)
+      let date = new Date(y1, m1 - 1, d1).setHours(14, 0, 0, 0)
       const checkIn = Timestamp.fromMillis(date)
       const [d2, m2, y2] = formData.checkOut.split('/')
-      date = new Date(y2, m2, d2).setHours(8, 0, 0, 0)
+      date = new Date(y2, m2 - 1, d2).setHours(8, 0, 0, 0)
       const checkOut = Timestamp.fromMillis(date)
       const rent = Number(currency(formData.rent).value)
       const yearlyRent = Number(currency(formData.yearlyRent).value)
