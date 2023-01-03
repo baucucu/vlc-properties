@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Page, LoginScreen, Block, BlockTitle, List, ListItem, useStore, Row, Col, ListInput, Icon, Button, f7, NavRight, Popup, Navbar } from 'framework7-react';
+import { Page, LoginScreen, Block, List, ListItem, useStore, Row, Col, ListInput, Icon, Button, f7, NavRight, Popup, Navbar } from 'framework7-react';
 import useFirestoreListener from 'react-firestore-listener';
 export default function RequestForm({ requestPopupOpen, handleRequestPopupClose, tenant }) {
 
@@ -11,6 +11,7 @@ export default function RequestForm({ requestPopupOpen, handleRequestPopupClose,
             handleRequestPopupClose()
         })
     }
+
 
     return (
         <Popup
@@ -25,7 +26,7 @@ export default function RequestForm({ requestPopupOpen, handleRequestPopupClose,
                     </NavRight>
                 </Navbar>
                 <Block>
-                    <form id="requestForm" className="form-store-data">
+                    <form id="requestForm" className="form-store-data infinite-scroll-content">
                         <List noHairlines>
                             <ListInput label="Title" type="text" name="title" defaultValue="Request for information" />
                             <ListInput label="Email" type="textarea" name="body" resizable
