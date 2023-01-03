@@ -113,11 +113,9 @@ const TenantPage = ({ f7route }) => {
                 label="ID number"
                 readonly={readOnly}
               />
+              <ListInput name="address" label="Permanent address" readonly={readOnly} />
             </List>
           </Row>
-          <List noHairlines>
-            <ListInput name="address" label="Permanent address" readonly={readOnly} />
-          </List>
           {uploads?.length > 0 && <List noHairlines>
             <ListItem >
               <h2 slot="header">Files</h2>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Page, LoginScreen, Block, BlockTitle, List, ListItem, useStore, Row, Col, ListInput, Icon, Button, f7, NavRight, Popup } from 'framework7-react';
+import { LoginScreen, Block, List, ListItem, useStore, Row, ListInput, Icon, Button, f7 } from 'framework7-react';
 import useFirestoreListener from 'react-firestore-listener';
-import { PickerInline, PickerOverlay } from 'filestack-react';
-import { arrayRemove } from 'firebase/firestore';
-import { db, collection, onSnapshot, addToSubcollection, removeFromSubcollection } from '../utils/firebase';
+import { PickerOverlay } from 'filestack-react';
+import { db, collection, onSnapshot, addToSubcollection } from '../utils/firebase';
+import { FileIcon } from '@drawbotics/file-icons';
+
 export default function TenantForm() {
 
     const tenants = useFirestoreListener({ collection: 'tenants' })
@@ -51,7 +52,7 @@ export default function TenantForm() {
                     })
                 })
                 return await Promise.all(promises).then(res => {
-                    f7.dialog.alert('Your information has been saved. You can now close this window.', 'Success', () => {
+                    f7.dialog.alert('Your information has been saved. Pres OK to close this window.', 'Success', () => {
                         window.close()
                     })
                     return res
@@ -73,7 +74,7 @@ export default function TenantForm() {
             opened={tenantId}
         >
             <Block>
-                <form id="tenantForm" className="form-store-data infinite-scroll-content">
+                <form id="tenantForm" className="form-store-data">
                     <Row>
                         <List noHairlines className='col' style={{ marginTop: 0 }}>
                             <ListInput label="Name" type="text" name="name" placeholder="Name" />
@@ -86,30 +87,27 @@ export default function TenantForm() {
                             <ListInput label="National ID Number" type="text" name="idNumber" placeholder="National ID Number" />
                         </List>
                     </Row>
-                    <Row>
-
-                        {uploads?.length > 0 && <List noHairlines style={{ marginTop: 0 }}>
-                            <ListItem >
-                                <h2 slot="header">Files</h2>
-                            </ListItem>
-                            {uploads.map(file => <ListItem key={file.id || file.handle} mediaItem title={file.filename}>
-                                <img src={file.url} width={40} slot="media" />
-                                <Button slot='content-end' onClick={() => handleUploadDelete(file.handle)}><Icon material='delete'></Icon></Button>
-                            </ListItem>)}
-                        </List>}
-                    </Row>
-                    <Button onClick={() => setPickerOpen(true)}>Add files</Button>
-                    {pickerOpen && <PickerOverlay
-                        apikey={import.meta.env.VITE_FILESTACK_KEY}
-                        pickerOptions={{}}
-                        onUploadDone={(res) => {
-                            console.log(res);
-                            setUploads([...uploads, ...res.filesUploaded])
-                            setPickerOpen(false)
-                        }}
-                    />}
-                    <Button fill raised onClick={() => handleSave()}>Save</Button>
                 </form >
+                {uploads?.length > 0 && <List noHairlines style={{ marginTop: 0 }}>
+                    <ListItem >
+                        <h2 slot="header">Files</h2>
+                    </ListItem>
+                    {uploads.map(file => <ListItem key={file.id || file.handle} mediaItem title={file.filename}>
+                        <FileIcon file={file.filename.split('.').pop()} slot='media' style={{ width: 44 }} />
+                        <Button slot='content-end' onClick={() => handleUploadDelete(file.handle)}><Icon material='delete'></Icon></Button>
+                    </ListItem>)}
+                </List>}
+                <Button onClick={() => setPickerOpen(true)}>Add files</Button>
+                {pickerOpen && <PickerOverlay
+                    apikey={import.meta.env.VITE_FILESTACK_KEY}
+                    pickerOptions={{}}
+                    onUploadDone={(res) => {
+                        console.log(res);
+                        setUploads([...uploads, ...res.filesUploaded])
+                        setPickerOpen(false)
+                    }}
+                />}
+                <Button fill raised onClick={() => handleSave()}>Save</Button>
             </Block>
         </LoginScreen >
     )
