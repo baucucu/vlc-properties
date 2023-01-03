@@ -138,10 +138,10 @@ const BookingPage = ({ f7route }) => {
   const handleSave = () => {
     let data = f7.form.convertToData('#bookingForm')
     let [d1, m1, y1] = data.checkIn.split('/')
-    let date = new Date(y1, m1, d1).setHours(14, 0, 0, 0)
+    let date = new Date(y1, m1 - 1, d1).setHours(14, 0, 0, 0)
     const checkIn = Timestamp.fromMillis(date)
     const [d2, m2, y2] = data.checkOut.split('/')
-    date = new Date(y2, m2, d2).setHours(8, 0, 0, 0)
+    date = new Date(y2, m2 - 1, d2).setHours(8, 0, 0, 0)
     const checkOut = Timestamp.fromMillis(date)
     const rent = Number(currency(data.rent, { symbol: '€', decimal: ',', separator: '.' }).value)
     const yearlyRent = Number(currency(data.yearlyRent, { symbol: '€', decimal: ',', separator: '.' }).value)

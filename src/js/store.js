@@ -1,7 +1,6 @@
 
 import { createStore } from 'framework7/lite';
 import {
-  getRecords,
   updateOne,
   createOne,
   deleteOne
@@ -76,34 +75,10 @@ const store = createStore({
     setProperties({ state, dispatch }, { properties }) {
       console.log({ received: properties })
     },
-    // getData({ state, dispatch }) {
-    //   [
-    //     'properties',
-    //     'units',
-    //     'bookings',
-    //     'tennants',
-    //     'expenses',
-    //     'revenue',
-    //     'settings',
-    //   ].map(collectionName => {
-    //     getRecords(collectionName)
-    //   })
-    // },
-    // setData({ state, dispatch }, { collectionName, docs }) {
-    //   // console.log({ received: { collectionName, docs } })
-    //   docs.map(doc => state[collectionName] = { ...state[collectionName], [doc.id]: doc })
-    //   if (collectionName === 'properties') { dispatch('getSelected') }
-    // },
+
     async updateOne({ state, dispatch }, { collectionName, id, payload }) {
-      // console.log({ received: { collectionName, id, payload } })
       updateOne({ collectionName, id, payload })
     },
-    // updateMany({ state, dispatch }, { collectionName, update }) {
-    //   // console.log({ received: { collectionName, update } })
-    //   update.map(property => {
-    //     updateOne({ collectionName, id: property.id, payload: { name: property.name } })
-    //   })
-    // },
     async createOne({ state, dispatch }, { collectionName, payload }) {
       console.log({ received: { collectionName, payload } })
       return await createOne(collectionName, payload)
@@ -113,11 +88,9 @@ const store = createStore({
       return await deleteOne(collectionName, id)
     },
     setSelected({ state }, options) {
-      // console.log({ options })
       state.selected = options
     },
     getSelected({ state }) {
-      // console.log(Object.keys(state.properties))
       state.selected = Object.keys(state.properties)
     },
   },
