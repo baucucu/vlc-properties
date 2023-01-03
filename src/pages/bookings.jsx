@@ -60,7 +60,6 @@ const BookingsPage = () => {
         unit: doc(db, 'units', formData.unit),
         property: doc(db, 'properties', formData.property)
       }
-      // console.log({ payload })
       f7.store.dispatch('createOne', { collectionName: 'bookings', payload }).then(ref => {
         payload = {
           bookings: arrayUnion(ref)
@@ -86,31 +85,36 @@ const BookingsPage = () => {
     }
     function handleChange() {
       let data = f7.form.convertToData('#newBookingForm')
-      // console.log({ data })
+      console.log({ data })
       setFormData(data)
     }
+
     const handlePropertyChange = ({ id }) => {
       setSelectedProperty(id)
+      setFormData({ ...formData, property: id })
     }
     const handleUnitChange = ({ id }) => {
       setSelectedUnit(id)
+      setFormData({ ...formData, unit: id })
     }
-
-    // useEffect(() => { console.log({ settings }) }, [])
-
-    useEffect(() => {
-      // console.log({ popupOpen, tenantPopupOpen })
-    }, [popupOpen, tenantPopupOpen])
 
     useEffect(() => {
       setSelectableUnits(units.filter(unit => unit.property.id === selectedProperty))
-      setSelectedUnit(selectableUnits[0]?.docId)
+      console.log({ property: properties.filter(property => property.docId === selectedProperty)[0]?.name })
     }, [selectedProperty])
 
     useEffect(() => {
-      // console.log("formData changed: ", { formData })
+      setSelectedUnit("")
+    }, [selectableUnits])
+
+    useEffect(() => {
+      console.log({ property: properties.filter(property => property.docId === selectedProperty)[0]?.name, room: units.filter(unit => unit.docId === selectedUnit)[0]?.name })
+    }, [selectedUnit])
+
+    useEffect(() => {
+      console.log("formData changed: ", { formData })
       let emptyFields = Object.keys(formData).filter(key => formData[key] === '' && key !== 'notes')
-      // console.log({ emptyFields })
+      console.log({ emptyFields })
       if (Object.keys(formData).length > 0 && emptyFields.length === 0) { setCanSave(true) } else { setCanSave(false) }
     }, [formData])
 
@@ -129,7 +133,8 @@ const BookingsPage = () => {
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="tenant" label="Tenant" type='select' onChange={handleChange} disabled={readOnly}>
+                  <ListInput name="tenant" label="Tenant" type='select' onChange={handleChange} disabled={readOnly} defaultValue="">
+                    <option value="" disabled>--Select--</option>
                     {_.sortBy(tenants, item => item.name).map(tenant => (<option key={tenant.docId} value={tenant.docId}>{tenant.name}</option>))}
                   </ListInput>
                   <ListButton onClick={() => { setTenantPopupOpen(true) }}>Add new tenant</ListButton>
@@ -137,7 +142,8 @@ const BookingsPage = () => {
               </Col>
               <Col>
                 <List noHairlines>
-                  <ListInput name='channel' type="select" label="Channel" onChange={handleChange} disabled={readOnly}>
+                  <ListInput name='channel' type="select" label="Channel" onChange={handleChange} disabled={readOnly} defaultValue="">
+                    <option value="" disabled>--Select--</option>
                     {_.sortBy(settings.filter(item => item.docId === 'channels')[0]?.values, item => item)
                       .map(item => (<option key={item} value={item}>{item}</option>))}
                   </ListInput>
@@ -147,18 +153,18 @@ const BookingsPage = () => {
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="property" label="Property" type='select' onChange={(e) => handlePropertyChange({ id: e.target.value })} disabled={readOnly}>
+                  <ListInput name="property" label="Property" type='select' onChange={(e) => handlePropertyChange({ id: e.target.value })} defaultValue="" disabled={readOnly}>
+                    <option value="" disabled>--Select--</option>
                     {_.sortBy(properties, item => item.name).map(property => (<option key={property.docId} value={property.docId} >{property.name}</option>))}
                   </ListInput>
                 </List>
               </Col>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="unit" label="Room" type='select' onChange={(e) => handleUnitChange({ id: e.target.value })} disabled={readOnly} defaultValue={selectedUnit}>
-                    {
-                      selectedProperty && _.sortBy(selectableUnits, item => Number(item.name.substring(5, item.name.length)))
-                        .map(unit => (<option key={unit.docId} value={unit.docId}>{unit.name}</option>))
-                    }
+                  <ListInput name="unit" label="Room" type='select' onChange={(e) => handleUnitChange({ id: e.target.value })} defaultValue="" disabled={readOnly}>
+                    <option value="">--Select--</option>
+                    {selectedProperty && _.sortBy(selectableUnits, item => Number(item.name.substring(5, item.name.length)))
+                      .map(unit => (<option key={unit.docId} value={unit.docId}>{unit.name}</option>))}
                   </ListInput>
                 </List>
               </Col>
@@ -176,7 +182,7 @@ const BookingsPage = () => {
                       dateFormat: 'dd/mm/yyyy'
                     }}
                     disabled={readOnly}
-                    onChange={handleChange}
+                    onCalendarChange={handleChange}
                   />
                 </List>
               </Col>
@@ -192,7 +198,7 @@ const BookingsPage = () => {
                       dateFormat: 'dd/mm/yyyy'
                     }}
                     disabled={readOnly}
-                    onChange={handleChange}
+                    onCalendarChange={handleChange}
                   />
                 </List>
               </Col>
@@ -200,24 +206,24 @@ const BookingsPage = () => {
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="rent" type="number" label="Monthly rent" onChange={handleChange} disabled={readOnly} />
+                  <ListInput name="rent" type="number" label="Monthly rent" defaultValue={0} onChange={handleChange} disabled={readOnly} />
                 </List>
               </Col>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="yearlyRent" type="number" label="Yearly rent" onChange={handleChange} disabled={readOnly} />
+                  <ListInput name="yearlyRent" type="number" label="Yearly rent" defaultValue={0} onChange={handleChange} disabled={readOnly} />
                 </List>
               </Col>
             </Row>
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="deposit" type="number" label="Deposit" onChange={handleChange} disabled={readOnly} />
+                  <ListInput name="deposit" type="number" label="Deposit" defaultValue={0} onChange={handleChange} disabled={readOnly} />
                 </List>
               </Col>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="amount" type="number" label="Total amount" onChange={handleChange} disabled={readOnly} />
+                  <ListInput name="amount" type="number" label="Total amount" defaultValue={0} onChange={handleChange} disabled={readOnly} />
                 </List>
               </Col>
             </Row>
@@ -252,7 +258,6 @@ const BookingsPage = () => {
     const [uploads, setUploads] = useState([])
 
     function handleSave() {
-      // console.log({ formData, uploads })
       let payload = {
         ...formData,
         uploads
@@ -262,13 +267,10 @@ const BookingsPage = () => {
     }
     function handleChange() {
       let data = f7.form.convertToData('#newBookingtenantForm')
-      // console.log({ data })
       setFormData(data)
     }
     useEffect(() => {
-      // console.log("formData changed: ", { formData })
       let emptyFields = Object.keys(formData).filter(key => formData[key] === '' && key !== 'notes')
-      // console.log({ emptyFields })
       if (emptyFields.length === 0) { setCanSave(true) } else { setCanSave(false) }
     }, [formData])
 
@@ -317,7 +319,6 @@ const BookingsPage = () => {
               apikey={import.meta.env.VITE_FILESTACK_KEY}
               pickerOptions={{}}
               onUploadDone={(res) => {
-                // console.log(res);
                 setUploads([...uploads, ...res.filesUploaded])
                 setPickerOpen(false)
               }}
@@ -365,7 +366,6 @@ const BookingsPage = () => {
 
                       <Chip
                         text={tenant?.name}
-                        // media="T"
                         mediaBgColor="black"
                         iconMaterial='person'
                         iconF7='person'
@@ -375,13 +375,9 @@ const BookingsPage = () => {
                       </Chip>
                       <Chip
                         text={`${property.name} - ${unit.name}`}
-                        // media="P"
                         mediaBgColor="black"
                         iconMaterial='business'
-                        // iconF7='building'
                         iconAurora='building'
-                      // iconIos='building'
-                      // iconColor='white'
                       >
                       </Chip>
                       <Chip
@@ -397,17 +393,6 @@ const BookingsPage = () => {
                     </div>
                   }
                   text={<Badge color="black">{booking.channel}</Badge>}
-                // after={
-                //   <div style={{ display: "flex", flexDirection: "row-reverse", gap: 16 }}>
-                //     <Chip
-                //       text={booking["Contract status"] || "N/A"}
-                //       media="C"
-                //       mediaBgColor='black'
-                //     >
-                //     </Chip>
-                //   </div>
-                // }
-
                 >
                 </ListItem>
               )

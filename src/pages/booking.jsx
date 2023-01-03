@@ -89,19 +89,16 @@ const BookingPage = ({ f7route }) => {
   }
 
   useEffect(() => {
-    // console.log({ bookings })
     let temp = bookings.filter(item => item.docId === f7route.params.id)?.[0]
     settings.length > 0 && setBooking(temp)
   }, [bookings, settings])
 
   useEffect(() => {
-    // console.log({ units })
     if (units?.length > 0 && selectedProperty) { setSelectableUnits(units.filter(item => item.docId === selectedProperty)?.[0]) }
   }, [units])
 
 
   useEffect(() => {
-    // console.log({ booking })
     if (booking) {
       setSelectedUnit(booking.unit.id)
       setSelectedTenant(booking.tenant.id)
@@ -195,7 +192,13 @@ const BookingPage = ({ f7route }) => {
 
   useEffect(() => {
     setSelectableUnits(units.filter(unit => unit.property.id === selectedProperty))
-    setSelectedUnit(selectableUnits[0])
+  }, [selectedProperty])
+
+  useEffect(() => {
+    debugger;
+    if (!booking) { return }
+    else if (selectedProperty !== booking?.property?.id) { setSelectedUnit(booking.unit.id) }
+    else { setSelectedUnit("") }
   }, [selectedProperty])
 
 
@@ -302,6 +305,7 @@ const BookingPage = ({ f7route }) => {
             <Col small>
               <List noHairlines style={{ margin: 0 }}>
                 <ListInput name="unit" label="Room" type='select' defaultValue={booking.unit.id} onChange={(e) => handleUnitChange({ id: e.target.value })} disabled={readOnly}>
+                  <option value="">--Select--</option>
                   {_.sortBy(selectableUnits, item => item.name).map(unit => (<option key={unit.docId} value={unit.docId}>{unit.name}</option>))}
                 </ListInput>
               </List>
