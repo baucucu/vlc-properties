@@ -78,15 +78,22 @@ export default function TenantForm() {
             opened={tenantId}
         >
             <Block>
-                <form id="tenantForm" className="form-store-data">
-                    <List noHairlines>
-                        <ListInput label="Name" type="text" name="name" placeholder="Name" />
-                        <ListInput label="Email" type="email" name="email" placeholder="Email" />
-                        <ListInput label="Phone" type="tel" name="phone" placeholder="Phone" />
-                        <ListInput label="Address" type="text" name="address" placeholder="Address" />
-                        <ListInput label="Country" type="text" name="country" placeholder="Country" />
-                        <ListInput label="idNumber" type="text" name="idNumber" placeholder="idNumber" />
-                        {uploads?.length > 0 && <List noHairlines>
+                <form id="tenantForm" className="form-store-data infinite-scroll-content">
+                    <Row>
+                        <List noHairlines className='col' style={{ marginTop: 0 }}>
+                            <ListInput label="Name" type="text" name="name" placeholder="Name" />
+                            <ListInput label="Email" type="email" name="email" placeholder="Email" />
+                            <ListInput label="Phone" type="tel" name="phone" placeholder="Phone" />
+                        </List>
+                        <List noHairlines className='col' style={{ marginTop: 0 }}>
+                            <ListInput label="Address" type="text" name="address" placeholder="Address" />
+                            <ListInput label="Country" type="text" name="country" placeholder="Country" />
+                            <ListInput label="National ID Number" type="text" name="idNumber" placeholder="National ID Number" />
+                        </List>
+                    </Row>
+                    <Row>
+
+                        {uploads?.length > 0 && <List noHairlines style={{ marginTop: 0 }}>
                             <ListItem >
                                 <h2 slot="header">Files</h2>
                             </ListItem>
@@ -95,20 +102,20 @@ export default function TenantForm() {
                                 <Button slot='content-end' onClick={() => handleUploadDelete(file.handle)}><Icon material='delete'></Icon></Button>
                             </ListItem>)}
                         </List>}
-                        <Button onClick={() => setPickerOpen(true)}>Add files</Button>
-                        {pickerOpen && <PickerOverlay
-                            apikey={import.meta.env.VITE_FILESTACK_KEY}
-                            pickerOptions={{}}
-                            onUploadDone={(res) => {
-                                console.log(res);
-                                setUploads([...uploads, ...res.filesUploaded])
-                                setPickerOpen(false)
-                            }}
-                        />}
-                        <Button fill raised onClick={() => handleSave()}>Save</Button>
-                    </List>
-                </form>
+                    </Row>
+                    <Button onClick={() => setPickerOpen(true)}>Add files</Button>
+                    {pickerOpen && <PickerOverlay
+                        apikey={import.meta.env.VITE_FILESTACK_KEY}
+                        pickerOptions={{}}
+                        onUploadDone={(res) => {
+                            console.log(res);
+                            setUploads([...uploads, ...res.filesUploaded])
+                            setPickerOpen(false)
+                        }}
+                    />}
+                    <Button fill raised onClick={() => handleSave()}>Save</Button>
+                </form >
             </Block>
-        </LoginScreen>
+        </LoginScreen >
     )
 }
