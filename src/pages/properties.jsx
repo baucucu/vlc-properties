@@ -219,7 +219,7 @@ function PropertiesPage({ f7router, f7route }) {
             },
             {
               // group: true,
-              field: 'unit_revenue',
+              field: 'unit_month_revenue',
               headerContent: 'Revenue'
             },
             {
