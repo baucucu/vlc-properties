@@ -11,7 +11,7 @@ import isBetween from 'dayjs/plugin/isBetween';
 import minMax from 'dayjs/plugin/minMax';
 dayjs.extend(isBetween);
 dayjs.extend(minMax);
-import { getNumberFromString } from '../utils/utils';
+import { getNumberFromString, intersectDateRanges } from '../utils/utils';
 
 function PropertiesPage({ f7router, f7route }) {
   const properties = useFirestoreListener({ collection: "properties" })
@@ -58,6 +58,7 @@ function PropertiesPage({ f7router, f7route }) {
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const monthlyProfit = monthlyRevenue - monthlyExpenses
     const ytdProfit = ytdRevenue - ytdExpenses
+
     setFinance({
       monthlyExpenses: currency(monthlyExpenses, { symbol: '€', decimal: ',', separator: '.' }).format(),
       ytdExpenses: currency(ytdExpenses, { symbol: '€', decimal: ',', separator: '.' }).format(),
@@ -69,47 +70,37 @@ function PropertiesPage({ f7router, f7route }) {
   }
 
   function getUnitData(unitId, propertyId) {
-    let propertyRevenue = revenue
-      .filter(item => {
+    let propertyRevenue = bookings
+      .filter(item => item.property.id === propertyId)
+      .map(item => {
         // debugger;
-        return (
-          item.property.id === propertyId &&
-          dayjs(month).month() === dayjs(item.date.toDate()).month() &&
-          dayjs(month).year() === dayjs(item.date.toDate()).year()
-        )
+        let interval = intersectDateRanges([
+          { start: dayjs(item.checkIn.toDate()), end: dayjs(item.checkOut.toDate()) },
+          { start: dayjs(month).startOf('month'), end: dayjs(month).endOf('month') }
+        ])
+        if (interval) {
+          let bookedDays = interval.end.diff(interval.start, 'day')
+          let totalDays = dayjs(item.checkOut.toDate()).diff(dayjs(item.checkIn.toDate()), 'day')
+          let monthRevenue = item.amount * bookedDays / totalDays
+          return ({ unit: item.unit.id, amount: monthRevenue, bookedDays })
+        } else return false
       })
-      .map(item => ({ unit: item.unit.id, amount: item.amount }))
     let propertyRevenueAmount = propertyRevenue.reduce((partialSum, a) => partialSum + a.amount, 0)
+    let bookedDays = propertyRevenue.reduce((partialSum, a) => partialSum + a.bookedDays, 0)
     let unitRevenue = propertyRevenue.filter(item => item.unit === unitId)
     let unitRevenueAmount = unitRevenue.reduce((partialSum, a) => partialSum + a.amount, 0)
-
+    // debugger;
     let propertyExpenses = expenses
       .filter(item => item.property.id === propertyId)
       .filter(item => dayjs(month).month() === dayjs(item.date.toDate()).month() && dayjs(month).year() === dayjs(item.date.toDate()).year())
       .reduce((partialSum, a) => partialSum + a.amount, 0)
-    let currentBookings = bookings
-      .filter(item => item.unit.id === unitId)
-      .filter(item =>
-        dayjs(month).isBefore(dayjs(item.checkIn.toDate())) && dayjs(month).endOf('month').isAfter(dayjs(item.checkIn.toDate)) ||
-        dayjs(month).isBefore(dayjs(item.checkOut.toDate())) && dayjs(month).endOf('month').isAfter(dayjs(item.checkOut.toDate())) ||
-        dayjs(month).isBetween(dayjs(item.checkIn.toDate()), dayjs(item.checkOut.toDate())) && dayjs(month).endOf('month').isBetween(dayjs(item.checkIn.toDate()), dayjs(item.checkOut.toDate()))
-      )
-    // debugger;
-    let booked_days = currentBookings
-      .map(item => {
-        let start = dayjs.min(item.checkOut.toDate(), dayjs(month).endOf('month'))
-        let end = dayjs.max(item.checkIn.toDate(), dayjs(month))
-        let res = dayjs(start).startOf('day').diff(dayjs(end).endOf('day'), 'day') + 1
-        return res
-      })
-      .reduce((partialSum, a) => partialSum + a, 0)
     return {
       property_revenue: currency(propertyRevenueAmount, { symbol: '€', decimal: ',', separator: '.' }).format(),
       property_expenses: currency(propertyExpenses, { symbol: '€', decimal: ',', separator: '.' }).format(),
       property_profit: currency(propertyRevenueAmount, { symbol: '€', decimal: ',', separator: '.' }).subtract(propertyExpenses).format(),
       unit_revenue: currency(unitRevenueAmount, { symbol: '€', decimal: ',', separator: '.' }).format(),
-      booked_days: `${booked_days} days`,
-      occupancy: `${Number(booked_days * 100 / dayjs(month).daysInMonth()).toFixed(0)}%`
+      booked_days: `${bookedDays} days`,
+      occupancy: `${Number(bookedDays * 100 / dayjs(month).daysInMonth()).toFixed(0)}%`
     }
   }
 
@@ -159,7 +150,7 @@ function PropertiesPage({ f7router, f7route }) {
     setEvents(bookings.map(booking => {
       return ({
         id: booking.docId,
-        title: tenants.filter(tenant => tenant.docId === booking.tenant.id)[0].name,
+        title: tenants.filter(tenant => tenant.docId === booking.tenant.id)[0]?.name,
         start: dayjs(booking.checkIn.toDate()).format('YYYY-MM-DD'),
         end: dayjs(booking.checkOut.toDate()).format('YYYY-MM-DD'),
         allDay: true,
