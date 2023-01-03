@@ -16,7 +16,6 @@ const TenantsPage = () => {
   }
 
   function AddTenant({ handleClose }) {
-    const [canSave, setCanSave] = useState(false)
     const [formData, setFormData] = useState({})
     const [pickerOpen, setPickerOpen] = useState(false)
     const [uploads, setUploads] = useState([])
@@ -34,13 +33,12 @@ const TenantsPage = () => {
       // console.log("formData changed: ", { formData })
       let emptyFields = Object.keys(formData).filter(key => formData[key] === '' && key !== 'notes')
       // console.log({ emptyFields })
-      if (emptyFields.length === 0) { setCanSave(true) } else { setCanSave(false) }
     }, [formData])
 
     return (
       <Page>
         <Navbar title="Add new tenant">
-          {canSave && <Button onClick={handleSave}><Icon material='save' /></Button>}
+          <Button onClick={handleSave}><Icon material='save' /></Button>
           <NavRight>
             <Button onClick={handleClose}>
               <Icon material="close"></Icon>

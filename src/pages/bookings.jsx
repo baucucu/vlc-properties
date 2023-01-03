@@ -31,6 +31,7 @@ const BookingsPage = () => {
     const [readOnly, setReadOnly] = useState(false)
     const [selectedProperty, setSelectedProperty] = useState(properties[0]?.docId)
     const [selectableUnits, setSelectableUnits] = useState(units.filter(unit => unit?.property?.docId === selectedProperty))
+    const [selectedUnit, setSelectedUnit] = useState(units.filter(unit => unit?.property?.docId === selectedProperty)[0]?.docId)
     const [canSave, setCanSave] = useState(false)
     let [formData, setFormData] = useState({})
 
@@ -91,7 +92,9 @@ const BookingsPage = () => {
     const handlePropertyChange = ({ id }) => {
       setSelectedProperty(id)
     }
-    const handleUnitChange = ({ id }) => { }
+    const handleUnitChange = ({ id }) => {
+      setSelectedUnit(id)
+    }
 
     // useEffect(() => { console.log({ settings }) }, [])
 
@@ -101,6 +104,7 @@ const BookingsPage = () => {
 
     useEffect(() => {
       setSelectableUnits(units.filter(unit => unit.property.id === selectedProperty))
+      setSelectedUnit(selectableUnits[0]?.docId)
     }, [selectedProperty])
 
     useEffect(() => {
@@ -150,7 +154,7 @@ const BookingsPage = () => {
               </Col>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="unit" label="Room" type='select' onChange={(e) => handleUnitChange({ id: e.target.value })} disabled={readOnly}>
+                  <ListInput name="unit" label="Room" type='select' onChange={(e) => handleUnitChange({ id: e.target.value })} disabled={readOnly} defaultValue={selectedUnit}>
                     {
                       selectedProperty && _.sortBy(selectableUnits, item => Number(item.name.substring(5, item.name.length)))
                         .map(unit => (<option key={unit.docId} value={unit.docId}>{unit.name}</option>))

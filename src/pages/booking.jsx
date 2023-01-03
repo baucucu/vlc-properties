@@ -193,13 +193,7 @@ const BookingPage = ({ f7route }) => {
     })
   }
 
-  // useEffect(() => { console.log("selectedUnit changed: ", { selectedUnit }) }, [selectedUnit])
-  // useEffect(() => { console.log("selectableUnits changed: ", { selectableUnits }) }, [selectableUnits])
-
-
-
   useEffect(() => {
-    // console.log("selectedProperty changed: ", { selectedProperty })
     setSelectableUnits(units.filter(unit => unit.property.id === selectedProperty))
     setSelectedUnit(selectableUnits[0])
   }, [selectedProperty])
