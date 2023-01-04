@@ -32,7 +32,7 @@ function PropertiesPage({ f7router, f7route }) {
     ytdProfit: currency(0, { symbol: '€', decimal: '.', separator: ',' }).format(),
   })
 
-  useEffect(() => { console.log({ resources }) }, [resources])
+  // useEffect(() => { console.log({ resources }) }, [resources])
 
   function getMonthlyFinance() {
     const monthlyExpenses = expenses

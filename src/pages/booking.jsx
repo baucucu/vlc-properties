@@ -52,8 +52,36 @@ const BookingPage = ({ f7route }) => {
   const [contractPopupOpen, setContractPopupOpen] = useState(false)
 
   useEffect(() => {
+    if (!booking) {
+      let temp = bookings.filter(item => item.docId === f7route.params.id)?.[0]
+      settings.length > 0 && setBooking(temp)
+    } else {
+      setSelectedProperty(booking.property.id)
+      setSelectedTenant(booking.tenant.id)
+      setSelectedUnit(booking.unit.id)
+      if (booking?.contracts?.length > 0) { setSelectedContract(booking.contracts[booking.contracts.length - 1]) }
+      resetForm()
+    }
+  }, [booking, settings])
+
+  useEffect(() => {
+    if (!selectedProperty) { return }
+    else if (selectedProperty === booking?.property?.id) {
+      setSelectedUnit(booking.unit.id)
+    } else {
+      setSelectableUnits(properties.filter(item => item.docId === selectedProperty)[0].units)
+      setSelectedUnit("")
+    }
+  }, [selectedProperty])
+
+  useEffect(() => {
+    if (units?.length > 0 && selectedProperty) { setSelectableUnits(units.filter(item => item.docId === selectedProperty)?.[0]) }
+  }, [units])
+
+  useEffect(() => {
     console.log({ selectedContract })
   }, [selectedContract])
+
 
   function handleContractPopupClose() {
     setContractPopupOpen(false)
@@ -87,26 +115,6 @@ const BookingPage = ({ f7route }) => {
     debugger;
     store.dispatch('sendContract', { payload })
   }
-
-  useEffect(() => {
-    let temp = bookings.filter(item => item.docId === f7route.params.id)?.[0]
-    settings.length > 0 && setBooking(temp)
-  }, [bookings, settings])
-
-  useEffect(() => {
-    if (units?.length > 0 && selectedProperty) { setSelectableUnits(units.filter(item => item.docId === selectedProperty)?.[0]) }
-  }, [units])
-
-
-  useEffect(() => {
-    if (booking) {
-      setSelectedUnit(booking.unit.id)
-      setSelectedTenant(booking.tenant.id)
-      setSelectedProperty(booking.property.id)
-      if (booking?.contracts?.length > 0) { setSelectedContract(booking.contracts[booking.contracts.length - 1]) }
-      resetForm()
-    }
-  }, [booking])
 
   function resetForm() {
     let data = {
@@ -171,7 +179,8 @@ const BookingPage = ({ f7route }) => {
   }
 
   const handleUnitChange = ({ id }) => {
-    setSelectedUnit(id)
+    console.log({ changedUnit: id })
+    // setSelectedUnit(id)
     let formData = f7.form.getFormData('#bookingForm')
     // console.log({ id, formData })
   }
@@ -189,19 +198,6 @@ const BookingPage = ({ f7route }) => {
       })
     })
   }
-
-  useEffect(() => {
-    setSelectableUnits(units.filter(unit => unit.property.id === selectedProperty))
-  }, [selectedProperty])
-
-  useEffect(() => {
-    debugger;
-    if (!booking) { return }
-    else if (selectedProperty !== booking?.property?.id) { setSelectedUnit(booking.unit.id) }
-    else { setSelectedUnit("") }
-  }, [selectedProperty])
-
-
 
   return (
     <Page name="form">
@@ -297,15 +293,15 @@ const BookingPage = ({ f7route }) => {
             </Col>
             <Col small>
               <List noHairlines style={{ margin: 0 }}>
-                <ListInput name="property" label="Property" type='select' defaultValue={booking.property.id} onChange={(e) => handlePropertyChange({ id: e.target.value })} disabled={readOnly}>
+                <ListInput name="property" label="Property" type='select' onChange={(e) => handlePropertyChange({ id: e.target.value })} disabled={readOnly}>
                   {properties.map(property => (<option key={property.docId} value={property.docId} >{property.name}</option>))}
                 </ListInput>
               </List>
             </Col>
             <Col small>
               <List noHairlines style={{ margin: 0 }}>
-                <ListInput name="unit" label="Room" type='select' defaultValue={booking.unit.id} onChange={(e) => handleUnitChange({ id: e.target.value })} disabled={readOnly}>
-                  <option value="">--Select--</option>
+                <ListInput name="unit" label="Room" type='select' onChange={(e) => handleUnitChange({ id: e.target.value })} disabled={readOnly}>
+                  {/* <option value="">--Select--</option> */}
                   {_.sortBy(selectableUnits, item => item.name).map(unit => (<option key={unit.docId} value={unit.docId}>{unit.name}</option>))}
                 </ListInput>
               </List>
