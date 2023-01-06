@@ -39,13 +39,14 @@ const SettingsPage = () => {
     }
     function handleSaveProperties() {
         // console.log({ editedProperties })
-        const initialProperties = properties.map(item => ({ id: item.docId, name: item.name }))
+        const initialProperties = properties.map(item => ({ id: item.docId, name: item.name, address: item.address || "" }))
         if (!_.isEqual(initialProperties, editedProperties)) {
-            // console.log("saving")
             let update = editedProperties.map(property => ({
                 id: property.id,
-                name: property.name
+                name: property.name,
+                address: property.address || "",
             }))
+            console.log({ saving: update })
             f7.store.dispatch('updateMany', { collectionName: 'properties', update })
         }
         setEditProperties(false)
@@ -56,7 +57,7 @@ const SettingsPage = () => {
         setEditedChannels([...temp])
     }
     function handleSaveChannels() {
-        f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'channels', payload: { values: editedChannels.sort() } })
+        f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'channels', payload: { values: editedChannels } })
         setEditChannels(false)
         setCanSaveChannels(false)
     }
@@ -66,7 +67,7 @@ const SettingsPage = () => {
         setEditedCategories([...temp])
     }
     function handleSaveCategories() {
-        f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'expenseCategories', payload: { values: editedCategories.sort() } })
+        f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'expenseCategories', payload: { values: editedCategories } })
         setEditCategories(false)
     }
 
@@ -80,7 +81,7 @@ const SettingsPage = () => {
     }, [editedChannels])
 
     useEffect(() => {
-        setEditedProperties([...properties.map(item => ({ id: item.docId, name: item.name }))])
+        setEditedProperties([...properties.map(item => ({ id: item.docId, name: item.name, address: item.address }))])
     }, [properties])
 
     useEffect(() => {

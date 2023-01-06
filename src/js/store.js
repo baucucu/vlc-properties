@@ -5,7 +5,7 @@ import {
   createOne,
   deleteOne
 } from '../utils/firebase'
-import { f7 } from 'framework7-react';
+import { f7, ListItem } from 'framework7-react';
 import axios from 'axios';
 import { arrayUnion } from 'firebase/firestore'
 
@@ -77,7 +77,11 @@ const store = createStore({
     },
 
     async updateOne({ state, dispatch }, { collectionName, id, payload }) {
-      updateOne({ collectionName, id, payload })
+      return await updateOne({ collectionName, id, payload })
+    },
+    async updateMany({ state, dispatch }, { collectionName, update }) {
+      let promises = update.map(property => updateOne({ collectionName, id: property.id, payload: property }).then(res => { return res }))
+      return Promise.all(promises).then(res => { return res })
     },
     async createOne({ state, dispatch }, { collectionName, payload }) {
       console.log({ received: { collectionName, payload } })
