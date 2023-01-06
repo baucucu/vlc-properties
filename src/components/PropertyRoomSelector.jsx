@@ -55,7 +55,7 @@ export default function PropertyRoomSelector(props) {
                 change: function (picker, values, displayValues) {
                     console.log({ change: { picker, values, displayValues } })
                     setSelectedProperty(properties.filter(property => property.name === values[0])[0].docId)
-                    setSelectedUnit(units.filter(unit => unit.name === values[1] && unit.property.id === values[0])[0].docId)
+                    setSelectedUnit(units.filter(unit => unit.name === values[1] && unit.property.id === properties.filter(property => property.name === values[0])[0].id)[0].docId)
                 }
             }
         });
@@ -68,7 +68,7 @@ export default function PropertyRoomSelector(props) {
 
     return (
         <List className="list no-hairlines-md" style={{ margin: 0 }} >
-            <ListInput label="Room" input={false}  >
+            <ListInput label="Room" input={false} autocomplete={false}>
                 <input slot="input" type="text" placeholder="Select property and unit" id="demo-picker-dependent" />
             </ListInput>
         </List>
