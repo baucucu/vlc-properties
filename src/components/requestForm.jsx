@@ -29,10 +29,7 @@ export default function RequestForm({ requestPopupOpen, handleRequestPopupClose,
                         <List noHairlines>
                             <ListInput label="Title" type="text" name="title" defaultValue="Request for information" />
                             <ListInput label="Email" type="textarea" name="body" resizable
-                                defaultValue={`Hi ${tenant.name},\n\n
-                                Thanks for booking with us. We need some details to prepare your contract.\n
-                                Please fill in the form from the link and upload a copy of your ID/Passport: https://vlc-properties.vercel.app//?tenantId=${tenant.docId}\n\n
-                                Regards,\nSteve\nVLC Property Management`}
+                                defaultValue={`Hi ${tenant.name},\n\nThanks for booking with us. We need some details to prepare your contract.\nPlease fill in the form from the link and upload a copy of your ID/Passport: https://vlc-properties.vercel.app//?tenantId=${tenant.docId}\n\nRegards,\nSteve\nVLC Property Management`}
                             />
                             <Button fill raised onClick={() => handleSend()}>Send</Button>
                         </List>
