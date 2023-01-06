@@ -29,6 +29,7 @@ import googleDocsLogo from '../assets/google_docs_logo.png'
 import store from '../js/store';
 import ContractEmailForm from '../components/contractForm'
 import { Timestamp } from 'firebase/firestore'
+import PropertyRoomSelector from '../components/PropertyRoomSelector';
 
 
 const BookingPage = ({ f7route }) => {
@@ -292,19 +293,7 @@ const BookingPage = ({ f7route }) => {
               </List>
             </Col>
             <Col small>
-              <List noHairlines style={{ margin: 0 }}>
-                <ListInput name="property" label="Property" type='select' onChange={(e) => handlePropertyChange({ id: e.target.value })} disabled={readOnly}>
-                  {properties.map(property => (<option key={property.docId} value={property.docId} >{property.name}</option>))}
-                </ListInput>
-              </List>
-            </Col>
-            <Col small>
-              <List noHairlines style={{ margin: 0 }}>
-                <ListInput name="unit" label="Room" type='select' onChange={(e) => handleUnitChange({ id: e.target.value })} disabled={readOnly}>
-                  {/* <option value="">--Select--</option> */}
-                  {_.sortBy(selectableUnits, item => item.name).map(unit => (<option key={unit.docId} value={unit.docId}>{unit.name}</option>))}
-                </ListInput>
-              </List>
+              <PropertyRoomSelector disabled={readOnly} properties={properties} units={units} setSelectedProperty={setSelectedProperty} selectedProperty={selectedProperty} setSelectedUnit={setSelectedUnit} selectedUnit={selectedUnit} />
             </Col>
             <Col small>
               <List noHairlines style={{ margin: 0 }}>

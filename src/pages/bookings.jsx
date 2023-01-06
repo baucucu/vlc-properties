@@ -8,9 +8,9 @@ import _ from 'lodash'
 import dayjs from 'dayjs'
 import currency from 'currency.js'
 import { Timestamp } from 'firebase/firestore'
+import PropertyRoomSelector from '../components/PropertyRoomSelector'
 
 const BookingsPage = () => {
-  // Array of API discovery doc URLs for APIs
   const settings = useFirestoreListener({ collection: "settings" })
   const properties = useFirestoreListener({ collection: "properties" })
   const tenants = useFirestoreListener({ collection: "tenants" })
@@ -29,18 +29,19 @@ const BookingsPage = () => {
 
   function AddBooking({ handleClose }) {
     const [readOnly, setReadOnly] = useState(false)
-    const [selectedProperty, setSelectedProperty] = useState(properties[0]?.docId)
-    const [selectableUnits, setSelectableUnits] = useState(units.filter(unit => unit?.property?.docId === selectedProperty))
-    const [selectedUnit, setSelectedUnit] = useState(units.filter(unit => unit?.property?.docId === selectedProperty)[0]?.docId)
+    const [selectedProperty, setSelectedProperty] = useState()
+    const [selectedUnit, setSelectedUnit] = useState()
     const [canSave, setCanSave] = useState(false)
-    let [formData, setFormData] = useState({})
+    const [formData, setFormData] = useState({})
 
     async function handleSave() {
-      let [d1, m1, y1] = formData.checkIn.split('/')
-      let date = new Date(y1, m1 - 1, d1).setHours(14, 0, 0, 0)
+      // let [d1, m1, y1] = formData.checkIn.split('/')
+      let date = new Date(formData.checkIn).setHours(14, 0, 0, 0)
+      console.log({ checkIn: date })
       const checkIn = Timestamp.fromMillis(date)
-      const [d2, m2, y2] = formData.checkOut.split('/')
-      date = new Date(y2, m2 - 1, d2).setHours(8, 0, 0, 0)
+      // const [d2, m2, y2] = formData.checkOut.split('/')
+      date = new Date(formData.checkOut).setHours(8, 0, 0, 0)
+      console.log({ checkOut: date })
       const checkOut = Timestamp.fromMillis(date)
       const rent = Number(currency(formData.rent).value)
       const yearlyRent = Number(currency(formData.yearlyRent).value)
@@ -83,33 +84,16 @@ const BookingsPage = () => {
 
       handleClose()
     }
+
     function handleChange() {
       let data = f7.form.convertToData('#newBookingForm')
       console.log({ data })
-      setFormData(data)
-    }
-
-    const handlePropertyChange = ({ id }) => {
-      setSelectedProperty(id)
-      setFormData({ ...formData, property: id })
-    }
-    const handleUnitChange = ({ id }) => {
-      setSelectedUnit(id)
-      setFormData({ ...formData, unit: id })
+      setFormData({ ...formData, ...data })
     }
 
     useEffect(() => {
-      setSelectableUnits(units.filter(unit => unit.property.id === selectedProperty))
-      console.log({ property: properties.filter(property => property.docId === selectedProperty)[0]?.name })
-    }, [selectedProperty])
-
-    useEffect(() => {
-      setSelectedUnit("")
-    }, [selectableUnits])
-
-    useEffect(() => {
-      console.log({ property: properties.filter(property => property.docId === selectedProperty)[0]?.name, room: units.filter(unit => unit.docId === selectedUnit)[0]?.name })
-    }, [selectedUnit])
+      setFormData({ ...formData, property: selectedProperty, unit: selectedUnit })
+    }, [selectedProperty, selectedUnit])
 
     useEffect(() => {
       console.log("formData changed: ", { formData })
@@ -132,7 +116,7 @@ const BookingsPage = () => {
           <form id="newBookingForm" className="form-store-data">
             <Row>
               <Col small>
-                <List noHairlines>
+                <List noHairlines style={{ marginTop: 0 }}>
                   <ListInput name="tenant" label="Tenant" type='select' onChange={handleChange} disabled={readOnly} defaultValue="">
                     <option value="" disabled>--Select--</option>
                     {_.sortBy(tenants, item => item.name).map(tenant => (<option key={tenant.docId} value={tenant.docId}>{tenant.name}</option>))}
@@ -141,30 +125,16 @@ const BookingsPage = () => {
                 </List>
               </Col>
               <Col>
-                <List noHairlines>
+                <PropertyRoomSelector properties={properties} units={units} setSelectedProperty={setSelectedProperty} setSelectedUnit={setSelectedUnit} />
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <List noHairlines style={{ marginTop: 0 }}>
                   <ListInput name='channel' type="select" label="Channel" onChange={handleChange} disabled={readOnly} defaultValue="">
                     <option value="" disabled>--Select--</option>
                     {_.sortBy(settings.filter(item => item.docId === 'channels')[0]?.values, item => item)
                       .map(item => (<option key={item} value={item}>{item}</option>))}
-                  </ListInput>
-                </List>
-              </Col>
-            </Row>
-            <Row>
-              <Col small>
-                <List noHairlines>
-                  <ListInput name="property" label="Property" type='select' onChange={(e) => handlePropertyChange({ id: e.target.value })} defaultValue="" disabled={readOnly}>
-                    <option value="" disabled>--Select--</option>
-                    {_.sortBy(properties, item => item.name).map(property => (<option key={property.docId} value={property.docId} >{property.name}</option>))}
-                  </ListInput>
-                </List>
-              </Col>
-              <Col small>
-                <List noHairlines>
-                  <ListInput name="unit" label="Room" type='select' onChange={(e) => handleUnitChange({ id: e.target.value })} defaultValue="" disabled={readOnly}>
-                    <option value="">--Select--</option>
-                    {selectedProperty && _.sortBy(selectableUnits, item => Number(item.name.substring(5, item.name.length)))
-                      .map(unit => (<option key={unit.docId} value={unit.docId}>{unit.name}</option>))}
                   </ListInput>
                 </List>
               </Col>
@@ -182,7 +152,9 @@ const BookingsPage = () => {
                       dateFormat: 'dd/mm/yyyy'
                     }}
                     disabled={readOnly}
-                    onCalendarChange={handleChange}
+                    onCalendarChange={(value) => {
+                      setFormData(formdata => ({ ...formdata, checkIn: value }))
+                    }}
                   />
                 </List>
               </Col>
@@ -198,7 +170,9 @@ const BookingsPage = () => {
                       dateFormat: 'dd/mm/yyyy'
                     }}
                     disabled={readOnly}
-                    onCalendarChange={handleChange}
+                    onCalendarChange={(value) => {
+                      setFormData(formdata => ({ ...formdata, checkOut: value }))
+                    }}
                   />
                 </List>
               </Col>
