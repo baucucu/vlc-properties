@@ -35,6 +35,7 @@ const BookingsPage = () => {
     const [formData, setFormData] = useState({})
 
     async function handleSave() {
+      console.log({ saving: formData })
       // let [d1, m1, y1] = formData.checkIn.split('/')
       let date = new Date(formData.checkIn).setHours(14, 0, 0, 0)
       console.log({ checkIn: date })
