@@ -96,7 +96,12 @@ const SettingsPage = () => {
 
     function handlePropertyDelete(property) {
         f7.dialog.confirm('Are you sure you want to delete this property?', 'Delete Property', () => {
-            f7.store.dispatch('deleteOne', { collectionName: 'properties', id: property.docId })
+            console.log({ property })
+            let promises = properties.filter(item => item.docId === property.id)[0].units.map(unit => {
+                f7.store.dispatch('deleteOne', { collectionName: 'units', id: unit.id })
+            })
+            Promise.all(promises).then(res => f7.store.dispatch('deleteOne', { collectionName: 'properties', id: property.id }))
+
         })
     }
 
@@ -202,11 +207,6 @@ const SettingsPage = () => {
                             </Row>
                         ))}
                     </List>
-                    {/* <List noHairlines mediaList>
-                        {_.sortBy(editedProperties, item => item.name).map(item => (
-                            <ListItem key={item.id} link={`/properties/${item.id}`} title={item.name} />
-                        ))}
-                    </List> */}
                     <List noHairlines>
                         <ListItem >
                             <h3 slot="header">Booking channels</h3>
