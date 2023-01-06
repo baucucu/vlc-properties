@@ -55,7 +55,7 @@ export default function PropertyRoomSelector(props) {
                 change: function (picker, values, displayValues) {
                     console.log({ change: { picker, values, displayValues } })
                     setSelectedProperty(properties.filter(property => property.name === values[0])[0].docId)
-                    setSelectedUnit(units.filter(unit => unit.name === values[1])[0].docId)
+                    setSelectedUnit(units.filter(unit => unit.name === values[1] && unit.property.id === values[0])[0].docId)
                 }
             }
         });
