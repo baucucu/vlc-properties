@@ -71,7 +71,7 @@ const BookingsPage = () => {
           bookings: arrayUnion(ref)
         }
         f7.store.dispatch('updateOne', { collectionName: 'tenants', id: data.tenant, payload })
-        f7.store.dispatch('createContract', { booking: ref })
+        // f7.store.dispatch('createContract', { booking: ref })
       })
       // let increment = dayjs(formData.checkOut).diff(dayjs(formData.checkIn), 'day') < 30 ? 'day' : 'month'
       // let day = formData.checkIn
