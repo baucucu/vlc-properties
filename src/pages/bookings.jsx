@@ -35,61 +35,65 @@ const BookingsPage = () => {
     const [formData, setFormData] = useState({})
 
     async function handleSave() {
-      console.log({ saving: formData })
-      // let [d1, m1, y1] = formData.checkIn.split('/')
-      let date = new Date(formData.checkIn).setHours(14, 0, 0, 0)
-      console.log({ checkIn: date })
+
+      let data = f7.form.convertToData('#newBookingForm')
+      console.log({ data })
+      let [d1, m1, y1] = data.checkIn.split('/')
+      let date = new Date(y1, m1 - 1, d1).setHours(14, 0, 0, 0)
       const checkIn = Timestamp.fromMillis(date)
-      // const [d2, m2, y2] = formData.checkOut.split('/')
-      date = new Date(formData.checkOut).setHours(8, 0, 0, 0)
-      console.log({ checkOut: date })
+      console.log({ date, checkIn })
+      const [d2, m2, y2] = data.checkOut.split('/')
+      date = new Date(y2, m2 - 1, d2).setHours(8, 0, 0, 0)
       const checkOut = Timestamp.fromMillis(date)
-      const rent = Number(currency(formData.rent).value)
-      const yearlyRent = Number(currency(formData.yearlyRent).value)
-      const amount = Number(currency(formData.amount).value)
-      const deposit = Number(currency(formData.deposit).value)
+      console.log({ date, checkOut })
+      const rent = Number(currency(data.rent, { symbol: '€', decimal: ',', separator: '.' }).value)
+      const yearlyRent = Number(currency(data.yearlyRent, { symbol: '€', decimal: ',', separator: '.' }).value)
+      const amount = Number(currency(data.amount, { symbol: '€', decimal: ',', separator: '.' }).value)
+      const deposit = Number(currency(data.deposit, { symbol: '€', decimal: ',', separator: '.' }).value)
+      console.log({ rent, yearlyRent, amount, deposit })
       let payload = {
-        channel: formData.channel,
+        channel: data.channel,
         amount,
         rent,
         deposit,
         yearlyRent,
-        notes: formData.notes,
+        notes: data.notes,
         date: new Date(),
         checkIn,
         checkOut,
-        tenant: doc(db, 'tenants', formData.tenant),
+        tenant: doc(db, 'tenants', data.tenant),
         unit: doc(db, 'units', formData.unit),
         property: doc(db, 'properties', formData.property)
       }
+      console.log({ payload })
       f7.store.dispatch('createOne', { collectionName: 'bookings', payload }).then(ref => {
         payload = {
           bookings: arrayUnion(ref)
         }
-        f7.store.dispatch('updateOne', { collectionName: 'tenants', id: formData.tenant, payload })
+        f7.store.dispatch('updateOne', { collectionName: 'tenants', id: data.tenant, payload })
         f7.store.dispatch('createContract', { booking: ref })
       })
-      let increment = dayjs(formData.checkOut).diff(dayjs(formData.checkIn), 'day') < 30 ? 'day' : 'month'
-      let day = formData.checkIn
-      do {
-        payload = {
-          tenant: doc(db, 'tenants', formData.tenant),
-          unit: doc(db, 'units', formData.unit),
-          property: doc(db, 'properties', formData.property),
-          amount: Number(formData.rent),
-          date: new Date(day)
-        }
-        f7.store.dispatch('createOne', { collectionName: 'revenue', payload })
-        day = dayjs(day).add(1, increment)
-      } while (dayjs(day).isBefore(dayjs(formData.checkOut)))
+      // let increment = dayjs(formData.checkOut).diff(dayjs(formData.checkIn), 'day') < 30 ? 'day' : 'month'
+      // let day = formData.checkIn
+      // do {
+      //   payload = {
+      //     tenant: doc(db, 'tenants', formData.tenant),
+      //     unit: doc(db, 'units', formData.unit),
+      //     property: doc(db, 'properties', formData.property),
+      //     amount: Number(formData.rent),
+      //     date: new Date(day)
+      //   }
+      //   f7.store.dispatch('createOne', { collectionName: 'revenue', payload })
+      //   day = dayjs(day).add(1, increment)
+      // } while (dayjs(day).isBefore(dayjs(formData.checkOut)))
 
       handleClose()
     }
 
-    function handleChange() {
-      let data = f7.form.convertToData('#newBookingForm')
-      console.log({ data })
-      setFormData({ ...formData, ...data })
+    function handleChange(property, value) {
+      // let data = f7.form.convertToData('#newBookingForm')
+      // console.log({ data })
+      setFormData({ ...formData, [property]: value })
     }
 
     useEffect(() => {
@@ -118,7 +122,7 @@ const BookingsPage = () => {
             <Row>
               <Col small>
                 <List noHairlines style={{ marginTop: 0 }}>
-                  <ListInput name="tenant" label="Tenant" type='select' onChange={handleChange} disabled={readOnly} defaultValue="">
+                  <ListInput name="tenant" label="Tenant" type='select' onChange={(e) => handleChange({ property: 'tenant', value: e.target.value })} disabled={readOnly} defaultValue="">
                     <option value="" disabled>--Select--</option>
                     {_.sortBy(tenants, item => item.name).map(tenant => (<option key={tenant.docId} value={tenant.docId}>{tenant.name}</option>))}
                   </ListInput>
@@ -132,7 +136,7 @@ const BookingsPage = () => {
             <Row>
               <Col>
                 <List noHairlines style={{ marginTop: 0 }}>
-                  <ListInput name='channel' type="select" label="Channel" onChange={handleChange} disabled={readOnly} defaultValue="">
+                  <ListInput name='channel' type="select" label="Channel" onChange={(e) => handleChange({ property: 'channel', value: e.target.value })} disabled={readOnly} defaultValue="">
                     <option value="" disabled>--Select--</option>
                     {_.sortBy(settings.filter(item => item.docId === 'channels')[0]?.values, item => item)
                       .map(item => (<option key={item} value={item}>{item}</option>))}
@@ -181,24 +185,24 @@ const BookingsPage = () => {
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="rent" type="number" label="Monthly rent" defaultValue={0} onChange={handleChange} disabled={readOnly} />
+                  <ListInput name="rent" type="number" label="Monthly rent" defaultValue={0} onChange={(e) => handleChange({ property: 'rent', value: e.target.value })} disabled={readOnly} />
                 </List>
               </Col>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="yearlyRent" type="number" label="Yearly rent" defaultValue={0} onChange={handleChange} disabled={readOnly} />
+                  <ListInput name="yearlyRent" type="number" label="Yearly rent" defaultValue={0} onChange={(e) => handleChange({ property: 'yearlyRent', value: e.target.value })} disabled={readOnly} />
                 </List>
               </Col>
             </Row>
             <Row>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="deposit" type="number" label="Deposit" defaultValue={0} onChange={handleChange} disabled={readOnly} />
+                  <ListInput name="deposit" type="number" label="Deposit" defaultValue={0} onChange={(e) => handleChange({ property: 'deposit', value: e.target.value })} disabled={readOnly} />
                 </List>
               </Col>
               <Col small>
                 <List noHairlines>
-                  <ListInput name="amount" type="number" label="Total amount" defaultValue={0} onChange={handleChange} disabled={readOnly} />
+                  <ListInput name="amount" type="number" label="Total amount" defaultValue={0} onChange={(e) => handleChange({ property: 'amount', value: e.target.value })} disabled={readOnly} />
                 </List>
               </Col>
             </Row>
@@ -212,7 +216,7 @@ const BookingsPage = () => {
                 resizable
                 placeholder="Enter notes here"
                 disabled={readOnly}
-                onChange={handleChange}
+                onChange={(e) => handleChange({ property: 'notes', value: e.target.value })}
               >
                 <Icon material="notes" slot="media" />
               </ListInput>
@@ -263,23 +267,23 @@ const BookingsPage = () => {
           <Block>
             <Row>
               <List noHairlines className='col'>
-                <ListInput name="name" label="Name" onChange={handleChange} />
-                <ListInput name="email" label="Email" onChange={handleChange} />
-                <ListInput name="phone" label="Phone" onChange={handleChange} />
+                <ListInput name="name" label="Name" onChange={(e) => handleChange({ property: 'tenant', value: e.target.value })} />
+                <ListInput name="email" label="Email" onChange={(e) => handleChange({ property: 'tenant', value: e.target.value })} />
+                <ListInput name="phone" label="Phone" onChange={(e) => handleChange({ property: 'tenant', value: e.target.value })} />
               </List>
 
               <List noHairlines className='col'>
-                <ListInput name="country" label="Country" onChange={handleChange} />
+                <ListInput name="country" label="Country" onChange={(e) => handleChange({ property: 'tenant', value: e.target.value })} />
                 <ListInput
                   name="idNumber"
                   label="ID number"
-                  onChange={handleChange}
+                  onChange={(e) => handleChange({ property: 'tenant', value: e.target.value })}
                 />
 
               </List>
             </Row>
             <List noHairlines>
-              <ListInput name="address" label="Permanent address" onChange={handleChange} />
+              <ListInput name="address" label="Permanent address" onChange={(e) => handleChange({ property: 'tenant', value: e.target.value })} />
             </List>
             <List noHairlines>
               <ListItem >
@@ -307,7 +311,7 @@ const BookingsPage = () => {
                 type="textarea"
                 resizable
                 placeholder="Enter notes here"
-                onChange={handleChange}
+                onChange={(e) => handleChange({ property: 'tenant', value: e.target.value })}
               >
                 <Icon material="notes" slot="media" />
               </ListInput>
