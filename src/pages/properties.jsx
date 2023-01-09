@@ -71,34 +71,27 @@ function PropertiesPage({ f7router, f7route }) {
           { start: dayjs(month).startOf('year'), end: dayjs(month).endOf('year') }
         ])
         let monthRevenue = 0
-        if (dayjs(item.checkIn.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month'))) {
-          if (item.type === "Short Term") {
-            monthRevenue = item.amount
-          } else if (item.type === "Long term") {
-            monthRevenue = item.rent
-          }
-        } else if (monthly && item.type === "Long term" && dayjs(item.checkOut.toDate()).isAfter(dayjs(month).startOf('month').add(10, 'day'))) {
-          monthRevenue = item.rent
+        if (item.type === "Short term") {
+          let valid = dayjs(item.checkIn.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month'))
+          if (valid) monthRevenue = item.amount
+        } else if ("Long term") {
+          let valid = monthly && dayjs(item.checkOut.toDate()).isBefore(dayjs(month).endOf('month').add(10, 'day'))
+          if (valid) monthRevenue = item.rent
         }
         let yearRevenue = 0
-        if (dayjs(item.checkIn.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('year'))) {
-          if (item.type === "Short Term") {
+        if (yearly) {
+          if (item.type === "Short term") {
             yearRevenue = item.amount
           } else if (item.type === "Long term") {
             let months = dayjs(item.checkOut.toDate()).diff(dayjs(item.checkIn.toDate()), 'month')
-            yearRevenue = item.rent * months
+            yearRevenue = item.rent * (months + 1)
           }
         }
         let monthBookedDays = 0
         if (monthly) {
           monthBookedDays = monthly.end.diff(monthly.start, 'day')
-          // let totalBookingDays = dayjs(item.checkOut.toDate()).diff(dayjs(item.checkIn.toDate()), 'day')
 
         }
-        // if (yearly) {
-        //   let yearBookedDays = yearly.end.diff(yearly.start, 'day')
-        //   let totalBookingDays = dayjs(item.checkOut.toDate()).diff(dayjs(item.checkIn.toDate()), 'day')
-        // }
         return ({ unit: item.unit.id, monthBookedDays, monthRevenue, yearRevenue })
       })
     let propertyRevenueAmount = propertyRevenue.reduce((partialSum, a) => partialSum + a.monthRevenue, 0)
