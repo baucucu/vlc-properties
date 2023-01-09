@@ -121,6 +121,7 @@ const BookingPage = ({ f7route }) => {
     let data = {
       date: dayjs(booking.date.toDate()).format('DD/MM/YYYY'),
       name: booking.name,
+      type: booking.type,
       channel: booking.channel,
       checkIn: dayjs(booking.checkIn.toDate()).format('DD/MM/YYYY'),
       checkOut: dayjs(booking.checkOut.toDate()).format('DD/MM/YYYY'),
@@ -157,6 +158,7 @@ const BookingPage = ({ f7route }) => {
     const payload = {
       channel: data.channel,
       amount,
+      type: data.type,
       rent,
       yearlyRent,
       deposit,
@@ -220,6 +222,15 @@ const BookingPage = ({ f7route }) => {
             <Col>
               <List noHairlines style={{ margin: 0 }}>
                 <ListInput name='date' label="Booking date" type='datepicker' disabled />
+              </List>
+            </Col>
+            <Col>
+              <List noHairlines style={{ marginTop: 0 }}>
+                <ListInput name="type" type="select" label="Booking type" onChange={(e) => setFormData({ ...formData, type: e.target.value })} disabled={readOnly} defaultValue="">
+                  <option value="" disabled>--Select--</option>
+                  <option value="Short term">Short term</option>
+                  <option value="Long term">Long term</option>
+                </ListInput>
               </List>
             </Col>
             <Col>

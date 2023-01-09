@@ -54,6 +54,7 @@ const BookingsPage = () => {
       let payload = {
         channel: data.channel,
         amount,
+        type: data.type,
         rent,
         deposit,
         yearlyRent,
@@ -134,6 +135,15 @@ const BookingsPage = () => {
               </Col>
             </Row>
             <Row>
+              <Col>
+                <List noHairlines style={{ marginTop: 0 }}>
+                  <ListInput name="type" type="select" label="Booking type" onChange={(e) => setFormData({ ...formData, type: e.target.value })} disabled={readOnly} defaultValue="">
+                    <option value="" disabled>--Select--</option>
+                    <option value="Short term">Short term</option>
+                    <option value="Long term">Long term</option>
+                  </ListInput>
+                </List>
+              </Col>
               <Col>
                 <List noHairlines style={{ marginTop: 0 }}>
                   <ListInput name='channel' type="select" label="Channel" onChange={(e) => handleChange({ property: 'channel', value: e.target.value })} disabled={readOnly} defaultValue="">
@@ -371,7 +381,7 @@ const BookingsPage = () => {
 
                     </div>
                   }
-                  text={<Badge color="black">{booking.channel}</Badge>}
+                  text={<><Badge color='black'>{booking.type}</Badge><Badge color="black">{booking.channel}</Badge></>}
                 >
                 </ListItem>
               )
