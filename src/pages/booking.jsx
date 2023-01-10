@@ -17,7 +17,11 @@ import {
   CardHeader,
   CardFooter,
   f7,
-  useStore
+  useStore,
+  Stepper,
+  ListButton,
+  Checkbox,
+  BlockHeader
 } from 'framework7-react';
 import currency from 'currency.js';
 import useFirestoreListener from "react-firestore-listener"
@@ -52,6 +56,8 @@ const BookingPage = ({ f7route }) => {
 
   const [contractPopupOpen, setContractPopupOpen] = useState(false)
 
+  const [installments, setInstallments] = useState([])
+
   useEffect(() => {
     if (!booking) {
       let temp = bookings.filter(item => item.docId === f7route.params.id)?.[0]
@@ -60,6 +66,7 @@ const BookingPage = ({ f7route }) => {
       setSelectedProperty(booking.property.id)
       setSelectedTenant(booking.tenant.id)
       setSelectedUnit(booking.unit.id)
+      setInstallments(booking.installments || [])
       if (booking?.contracts?.length > 0) { setSelectedContract(booking.contracts[booking.contracts.length - 1]) }
       resetForm()
     }
@@ -83,6 +90,9 @@ const BookingPage = ({ f7route }) => {
     console.log({ selectedContract })
   }, [selectedContract])
 
+  useEffect(() => {
+    console.log({ installments })
+  }, [installments])
 
   function handleContractPopupClose() {
     setContractPopupOpen(false)
@@ -122,6 +132,7 @@ const BookingPage = ({ f7route }) => {
       date: dayjs(booking.date.toDate()).format('DD/MM/YYYY'),
       name: booking.name,
       type: booking.type,
+      installments: booking.installments,
       channel: booking.channel,
       checkIn: dayjs(booking.checkIn.toDate()).format('DD/MM/YYYY'),
       checkOut: dayjs(booking.checkOut.toDate()).format('DD/MM/YYYY'),
@@ -144,6 +155,7 @@ const BookingPage = ({ f7route }) => {
 
   const handleSave = () => {
     let data = f7.form.convertToData('#bookingForm')
+    console.log({ data })
     let [d1, m1, y1] = data.checkIn.split('/')
     let date = new Date(y1, m1 - 1, d1).setHours(14, 0, 0, 0)
     const checkIn = Timestamp.fromMillis(date)
@@ -160,6 +172,7 @@ const BookingPage = ({ f7route }) => {
       amount,
       type: data.type,
       rent,
+      installments,
       yearlyRent,
       deposit,
       notes: data.notes,
@@ -169,7 +182,7 @@ const BookingPage = ({ f7route }) => {
       unit: doc(db, 'units', selectedUnit || booking.unit.id),
       property: doc(db, 'properties', selectedProperty || booking.property.id),
     }
-    // console.log({ payload })
+    console.log({ payload })
     f7.store.dispatch('updateOne', { collectionName: 'bookings', id: booking.docId, payload })
     setReadOnly(true)
   }
@@ -202,6 +215,24 @@ const BookingPage = ({ f7route }) => {
     })
   }
 
+  function handleAddInstallment() {
+    setInstallments(installments => [
+      ...installments,
+      { date: Timestamp.fromMillis(dayjs()), amount: 0, paid: false }
+    ])
+  }
+  function handleRemoveInstallment() {
+    setInstallments(installments => [...installments.slice(0, -1)])
+  }
+
+  function handleInstallmentChange({ prop, value }) {
+    console.log({ prop, value })
+    let tempInstallments = installments
+    let [name, index, subproperty] = prop.split('.')
+    tempInstallments[index][subproperty] = value
+    setInstallments([...tempInstallments])
+  }
+
   return (
     <Page name="form">
       <Navbar title='Booking' backLink="Back">
@@ -226,7 +257,7 @@ const BookingPage = ({ f7route }) => {
             </Col>
             <Col>
               <List noHairlines style={{ marginTop: 0 }}>
-                <ListInput name="type" type="select" label="Booking type" onChange={(e) => setFormData({ ...formData, type: e.target.value })} disabled={readOnly} defaultValue="">
+                <ListInput name="type" type="select" label="Booking type" disabled={readOnly}>
                   <option value="" disabled>--Select--</option>
                   <option value="Short term">Short term</option>
                   <option value="Long term">Long term</option>
@@ -355,6 +386,47 @@ const BookingPage = ({ f7route }) => {
               </Col>
             </Row>
           </List>
+          {booking.type === "Long term" && <>
+            <Block>
+              <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 16, alignItems: 'center' }}>
+                <h2 style={{ fontSize: 18 }}>Payments</h2>
+                {readOnly || <Stepper round fill value={installments.length} onStepperMinusClick={() => { handleRemoveInstallment() }} onStepperPlusClick={() => { handleAddInstallment() }} />}
+              </div>
+              <Row style={{ display: 'flex', justifyContent: 'flex-start', gap: 16 }}>
+                {installments.map((installment, index) => (
+                  <Block key={index} className='col-25 elevation-2' style={{ backgroundColor: installment.paid ? "#00968860" : "#ff950060", borderRadius: 8, padding: 16, margin: 0, display: 'flex', flexDirection: 'row', gap: 16, listStyleType: 'none' }}>
+                    <Col>
+                      <small className="display-block">Paid</small>
+                      <Input name={`installments.${index}.paid`} type='checkbox' checked={installment.paid} value={installment.paid} disabled={readOnly} onChange={(e) => { handleInstallmentChange({ prop: `installments.${index}.paid`, value: !installment.paid }) }} />
+                    </Col>
+                    <Col>
+                      <small className="display-block">Due date</small>
+                      <Input name={`installments.${index}.date`} label="Due date" type='datepicker' disabled={readOnly}
+                        calendarParams={{
+                          value: [installment.date ? dayjs(installment.date?.toDate()) : dayjs()],
+                          locale: "en",
+                          dateFormat: 'dd/mm/yyyy',
+                          on: {
+                            change: (calendar, value) => {
+                              handleInstallmentChange({ prop: `installments.${index}.date`, value: Timestamp.fromMillis(dayjs(value[0])) })
+                            }
+                          }
+                        }}
+                      />
+                    </Col>
+                    <Col>
+                      <small className="display-block">Amount</small>
+                      <Input name={`installments.${index}.amount`} label="Amount" type='number'
+                        value={currency(installment.amount, { symbol: '€', decimal: ',', separator: '.' })} disabled={readOnly}
+                        onChange={e => handleInstallmentChange({ prop: `installments.${index}.amount`, value: Number(currency(e.target.value).value) })}
+                      />
+                    </Col>
+                  </Block>
+                ))}
+                <Block style={{}}></Block>
+              </Row>
+            </Block>
+          </>}
           <List noHairlines>
             <ListItem >
               <h2 slot="header">Notes</h2>
