@@ -60,17 +60,24 @@ const BookingPage = ({ f7route }) => {
 
   useEffect(() => {
     if (!booking) {
-      let temp = bookings.filter(item => item.docId === f7route.params.id)?.[0]
-      settings.length > 0 && setBooking(temp)
+      // let temp = bookings.filter(item => item.docId === f7route.params.id)?.[0]
+      // settings.length > 0 && setBooking(temp)
     } else {
       setSelectedProperty(booking.property.id)
       setSelectedTenant(booking.tenant.id)
       setSelectedUnit(booking.unit.id)
       setInstallments(booking.installments || [])
-      if (booking?.contracts?.length > 0) { setSelectedContract(booking.contracts[booking.contracts.length - 1]) }
+      if (booking?.contracts?.length > 0) { setSelectedContract(booking.contracts[booking.contracts.length - 1]) } else { setSelectedContract() }
       resetForm()
     }
   }, [booking, settings])
+
+  useEffect(() => {
+    console.log({ bookings })
+    let temp = bookings.filter(item => item.docId === f7route.params.id)?.[0]
+    setBooking(temp)
+    // setBooking([bookings.filter(item => item.docId === f7route.params.id)?.[0]])
+  }, [bookings])
 
   useEffect(() => {
     if (!selectedProperty) { return }
