@@ -47,7 +47,6 @@ function PropertiesPage({ f7router, f7route }) {
       .reduce((partialSum, a) => partialSum + currency(a.unit_year_revenue).value, 0) || 0
     const monthlyProfit = monthlyRevenue - monthlyExpenses
     const ytdProfit = ytdRevenue - ytdExpenses
-    // debugger;
     setFinance({
       monthlyExpenses: currency(monthlyExpenses, { symbol: '€', decimal: '.', separator: ',' }).format(),
       ytdExpenses: currency(ytdExpenses, { symbol: '€', decimal: '.', separator: ',' }).format(),
@@ -74,9 +73,11 @@ function PropertiesPage({ f7router, f7route }) {
         if (item.type === "Short term") {
           let valid = dayjs(item.checkIn.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month'))
           if (valid) monthRevenue = item.amount
-        } else if ("Long term") {
-          let valid = monthly && dayjs(item.checkOut.toDate()).isBefore(dayjs(month).endOf('month').add(10, 'day'))
-          if (valid) monthRevenue = item.rent
+        } else if (item.type === "Long term" && monthly) {
+          monthRevenue = item.rent
+          if (dayjs(item.checkOut.toDate()).isBefore(dayjs(month).startOf('month').add(10, 'day')) && dayjs(item.checkOut.toDate()).month() === dayjs(month).month()) {
+            monthRevenue = 0
+          }
         }
         let yearRevenue = 0
         if (yearly) {
@@ -94,10 +95,16 @@ function PropertiesPage({ f7router, f7route }) {
         }
         return ({ unit: item.unit.id, monthBookedDays, monthRevenue, yearRevenue })
       })
-    let propertyRevenueAmount = propertyRevenue.reduce((partialSum, a) => partialSum + a.monthRevenue, 0)
-    let bookedDays = propertyRevenue.filter(item => item.unit === unit.docId).reduce((partialSum, a) => partialSum + a.monthBookedDays, 0)
-    let unitMonthRevenue = propertyRevenue.filter(item => item.unit === unit.docId).reduce((partialSum, a) => partialSum + a.monthRevenue, 0)
-    let unitYearRevenue = propertyRevenue.filter(item => item.unit === unit.docId)?.[0]?.yearRevenue || 0
+    let propertyRevenueAmount = propertyRevenue
+      .reduce((partialSum, a) => partialSum + a.monthRevenue, 0)
+    let bookedDays = propertyRevenue
+      .filter(item => item.unit === unit.docId)
+      .reduce((partialSum, a) => partialSum + a.monthBookedDays, 0)
+    let unitMonthRevenue = propertyRevenue
+      .filter(item => item.unit === unit.docId)
+      .reduce((partialSum, a) => partialSum + a.monthRevenue, 0)
+    let unitYearRevenue = propertyRevenue
+      .filter(item => item.unit === unit.docId)?.[0]?.yearRevenue || 0
     let propertyExpenses = expenses
       .filter(item => item.property.id === unit.property.id)
       .filter(item => dayjs(month).month() === dayjs(item.date.toDate()).month() && dayjs(month).year() === dayjs(item.date.toDate()).year())

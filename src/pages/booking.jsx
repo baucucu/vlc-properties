@@ -59,10 +59,7 @@ const BookingPage = ({ f7route }) => {
   const [installments, setInstallments] = useState([])
 
   useEffect(() => {
-    if (!booking) {
-      // let temp = bookings.filter(item => item.docId === f7route.params.id)?.[0]
-      // settings.length > 0 && setBooking(temp)
-    } else {
+    if (booking) {
       setSelectedProperty(booking.property.id)
       setSelectedTenant(booking.tenant.id)
       setSelectedUnit(booking.unit.id)
@@ -70,14 +67,14 @@ const BookingPage = ({ f7route }) => {
       if (booking?.contracts?.length > 0) { setSelectedContract(booking.contracts[booking.contracts.length - 1]) } else { setSelectedContract() }
       resetForm()
     }
-  }, [booking, settings])
+  }, [booking])
 
   useEffect(() => {
     console.log({ bookings })
     let temp = bookings.filter(item => item.docId === f7route.params.id)?.[0]
-    setBooking(temp)
+    settings.length > 0 && setBooking(temp)
     // setBooking([bookings.filter(item => item.docId === f7route.params.id)?.[0]])
-  }, [bookings])
+  }, [bookings, settings])
 
   useEffect(() => {
     if (!selectedProperty) { return }
