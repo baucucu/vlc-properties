@@ -35,6 +35,7 @@ function PropertiesPage({ f7router, f7route }) {
   // useEffect(() => { console.log({ resources }) }, [resources])
 
   function getMonthlyFinance() {
+    // debugger;
     const monthlyExpenses = expenses
       .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
@@ -47,6 +48,7 @@ function PropertiesPage({ f7router, f7route }) {
       .reduce((partialSum, a) => partialSum + currency(a.unit_year_revenue).value, 0) || 0
     const monthlyProfit = monthlyRevenue - monthlyExpenses
     const ytdProfit = ytdRevenue - ytdExpenses
+    console.log(resources.filter(item => item.unit_year_revenue !== "€0.00").map(item => ({ id: item.id, unit_year_revenue: item.unit_year_revenue })))
     setFinance({
       monthlyExpenses: currency(monthlyExpenses, { symbol: '€', decimal: '.', separator: ',' }).format(),
       ytdExpenses: currency(ytdExpenses, { symbol: '€', decimal: '.', separator: ',' }).format(),
@@ -56,6 +58,8 @@ function PropertiesPage({ f7router, f7route }) {
       ytdProfit: currency(ytdProfit, { symbol: '€', decimal: '.', separator: ',' }).format(),
     })
   }
+
+  useEffect(() => { console.log({ finance, resources }) }, [finance])
 
   function getUnitData(unit) {
     let propertyRevenue = bookings
@@ -81,17 +85,17 @@ function PropertiesPage({ f7router, f7route }) {
         }
         let yearRevenue = 0
         if (yearly) {
+          // debugger;
           if (item.type === "Short term") {
             yearRevenue = item.amount
           } else if (item.type === "Long term") {
-            let months = dayjs(item.checkOut.toDate()).diff(dayjs(item.checkIn.toDate()), 'month')
-            yearRevenue = item.rent * (months + 1)
+            let months = dayjs(item.checkOut.toDate()).diff(dayjs(item.checkIn.toDate()), 'month') + 1
+            yearRevenue = item.rent * months
           }
         }
         let monthBookedDays = 0
         if (monthly) {
-          monthBookedDays = monthly.end.diff(monthly.start, 'day')
-
+          monthBookedDays = monthly.end.diff(monthly.start, 'day') + 1
         }
         return ({ unit: item.unit.id, monthBookedDays, monthRevenue, yearRevenue })
       })
