@@ -60,6 +60,7 @@ const BookingPage = ({ f7route }) => {
 
   useEffect(() => {
     if (booking) {
+      console.log({ booking })
       setSelectedProperty(booking.property.id)
       setSelectedTenant(booking.tenant.id)
       setSelectedUnit(booking.unit.id)
