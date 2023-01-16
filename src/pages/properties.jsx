@@ -89,7 +89,7 @@ function PropertiesPage({ f7router, f7route }) {
           if (item.type === "Short term") {
             yearRevenue = item.amount
           } else if (item.type === "Long term") {
-            let months = dayjs(item.checkOut.toDate()).diff(dayjs(item.checkIn.toDate()), 'month') + 1
+            let months = dayjs(yearly.end).diff(dayjs(yearly.start), 'month') + 1
             yearRevenue = item.rent * months
           }
         }
