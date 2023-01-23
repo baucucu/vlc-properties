@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Page, Navbar, Block, List, ListItem, ListInput, Row, Col, Popup, NavRight, Button, Icon, f7 } from 'framework7-react';
+import { Page, Navbar, Block, List, ListItem, ListInput, Row, Col, Popup, NavRight, Button, Icon, Input, f7 } from 'framework7-react';
 import FullCalendar from '@fullcalendar/react';
 import listPlugin from '@fullcalendar/list';
 import currency from 'currency.js';
@@ -19,6 +19,7 @@ const ExpensesPage = () => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [expense, setExpense] = useState({})
+  const [selectAll, setSelectAll] = useState(true)
 
   function handleClose() {
     setPopupOpen(false);
@@ -26,6 +27,17 @@ const ExpensesPage = () => {
   function handleEditPopupClose() {
     setEditPopupOpen(false);
   }
+  function handleSelectAll(e) {
+    setSelectAll(e.target.checked)
+  }
+
+  useEffect(() => {
+    if (selectAll) {
+      setSelected(properties.map(item => item.docId))
+    } else {
+      setSelected([])
+    }
+  }, [selectAll])
 
   useEffect(() => {
     // console.log({ expense })
@@ -42,11 +54,14 @@ const ExpensesPage = () => {
       // console.log({ options })
       setSelected(options)
     })
+    return (() => {
+      ss.off('change')
+      ss.off('close')
+    })
   }, [])
   // useEffect(() => { console.log({ events }) }, [events])
 
   useEffect(() => {
-    // console.log({ selected })
     let evs = expenses
       .filter(item => {
         return selected.find(propertyId => propertyId === item.property.id)
@@ -243,7 +258,7 @@ const ExpensesPage = () => {
               payload[el.property] = doc(db, 'properties', el.value)
             } else if (el.property === 'date') {
               let dateParts = el.value.split("/")
-              let date = new Date(`${dateParts[1]}/${dateParts[0]}/${dateParts[2]}`)
+              let date = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T14:00:00`)
               payload[el.property] = date
             } else if (el.property === 'amount') {
               payload[el.property] = Number(el.value)
@@ -381,6 +396,7 @@ const ExpensesPage = () => {
             </List>
           </Col>
         </Row>
+
       </Block >
     )
   }
@@ -396,6 +412,8 @@ const ExpensesPage = () => {
         <Col>
           <Block>
             <List>
+              <ListItem checkbox title={selectAll ? "Deselect all" : "Select all"} checked={selectAll} onChange={handleSelectAll}>
+              </ListItem>
               <ListItem title="Filter properties" smartSelect id="propertiesFilter" smartSelectParams={{ openIn: 'popover' }} >
                 <select className="filter" name="filter" multiple >
                   {_.sortBy(properties, item => item.name).map(item => <option key={item.docId} value={item.docId}>{item.name}</option>)}
@@ -424,12 +442,6 @@ const ExpensesPage = () => {
                 center: 'title',
                 right: ''
               }}
-            // customButtons={{
-            //   addExpenses: {
-            //     text: "Add expenses",
-            //     click: () => setPopupOpen(true)
-            //   }
-            // }}
             />
           </Block>
         </Col>
