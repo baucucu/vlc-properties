@@ -74,10 +74,10 @@ function PropertiesPage({ f7router, f7route }) {
           { start: dayjs(month).startOf('year'), end: dayjs(month).endOf('year') }
         ])
         let monthRevenue = 0
-        if (item.type === "Short term") {
+        if (item.type === "Short term" || item.type === "Daily") {
           let valid = dayjs(item.checkIn.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month'))
           if (valid) monthRevenue = item.amount
-        } else if (item.type === "Long term" && monthly) {
+        } else if (item.type === "Monthly" || item.type === "Long term" && monthly) {
           monthRevenue = item.rent
           if (dayjs(item.checkOut.toDate()).isBefore(dayjs(month).startOf('month').add(10, 'day')) && dayjs(item.checkOut.toDate()).month() === dayjs(month).month()) {
             monthRevenue = 0
@@ -86,9 +86,9 @@ function PropertiesPage({ f7router, f7route }) {
         let yearRevenue = 0
         if (yearly) {
           // debugger;
-          if (item.type === "Short term") {
+          if (item.type === "Short term" || item.type === "Daily") {
             yearRevenue = item.amount
-          } else if (item.type === "Long term") {
+          } else if (item.type === "Long term" || item.type === "Monthly") {
             let months = dayjs(yearly.end).diff(dayjs(yearly.start), 'month') + 1
             yearRevenue = item.rent * months
           }

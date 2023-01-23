@@ -74,26 +74,10 @@ const BookingsPage = () => {
         f7.store.dispatch('updateOne', { collectionName: 'tenants', id: data.tenant, payload })
         // f7.store.dispatch('createContract', { booking: ref })
       })
-      // let increment = dayjs(formData.checkOut).diff(dayjs(formData.checkIn), 'day') < 30 ? 'day' : 'month'
-      // let day = formData.checkIn
-      // do {
-      //   payload = {
-      //     tenant: doc(db, 'tenants', formData.tenant),
-      //     unit: doc(db, 'units', formData.unit),
-      //     property: doc(db, 'properties', formData.property),
-      //     amount: Number(formData.rent),
-      //     date: new Date(day)
-      //   }
-      //   f7.store.dispatch('createOne', { collectionName: 'revenue', payload })
-      //   day = dayjs(day).add(1, increment)
-      // } while (dayjs(day).isBefore(dayjs(formData.checkOut)))
-
       handleClose()
     }
 
     function handleChange(property, value) {
-      // let data = f7.form.convertToData('#newBookingForm')
-      // console.log({ data })
       setFormData({ ...formData, [property]: value })
     }
 
@@ -139,8 +123,8 @@ const BookingsPage = () => {
                 <List noHairlines style={{ marginTop: 0 }}>
                   <ListInput name="type" type="select" label="Booking type" onChange={(e) => setFormData({ ...formData, type: e.target.value })} disabled={readOnly} defaultValue="">
                     <option value="" disabled>--Select--</option>
-                    <option value="Short term">Short term</option>
-                    <option value="Long term">Long term</option>
+                    <option value="Daily">Daily</option>
+                    <option value="Monthly">Monthly</option>
                   </ListInput>
                 </List>
               </Col>

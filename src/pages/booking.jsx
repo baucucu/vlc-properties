@@ -19,9 +19,6 @@ import {
   f7,
   useStore,
   Stepper,
-  ListButton,
-  Checkbox,
-  BlockHeader
 } from 'framework7-react';
 import currency from 'currency.js';
 import useFirestoreListener from "react-firestore-listener"
@@ -29,7 +26,6 @@ import { doc } from 'firebase/firestore'
 import { db, getDocumentOnce } from '../utils/firebase'
 import _ from 'lodash'
 import dayjs from 'dayjs'
-import googleDocsLogo from '../assets/google_docs_logo.png'
 import store from '../js/store';
 import ContractEmailForm from '../components/contractForm'
 import { Timestamp } from 'firebase/firestore'
@@ -264,8 +260,8 @@ const BookingPage = ({ f7route }) => {
               <List noHairlines style={{ marginTop: 0 }}>
                 <ListInput name="type" type="select" label="Booking type" disabled={readOnly}>
                   <option value="" disabled>--Select--</option>
-                  <option value="Short term">Short term</option>
-                  <option value="Long term">Long term</option>
+                  <option value="Daily">Daily</option>
+                  <option value="Monthly">Monthly</option>
                 </ListInput>
               </List>
             </Col>
