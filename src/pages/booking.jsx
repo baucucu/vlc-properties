@@ -241,6 +241,7 @@ const BookingPage = ({ f7route }) => {
         {readOnly || <Button small onClick={handleSave}><Icon material='save' /></Button>}
         {readOnly || <Button onClick={handleDelete}>Delete</Button>}
         {readOnly || <NavRight><Button small onClick={handleCancel} ><Icon material='close' /></Button></NavRight>}
+
       </Navbar>
 
       {booking && <Block>
