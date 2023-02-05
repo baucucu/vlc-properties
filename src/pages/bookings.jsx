@@ -103,7 +103,7 @@ const BookingsPage = () => {
 
                       </div>
                     }
-                    text={<><Badge color='black'>{booking.type}</Badge><Badge color="black">{booking.channel}</Badge></>}
+                    text={<><Badge color='black' style={{ marginRight: 4 }}>{booking.type}</Badge><Badge color="black">{booking.channel}</Badge></>}
                   >
                   </ListItem>
                 )
