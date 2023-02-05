@@ -97,6 +97,9 @@ function PropertiesPage({ f7router, f7route }) {
         if (monthly) {
           monthBookedDays = monthly.end.diff(monthly.start, 'day') + 1
         }
+        if (unit.name === "Dr Lluch") {
+          console.log({ unit: item.unit.id, monthBookedDays, monthRevenue, yearRevenue })
+        }
         return ({ unit: item.unit.id, monthBookedDays, monthRevenue, yearRevenue })
       })
     let propertyRevenueAmount = propertyRevenue
