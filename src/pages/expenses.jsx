@@ -19,6 +19,9 @@ const ExpensesPage = () => {
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [expense, setExpense] = useState({})
   const [selectAll, setSelectAll] = useState(true)
+  const [totalIn, setTotalIn] = useState(0)
+  const [totalOut, setTotalOut] = useState(0)
+  const [currentDates, setCurrentDates] = useState({})
 
   function handleClose() {
     setPopupOpen(false);
@@ -58,7 +61,6 @@ const ExpensesPage = () => {
       ss.off('close')
     })
   }, [])
-  // useEffect(() => { console.log({ events }) }, [events])
 
   useEffect(() => {
     let evs = expenses
@@ -72,22 +74,37 @@ const ExpensesPage = () => {
           title: `${currency(item.amount, { symbol: '€', decimal: ',', separator: '.' }).format()} - ${item.category} - ${item.description}`,
           start: item.date.toDate(),
           extendedProps: {
+            amount: item.amount,
             property: property.name,
-            category: item.category
+            category: item.category,
+            description: item.description,
+            docId: item.docId,
           }
         })
       })
+
     setEvents(evs)
     const ss = f7.smartSelect.get('.smart-select')
     ss.setValue(selected)
 
   }, [selected, expenses])
 
-
+  useEffect(() => {
+    const monthIn = events
+      .filter(item => dayjs(item.start).isAfter(currentDates.start) && dayjs(item.start).isBefore(currentDates.end))
+      .filter(item => item.extendedProps.amount > 0)
+      .reduce((acc, item) => acc + item.extendedProps.amount, 0)
+    const monthOut = events
+      .filter(item => dayjs(item.start).isAfter(currentDates.start) && dayjs(item.start).isBefore(currentDates.end))
+      .filter(item => item.extendedProps.amount < 0)
+      .reduce((acc, item) => acc + item.extendedProps.amount, 0)
+    setTotalIn(monthIn)
+    setTotalOut(monthOut)
+  }, [currentDates, events])
 
   return (
     <Page>
-      <Navbar title="Expenses">
+      <Navbar title="Balance sheet">
         <Button onClick={() => setPopupOpen(true)}>
           <Icon material="add" />
         </Button>
@@ -103,6 +120,11 @@ const ExpensesPage = () => {
                   {_.sortBy(properties, item => item.name).map(item => <option key={item.docId} value={item.docId}>{item.name}</option>)}
                 </select>
               </ListItem>
+            </List>
+            <List>
+              <ListItem title="Total in" after={currency(totalIn, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
+              <ListItem title="Total out" after={currency(totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
+              <ListItem title="Total" after={currency(totalIn + totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
             </List>
             <FullCalendar
               height="70vh"
@@ -121,6 +143,10 @@ const ExpensesPage = () => {
                 setExpense(expenses.filter(item => item.docId === expenseId)[0])
                 setEditPopupOpen(true)
               }}
+              datesSet={function (info) {
+                console.log(info)
+                setCurrentDates(info)
+              }}
               headerToolbar={{
                 left: 'today prev next',
                 center: 'title',
@@ -137,7 +163,7 @@ const ExpensesPage = () => {
         onPopupSwipeClose={handleClose}
         onPopupClose={handleClose}
       >
-        <AddExpenses handleClose={handleClose} />
+        <AddExpenses handleClosePopup={handleClose} />
       </Popup>
       <Popup
         className="edit"
@@ -209,7 +235,7 @@ function EditExpense({ handleEditPopupClose, expense }) {
   }
   return (
     <Page>
-      <Navbar title="Edit expense">
+      <Navbar title="Edit">
         <Button onClick={handleSave}><Icon material='save' /></Button>
         <Button onClick={() => handleDelete()}>Delete</Button>
         <NavRight>
@@ -308,10 +334,15 @@ function EditExpense({ handleEditPopupClose, expense }) {
   )
 }
 
-function AddExpenses({ handleClose }) {
+function AddExpenses({ handleClosePopup }) {
   const [rows, setRows] = useState(1)
   const [canSave, setCanSave] = useState(false)
   let [formData, setFormData] = useState([])
+
+  function handleClose() {
+    setFormData(formdata => [])
+    handleClosePopup()
+  }
 
   function handleSave() {
     // console.log({ formData })
@@ -336,6 +367,7 @@ function AddExpenses({ handleClose }) {
       })
     // console.log({ group, payloads })
     payloads.map(payload => f7.store.dispatch('createOne', { collectionName: 'expenses', payload }))
+    setFormData([])
     handleClose()
   }
   function handleChange() {
@@ -347,7 +379,6 @@ function AddExpenses({ handleClose }) {
       let value = data[key]
       return { index, property, value }
     })
-
     setFormData(res)
   }
   useEffect(() => {
@@ -359,10 +390,10 @@ function AddExpenses({ handleClose }) {
 
   return (
     <Page>
-      <Navbar title="Add new expenses">
+      <Navbar title="Add new item">
         {canSave && <Button onClick={handleSave}><Icon material='save' /></Button>}
         <NavRight>
-          <Button onClick={handleClose}>
+          <Button onClick={() => { setFormData([]); handleClose(); }}>
             <Icon material="close"></Icon>
           </Button>
         </NavRight>

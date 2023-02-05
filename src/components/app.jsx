@@ -60,7 +60,7 @@ const MyApp = () => {
               >
                 <Icon slot="media" material="home"></Icon>
               </ListItem>
-              <ListItem link="/expenses/" view=".view-main" p title="Expenses" noChevron
+              <ListItem link="/expenses/" view=".view-main" p title="Balance sheet" noChevron
                 selected={selected === 'expenses'}
                 onClick={() => setSelected('expenses')}
               >
