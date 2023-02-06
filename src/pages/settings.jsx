@@ -107,7 +107,7 @@ const SettingsPage = () => {
     }
 
     function handleCategoryDelete(category) {
-        f7.dialog.confirm('Are you sure you want to delete this expense category?', 'Delete Category', () => {
+        f7.dialog.confirm('Are you sure you want to delete this category?', 'Delete Category', () => {
             f7.store.dispatch('updateOne', { collectionName: 'settings', id: 'expenseCategories', payload: { values: editedCategories.filter(item => item !== category) } })
         })
     }
@@ -223,7 +223,7 @@ const SettingsPage = () => {
                     </List>
                     <List noHairlines>
                         <ListItem >
-                            <h3 slot="header">Expense categories</h3>
+                            <h3 slot="header">Balance sheet categories</h3>
                             <div style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
                                 {editCategories && <Button onClick={() => handleSaveCategories()}><Icon material="save" /></Button>}
                                 {editCategories && <Button onClick={() => setEditedCategories([...editedCategories, ''])}><Icon material="add" /></Button>}
