@@ -266,7 +266,7 @@ function EditExpense({ handleEditPopupClose, expense }) {
               <ListInput
                 name={"date"}
                 placeholder="Please choose..."
-                label="Expense date"
+                label="Date"
                 type='datepicker'
                 calendarParams={{
                   events: [{
@@ -401,7 +401,7 @@ function AddExpenses({ handleClosePopup }) {
       <form id="expensesForm" className="form-store-data">
         <Block>
           {[...Array(rows).keys()].map(index => <ExpenseRow key={index} handleChange={handleChange} index={index} />)}
-          <Button onClick={() => setRows(rows + 1)}>Add new expense</Button>
+          <Button onClick={() => setRows(rows + 1)}>Add new item</Button>
         </Block>
       </form>
 
@@ -417,7 +417,7 @@ const ExpenseRow = ({ index, handleChange }) => {
   const today = dayjs().format('DD.MM.YYYY')
   return (
     <Block>
-      <h4>Expense #{index + 1}</h4>
+      <h4>Item #{index + 1}</h4>
       <Row>
         <Col >
           <List noHairlines>
