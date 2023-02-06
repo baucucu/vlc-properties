@@ -112,66 +112,6 @@ const SettingsPage = () => {
         })
     }
 
-    const AddProperty = () => {
-        const [canSave, setCanSave] = useState(false)
-        const [property, setProperty] = useState({
-            name: "",
-            address: "",
-            units: [],
-            rooms: 1
-        })
-        function handleNewPropertySave() {
-
-            f7.store.dispatch('createOne', { collectionName: 'properties', payload: { name: property.name, address: property.address, units: [] } })
-                .then(ref => {
-                    // console.log('property created: ', ref)
-                    let promises = [...Array(property.rooms)].map(async (item, index) => {
-                        let payload = {
-                            name: `Room ${index + 1}`,
-                            property: doc(db, 'properties/' + ref)
-                        }
-                        return await createOne('units', payload)
-                    })
-                    Promise.all(promises).then(res => {
-                        // console.log('units created: ', { res })
-                        const payload = { units: res.map(id => doc(db, 'units/' + id)) }
-                        // console.log({ payload })
-                        updateOne({ collectionName: 'properties', id: ref, payload })
-                    })
-                })
-            handleClose()
-        }
-
-        useEffect(() => {
-            if (property?.name?.length > 3) {
-                setCanSave(true)
-            }
-        }, [property])
-
-        return (
-            <Page>
-                <Navbar title="Add new property">
-                    {canSave && <Button onClick={handleNewPropertySave}><Icon material='save' /></Button>}
-                    <NavRight>
-                        <Button onClick={handleClose}>
-                            <Icon material="close"></Icon>
-                        </Button>
-                    </NavRight>
-                </Navbar>
-                <Block>
-                    <List>
-                        <ListInput name="propertyName" label="Property name" placeholder="Enter name" onChange={(e) => { setProperty({ ...property, name: e.target.value }) }}></ListInput>
-                        <ListInput name="propertyAddress" label Property address placeholder='Enter address' onChange={(e) => { setProperty({ ...property, address: e.target.value }) }}></ListInput>
-                        <ListItem label="# of rooms">
-                            <small className="display-block">Number of rooms</small>
-                            <Stepper name="propertyRooms" value={property.rooms} min={1} onStepperChange={(e) => { setProperty({ ...property, rooms: e }) }}></Stepper>
-                        </ListItem>
-                    </List>
-                </Block>
-            </Page>
-        )
-    }
-
     return (
         <Page>
             <Navbar title="Settings" />
@@ -249,5 +189,65 @@ const SettingsPage = () => {
         </Page>
     )
 };
+
+const AddProperty = ({ handleClose }) => {
+    const [canSave, setCanSave] = useState(false)
+    const [property, setProperty] = useState({
+        name: "",
+        address: "",
+        units: [],
+        rooms: 1
+    })
+    function handleNewPropertySave() {
+
+        f7.store.dispatch('createOne', { collectionName: 'properties', payload: { name: property.name, address: property.address, units: [] } })
+            .then(ref => {
+                // console.log('property created: ', ref)
+                let promises = [...Array(property.rooms)].map(async (item, index) => {
+                    let payload = {
+                        name: `Room ${index + 1}`,
+                        property: doc(db, 'properties/' + ref)
+                    }
+                    return await createOne('units', payload)
+                })
+                Promise.all(promises).then(res => {
+                    // console.log('units created: ', { res })
+                    const payload = { units: res.map(id => doc(db, 'units/' + id)) }
+                    // console.log({ payload })
+                    updateOne({ collectionName: 'properties', id: ref, payload })
+                })
+            })
+        handleClose()
+    }
+
+    useEffect(() => {
+        if (property?.name?.length > 3) {
+            setCanSave(true)
+        }
+    }, [property])
+
+    return (
+        <Page>
+            <Navbar title="Add new property">
+                {canSave && <Button onClick={handleNewPropertySave}><Icon material='save' /></Button>}
+                <NavRight>
+                    <Button onClick={handleClose}>
+                        <Icon material="close"></Icon>
+                    </Button>
+                </NavRight>
+            </Navbar>
+            <Block>
+                <List>
+                    <ListInput name="propertyName" label="Property name" placeholder="Enter name" onChange={(e) => { setProperty({ ...property, name: e.target.value }) }}></ListInput>
+                    <ListInput name="propertyAddress" label Property address placeholder='Enter address' onChange={(e) => { setProperty({ ...property, address: e.target.value }) }}></ListInput>
+                    <ListItem label="# of rooms">
+                        <small className="display-block">Number of rooms</small>
+                        <Stepper name="propertyRooms" value={property.rooms} min={1} onStepperChange={(e) => { setProperty({ ...property, rooms: e }) }}></Stepper>
+                    </ListItem>
+                </List>
+            </Block>
+        </Page>
+    )
+}
 
 export default SettingsPage;
