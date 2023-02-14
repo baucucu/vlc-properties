@@ -3,7 +3,7 @@ import minMax from 'dayjs/plugin/minMax';
 dayjs.extend(minMax)
 
 export function getNumberFromString(string) {
-    return Number(string.replace(/[^0-9]/g, ''));
+    return Number(string = string.replace(/[^0-9]/g, '')) || 0;
 }
 
 export function sortNumbers(a, b) {

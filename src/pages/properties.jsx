@@ -48,7 +48,6 @@ function PropertiesPage({ f7router, f7route }) {
       .reduce((partialSum, a) => partialSum + currency(a.unit_year_revenue).value, 0) || 0
     const monthlyProfit = monthlyRevenue - monthlyExpenses
     const ytdProfit = ytdRevenue - ytdExpenses
-    console.log(resources.filter(item => item.unit_year_revenue !== "€0.00").map(item => ({ id: item.id, unit_year_revenue: item.unit_year_revenue })))
     setFinance({
       monthlyExpenses: currency(monthlyExpenses, { symbol: '€', decimal: '.', separator: ',' }).format(),
       ytdExpenses: currency(ytdExpenses, { symbol: '€', decimal: '.', separator: ',' }).format(),
@@ -62,68 +61,49 @@ function PropertiesPage({ f7router, f7route }) {
   useEffect(() => { console.log({ finance, resources }) }, [finance])
 
   function getUnitData(unit) {
-    let propertyRevenue = bookings
-      .filter(item => item.property.id === unit.property.id)
-      .map(item => {
-        let monthly = intersectDateRanges([
-          { start: dayjs(item.checkIn.toDate()), end: dayjs(item.checkOut.toDate()) },
-          { start: dayjs(month).startOf('month'), end: dayjs(month).endOf('month') }
-        ])
-        let yearly = intersectDateRanges([
-          { start: dayjs(item.checkIn.toDate()), end: dayjs(item.checkOut.toDate()) },
-          { start: dayjs(month).startOf('year'), end: dayjs(month).endOf('year') }
-        ])
-        let monthRevenue = 0
-        if (item.type === "Short term" || item.type === "Daily") {
-          let valid = dayjs(item.checkIn.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month'))
-          if (valid) monthRevenue = item.amount
-        } else if (item.type === "Monthly" || item.type === "Long term" && monthly) {
-          monthRevenue = item.rent
-          if (dayjs(item.checkOut.toDate()).isBefore(dayjs(month).startOf('month').add(10, 'day')) && dayjs(item.checkOut.toDate()).month() === dayjs(month).month()) {
-            monthRevenue = 0
-          }
+    // console.log({ unit })
+    let propertyRevenue = 0
+    let bookedDays = 0
+    let unitMonthRevenue = 0
+    let unitYearRevenue = 0
+    let propertyBookings = bookings.filter(item => item.property.id === unit.property.id)
+
+    propertyBookings.forEach(item => {
+      // console.log({ item })
+      let monthly = intersectDateRanges([
+        { start: dayjs(item.checkIn.toDate()), end: dayjs(item.checkOut.toDate()) },
+        { start: dayjs(month).startOf('month'), end: dayjs(month).endOf('month') }
+      ])
+      let yearly = intersectDateRanges([
+        { start: dayjs(item.checkIn.toDate()), end: dayjs(item.checkOut.toDate()) },
+        { start: dayjs(month).startOf('year'), end: dayjs(month).endOf('year') }
+      ])
+      if (monthly) {
+        propertyRevenue += item.rent
+        if (item.unit.id === unit.docId) {
+          bookedDays += monthly.end.diff(monthly.start, "days") || 0
+          unitMonthRevenue += item.rent
         }
-        let yearRevenue = 0
-        if (yearly) {
-          // debugger;
-          if (item.type === "Short term" || item.type === "Daily") {
-            yearRevenue = item.amount
-          } else if (item.type === "Long term" || item.type === "Monthly") {
-            let months = dayjs(yearly.end).diff(dayjs(yearly.start), 'month') + 1
-            yearRevenue = item.rent * months
-          }
-        }
-        let monthBookedDays = 0
-        if (monthly) {
-          monthBookedDays = monthly.end.diff(monthly.start, 'day') + 1
-        }
-        if (unit.name === "Dr Lluch") {
-          console.log({ unit: item.unit.id, monthBookedDays, monthRevenue, yearRevenue })
-        }
-        return ({ unit: item.unit.id, monthBookedDays, monthRevenue, yearRevenue })
-      })
-    let propertyRevenueAmount = propertyRevenue
-      .reduce((partialSum, a) => partialSum + a.monthRevenue, 0)
-    let bookedDays = propertyRevenue
-      .filter(item => item.unit === unit.docId)
-      .reduce((partialSum, a) => partialSum + a.monthBookedDays, 0)
-    let unitMonthRevenue = propertyRevenue
-      .filter(item => item.unit === unit.docId)
-      .reduce((partialSum, a) => partialSum + a.monthRevenue, 0)
-    let unitYearRevenue = propertyRevenue
-      .filter(item => item.unit === unit.docId)?.[0]?.yearRevenue || 0
+      }
+      if (yearly && item.unit.id === unit.docId) {
+        unitYearRevenue += item.rent * yearly.end.diff(yearly.start, "months")
+      }
+    })
     let propertyExpenses = expenses
       .filter(item => item.property.id === unit.property.id)
-      .filter(item => dayjs(month).month() === dayjs(item.date.toDate()).month() && dayjs(month).year() === dayjs(item.date.toDate()).year())
-      .reduce((partialSum, a) => partialSum + a.amount, 0)
-    return {
-      property_revenue: currency(propertyRevenueAmount, { symbol: '€', decimal: '.', separator: ',' }).format(),
+      .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
+      .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
+    let res = {
+      property_revenue: currency(propertyRevenue, { symbol: '€', decimal: '.', separator: ',' }).format(),
       property_expenses: currency(propertyExpenses, { symbol: '€', decimal: '.', separator: ',' }).format(),
-      property_profit: currency(propertyRevenueAmount, { symbol: '€', decimal: '.', separator: ',' }).subtract(propertyExpenses).format(),
+      property_profit: currency(propertyRevenue, { symbol: '€', decimal: '.', separator: ',' }).subtract(propertyExpenses).format(),
       unit_month_revenue: currency(unitMonthRevenue, { symbol: '€', decimal: '.', separator: ',' }).format(),
       unit_year_revenue: currency(unitYearRevenue, { symbol: '€', decimal: '.', separator: ',' }).format(),
-      booked_days: `${bookedDays} days`,
+      booked_days: `${bookedDays} days`
     }
+    // console.log({ res })
+    return res
+
   }
 
   let calendarRef = React.createRef()
@@ -138,15 +118,17 @@ function PropertiesPage({ f7router, f7route }) {
     setMonth(currentView.currentStart)
   }
   useEffect(() => {
+    setMonth(dayjs().startOf('month'))
     // console.log('f7route.query?.tenantId', f7route.query?.tenantId)
-    f7.store.dispatch('setTenantId', { tenantId: f7route.query?.tenantId })
+    // f7.store.dispatch('setTenantId', { tenantId: f7route.query?.tenantId })
   }, [])
+
 
   useEffect(() => {
-    setMonth(dayjs().startOf('month'))
-  }, [])
-
-  useEffect(() => { getMonthlyFinance() }, [month, expenses, resources])
+    if (month && expenses && resources) {
+      getMonthlyFinance()
+    }
+  }, [month, expenses, resources])
 
 
   useEffect(() => {
