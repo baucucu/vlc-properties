@@ -79,9 +79,15 @@ function PropertiesPage({ f7router, f7route }) {
         { start: dayjs(month).startOf('year'), end: dayjs(month).endOf('year') }
       ])
       if (monthly) {
-        propertyRevenue += item.rent
+        if (
+          (dayjs(item.checkIn.toDate()).isAfter(dayjs(month).startOf('month')) && dayjs(item.checkOut.toDate()).isBefore(dayjs(month).endOf('month')))
+          || (dayjs(item.checkIn.toDate()).isBefore(dayjs(month).startOf('month')) && dayjs(item.checkOut.toDate()).isAfter(dayjs(month).endOf('month')))
+          || (dayjs(item.checkIn.toDate()).isBefore(dayjs(month).startOf('month')) && dayjs(item.checkOut.toDate()).isAfter(dayjs(month).startOf('month').add(10, "days")))
+        ) {
+          propertyRevenue += item.rent
+        }
         if (item.unit.id === unit.docId) {
-          bookedDays += monthly.end.diff(monthly.start, "days") || 0
+          bookedDays += monthly.end.diff(monthly.start, "days") + 1 || 0
           unitMonthRevenue += item.rent
         }
       }
