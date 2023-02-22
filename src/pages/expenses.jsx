@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Page, Navbar, Block, List, ListItem, ListInput, Row, Col, Popup, NavRight, Button, Icon, Input, f7 } from 'framework7-react';
+import { Page, Navbar, Block, List, ListItem, ListInput, Row, Col, Popup, NavRight, Button, Icon, f7 } from 'framework7-react';
 import FullCalendar from '@fullcalendar/react';
 import listPlugin from '@fullcalendar/list';
 import currency from 'currency.js';
@@ -9,10 +9,12 @@ import useFirestoreListener from "react-firestore-listener"
 import { doc } from 'firebase/firestore'
 import { db } from '../utils/firebase'
 import store from '../js/store';
+import { intersectDateRanges } from '../utils/utils';
 
 const ExpensesPage = () => {
   const properties = useFirestoreListener({ collection: "properties" })
   const expenses = useFirestoreListener({ collection: "expenses" })
+  const bookings = useFirestoreListener({ collection: "bookings" })
   const [selected, setSelected] = useState([])
   const [events, setEvents] = useState([])
   const [popupOpen, setPopupOpen] = useState(false);
@@ -22,6 +24,8 @@ const ExpensesPage = () => {
   const [totalIn, setTotalIn] = useState(0)
   const [totalOut, setTotalOut] = useState(0)
   const [currentDates, setCurrentDates] = useState({})
+
+
 
   function handleClose() {
     setPopupOpen(false);
@@ -90,15 +94,31 @@ const ExpensesPage = () => {
   }, [selected, expenses])
 
   useEffect(() => {
-    const monthIn = events
+    const monthOut = events
       .filter(item => dayjs(item.start).isAfter(currentDates.start) && dayjs(item.start).isBefore(currentDates.end))
       .filter(item => item.extendedProps.amount > 0)
       .reduce((acc, item) => acc + item.extendedProps.amount, 0)
-    const monthOut = events
-      .filter(item => dayjs(item.start).isAfter(currentDates.start) && dayjs(item.start).isBefore(currentDates.end))
-      .filter(item => item.extendedProps.amount < 0)
-      .reduce((acc, item) => acc + item.extendedProps.amount, 0)
-    setTotalIn(monthIn)
+    let monthRevenue = 0
+    let month = dayjs(currentDates.start)
+    bookings
+      .filter(item => selected.includes(item.property.id))
+      .forEach(item => {
+        // console.log({ item })
+        let monthly = intersectDateRanges([
+          { start: dayjs(item.checkIn.toDate()), end: dayjs(item.checkOut.toDate()) },
+          { start: dayjs(month).startOf('month'), end: dayjs(month).endOf('month') }
+        ])
+        if (monthly) {
+          if (
+            (dayjs(item.checkIn.toDate()).isSameOrAfter(dayjs(month).startOf('month'), "month") && dayjs(item.checkOut.toDate()).isSameOrBefore(dayjs(month).endOf('month'), "month"))
+            || (dayjs(item.checkIn.toDate()).isSameOrBefore(dayjs(month).startOf('month'), "month") && dayjs(item.checkOut.toDate()).isSameOrAfter(dayjs(month).endOf('month'), "month"))
+            || (dayjs(item.checkIn.toDate()).isSameOrBefore(dayjs(month).startOf('month'), "month") && dayjs(item.checkOut.toDate()).isSameOrAfter(dayjs(month).startOf('month').add(10, "days"), "month"))
+          ) {
+            monthRevenue += item.rent
+          }
+        }
+      })
+    setTotalIn(monthRevenue)
     setTotalOut(monthOut)
   }, [currentDates, events])
 
@@ -124,7 +144,7 @@ const ExpensesPage = () => {
             <List>
               <ListItem title="Total in" after={currency(totalIn, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
               <ListItem title="Total out" after={currency(totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
-              <ListItem title="Total" after={currency(totalIn + totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
+              <ListItem title="Total" after={currency(totalIn - totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
             </List>
             <FullCalendar
               height="70vh"
