@@ -5,10 +5,14 @@ import FullCalendar from '@fullcalendar/react';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import currency from 'currency.js';
 import useFirestoreListener from "react-firestore-listener"
-import _, { property } from 'lodash'
+import _ from 'lodash'
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import minMax from 'dayjs/plugin/minMax';
+dayjs.extend(isSameOrAfter)
+dayjs.extend(isSameOrBefore)
 dayjs.extend(isBetween);
 dayjs.extend(minMax);
 import { getNumberFromString, intersectDateRanges } from '../utils/utils';
@@ -80,9 +84,9 @@ function PropertiesPage({ f7router, f7route }) {
       ])
       if (monthly) {
         if (
-          (dayjs(item.checkIn.toDate()).isAfter(dayjs(month).startOf('month')) && dayjs(item.checkOut.toDate()).isBefore(dayjs(month).endOf('month')))
-          || (dayjs(item.checkIn.toDate()).isBefore(dayjs(month).startOf('month')) && dayjs(item.checkOut.toDate()).isAfter(dayjs(month).endOf('month')))
-          || (dayjs(item.checkIn.toDate()).isBefore(dayjs(month).startOf('month')) && dayjs(item.checkOut.toDate()).isAfter(dayjs(month).startOf('month').add(10, "days")))
+          (dayjs(item.checkIn.toDate()).isSameOrAfter(dayjs(month).startOf('month'), "month") && dayjs(item.checkOut.toDate()).isSameOrBefore(dayjs(month).endOf('month'), "month"))
+          || (dayjs(item.checkIn.toDate()).isSameOrBefore(dayjs(month).startOf('month'), "month") && dayjs(item.checkOut.toDate()).isSameOrAfter(dayjs(month).endOf('month'), "month"))
+          || (dayjs(item.checkIn.toDate()).isSameOrBefore(dayjs(month).startOf('month'), "month") && dayjs(item.checkOut.toDate()).isSameOrAfter(dayjs(month).startOf('month').add(10, "days"), "month"))
         ) {
           propertyRevenue += item.rent
         }
