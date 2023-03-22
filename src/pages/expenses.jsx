@@ -175,9 +175,9 @@ const ExpensesPage = () => {
                   </ListItem>
                 </List>
                 <List>
-                  <ListItem title="Total in" after={currency(totalIn, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
-                  <ListItem title="Total out" after={currency(totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
-                  <ListItem title="Total" after={currency(totalIn - totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
+                  <ListItem title="Revenue" after={currency(totalIn, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
+                  <ListItem title="Expenses" after={currency(totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
+                  <ListItem title="Balance" after={currency(totalIn - totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
                 </List>
                 <FullCalendar
                   height="70vh"
