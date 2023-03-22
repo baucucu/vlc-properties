@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Page, Navbar, Block, List, ListItem, ListInput, Row, Col, Popup, NavRight, Button, Icon, f7 } from 'framework7-react';
+import { Page, Navbar, Block, List, ListItem, ListInput, Row, Col, Popup, NavRight, Button, Icon, f7, Toolbar, Link, Tabs, Tab } from 'framework7-react';
 import FullCalendar from '@fullcalendar/react';
 import listPlugin from '@fullcalendar/list';
 import currency from 'currency.js';
@@ -11,12 +11,14 @@ import { db } from '../utils/firebase'
 import store from '../js/store';
 import { intersectDateRanges } from '../utils/utils';
 
+
 const ExpensesPage = () => {
   const properties = useFirestoreListener({ collection: "properties" })
   const expenses = useFirestoreListener({ collection: "expenses" })
   const bookings = useFirestoreListener({ collection: "bookings" })
   const [selected, setSelected] = useState([])
-  const [events, setEvents] = useState([])
+  const [cashEvents, setCashEvents] = useState([])
+  const [expenseEvents, setExpenseEvents] = useState([])
   const [popupOpen, setPopupOpen] = useState(false);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [expense, setExpense] = useState({})
@@ -24,7 +26,8 @@ const ExpensesPage = () => {
   const [totalIn, setTotalIn] = useState(0)
   const [totalOut, setTotalOut] = useState(0)
   const [currentDates, setCurrentDates] = useState({})
-
+  const [currentCashDates, setCurrentCashDates] = useState({})
+  const [cashTotal, setCashTotal] = useState(0)
 
 
   function handleClose() {
@@ -86,17 +89,35 @@ const ExpensesPage = () => {
           }
         })
       })
-
-    setEvents(evs)
+    console.log({ evs })
+    setExpenseEvents(evs.filter(item => item.extendedProps.category !== 'Cash in'))
+    setCashEvents(evs.filter(item => ['Cash in', 'Cash payment', 'Commissions'].includes(item.extendedProps.category)))
     const ss = f7.smartSelect.get('.smart-select')
     ss.setValue(selected)
 
   }, [selected, expenses])
 
+
   useEffect(() => {
-    const monthOut = events
+    let total = cashEvents
+      .filter(item => currentCashDates?.end ? dayjs(item.start).isBefore(currentCashDates.end) : true)
+      // .filter(item => ['Cash in', 'Cash payment'].includes(item.category))
+      .reduce((acc, item) => {
+        if (['Cash in'].includes(item.extendedProps.category)) {
+          return acc + item.extendedProps.amount
+        } else {
+          return acc - item.extendedProps.amount
+        }
+      }, 0)
+    setCashTotal(total)
+    console.log({ cashTotal, cashEvents, currentCashDates })
+  }, [currentCashDates, cashEvents])
+
+  useEffect(() => {
+    const monthOut = [...expenseEvents]
       .filter(item => dayjs(item.start).isAfter(currentDates.start) && dayjs(item.start).isBefore(currentDates.end))
       .filter(item => item.extendedProps.amount > 0)
+      .filter(item => item.extendedProps.category !== 'Cash in')
       .reduce((acc, item) => acc + item.extendedProps.amount, 0)
     let monthRevenue = 0
     let month = dayjs(currentDates.start)
@@ -120,36 +141,79 @@ const ExpensesPage = () => {
       })
     setTotalIn(monthRevenue)
     setTotalOut(monthOut)
-  }, [currentDates, events])
+  }, [currentDates, expenseEvents, cashEvents, bookings, selected])
+
 
   return (
     <Page>
-      <Navbar title="Balance sheet">
+      <Navbar title="Finance">
         <Button onClick={() => setPopupOpen(true)}>
           <Icon material="add" />
         </Button>
       </Navbar>
-      <Row>
-        <Col>
+      <Toolbar tabbar top>
+        <Link tabLink="#expenses" tabLinkActive>
+          Expenses
+        </Link>
+        <Link tabLink="#cash">Cash balance: {currency(cashTotal, { symbol: '€', decimal: ',', separator: '.' }).format()}</Link>
+      </Toolbar>
+      <Tabs>
+        <Tab id='expenses' tabActive>
+          <Row>
+            <Col>
+              <Block>
+                <List>
+                  <ListItem checkbox title={selectAll ? "Deselect all" : "Select all"} checked={selectAll} onChange={handleSelectAll}>
+                  </ListItem>
+                  <ListItem title="Filter properties" smartSelect id="propertiesFilter" smartSelectParams={{ openIn: 'popover' }} >
+                    <select className="filter" name="filter" multiple >
+                      {_.sortBy(properties, item => item.name).map(item => <option key={item.docId} value={item.docId}>{item.name}</option>)}
+                    </select>
+                  </ListItem>
+                </List>
+                <List>
+                  <ListItem title="Total in" after={currency(totalIn, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
+                  <ListItem title="Total out" after={currency(totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
+                  <ListItem title="Total" after={currency(totalIn - totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
+                </List>
+                <FullCalendar
+                  height="70vh"
+                  initialView="listMonth"
+                  events={expenseEvents}
+                  plugins={[listPlugin]}
+                  eventDidMount={function (info) {
+                    const propertyEl = info.el.getElementsByClassName('fc-list-event-time')[0]
+                    propertyEl.innerHTML = info.event.extendedProps.property
+                    const amountEl = info.el.getElementsByClassName('fc-list-event-dot')[0];
+                    amountEl.style.display = "none";
+                  }}
+                  eventClick={function (info) {
+                    let expenseId = info.event._def.publicId
+                    info.jsEvent.preventDefault()
+                    setExpense(expenses.filter(item => item.docId === expenseId)[0])
+                    setEditPopupOpen(true)
+                  }}
+                  datesSet={function (info) {
+                    console.log(info)
+                    setCurrentDates(info)
+                  }}
+
+                  headerToolbar={{
+                    left: 'today prev next',
+                    center: 'title',
+                    right: ''
+                  }}
+                />
+              </Block>
+            </Col>
+          </Row>
+        </Tab>
+        <Tab id='cash' >
           <Block>
-            <List>
-              <ListItem checkbox title={selectAll ? "Deselect all" : "Select all"} checked={selectAll} onChange={handleSelectAll}>
-              </ListItem>
-              <ListItem title="Filter properties" smartSelect id="propertiesFilter" smartSelectParams={{ openIn: 'popover' }} >
-                <select className="filter" name="filter" multiple >
-                  {_.sortBy(properties, item => item.name).map(item => <option key={item.docId} value={item.docId}>{item.name}</option>)}
-                </select>
-              </ListItem>
-            </List>
-            <List>
-              <ListItem title="Total in" after={currency(totalIn, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
-              <ListItem title="Total out" after={currency(totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
-              <ListItem title="Total" after={currency(totalIn - totalOut, { symbol: '€', decimal: ',', separator: '.' }).format()}></ListItem>
-            </List>
             <FullCalendar
               height="70vh"
               initialView="listMonth"
-              events={events}
+              events={cashEvents}
               plugins={[listPlugin]}
               eventDidMount={function (info) {
                 const propertyEl = info.el.getElementsByClassName('fc-list-event-time')[0]
@@ -158,14 +222,13 @@ const ExpensesPage = () => {
                 amountEl.style.display = "none";
               }}
               eventClick={function (info) {
-                let expenseId = info.event._def.publicId
+                let eventId = info.event._def.publicId
                 info.jsEvent.preventDefault()
-                setExpense(expenses.filter(item => item.docId === expenseId)[0])
-                setEditPopupOpen(true)
+                setExpense(cashEvents.filter(item => item.docId === eventId)[0])
               }}
               datesSet={function (info) {
                 console.log(info)
-                setCurrentDates(info)
+                setCurrentCashDates(info)
               }}
               headerToolbar={{
                 left: 'today prev next',
@@ -174,8 +237,9 @@ const ExpensesPage = () => {
               }}
             />
           </Block>
-        </Col>
-      </Row>
+        </Tab>
+      </Tabs>
+
       <Popup
         className="expenses"
         opened={popupOpen}
