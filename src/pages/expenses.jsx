@@ -143,6 +143,9 @@ const ExpensesPage = () => {
     setTotalOut(monthOut)
   }, [currentDates, expenseEvents, cashEvents, bookings, selected])
 
+  useEffect(() => {
+    console.log({ expense })
+  }, [expense])
 
   return (
     <Page>
@@ -224,7 +227,8 @@ const ExpensesPage = () => {
               eventClick={function (info) {
                 let eventId = info.event._def.publicId
                 info.jsEvent.preventDefault()
-                setExpense(cashEvents.filter(item => item.docId === eventId)[0])
+                setExpense(expenses.filter(item => item.docId === eventId)[0])
+                setEditPopupOpen(true)
               }}
               datesSet={function (info) {
                 console.log(info)
