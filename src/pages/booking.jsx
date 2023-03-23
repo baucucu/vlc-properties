@@ -388,7 +388,7 @@ const BookingPage = ({ f7route }) => {
               </Col>
             </Row>
           </List>
-          {booking.type === "Long term" && <>
+          {booking.type === "Monthly" && <>
             <Block>
               <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 16, alignItems: 'center' }}>
                 <h2 style={{ fontSize: 18 }}>Payments</h2>

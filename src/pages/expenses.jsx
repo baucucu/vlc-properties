@@ -428,7 +428,7 @@ function AddExpenses({ handleClosePopup }) {
   let [formData, setFormData] = useState([])
 
   function handleClose() {
-    setFormData(formdata => [])
+    setFormData([])
     handleClosePopup()
   }
 
@@ -560,6 +560,7 @@ const ExpenseRow = ({ index, handleChange }) => {
             <ListInput
               name={index + ".category"}
               type="select"
+              defaultValue='Cash in'
               placeholder="Please choose..."
               required
               label="Category"
