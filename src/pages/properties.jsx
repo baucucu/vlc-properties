@@ -101,6 +101,7 @@ function PropertiesPage({ f7router, f7route }) {
     })
     let propertyExpenses = expenses
       .filter(item => item.property.id === unit.property.id)
+      .filter(item => item.category !== "Cash in")
       .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     let res = {
