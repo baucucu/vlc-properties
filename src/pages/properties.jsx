@@ -42,6 +42,7 @@ function PropertiesPage({ f7router, f7route }) {
     // debugger;
     const monthlyExpenses = expenses
       .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
+      .filter(item => item.type !== "Cash in")
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const ytdExpenses = expenses
       .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
