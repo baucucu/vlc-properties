@@ -36,7 +36,6 @@ function PropertiesPage({ f7router, f7route }) {
     ytdProfit: currency(0, { symbol: '€', decimal: '.', separator: ',' }).format(),
   })
 
-  // useEffect(() => { console.log({ resources }) }, [resources])
 
   function getMonthlyFinance() {
     // debugger;
@@ -64,10 +63,8 @@ function PropertiesPage({ f7router, f7route }) {
     })
   }
 
-  useEffect(() => { console.log({ finance, resources }) }, [finance])
 
   function getUnitData(unit) {
-    // console.log({ unit })
     let propertyRevenue = 0
     let bookedDays = 0
     let unitMonthRevenue = 0
@@ -75,7 +72,6 @@ function PropertiesPage({ f7router, f7route }) {
     let propertyBookings = bookings.filter(item => item.property.id === unit.property.id)
 
     propertyBookings.forEach(item => {
-      // console.log({ item })
       let monthly = intersectDateRanges([
         { start: dayjs(item.checkIn.toDate()), end: dayjs(item.checkOut.toDate()) },
         { start: dayjs(month).startOf('month'), end: dayjs(month).endOf('month') }
@@ -101,10 +97,8 @@ function PropertiesPage({ f7router, f7route }) {
         let months = yearly.end.diff(yearly.start, "months")
         // if (months > 0) months++
         unitYearRevenue = item.rent * months
-        console.log({ months, unitYearRevenue, item })
       }
     })
-    console.log({ unit, unitYearRevenue, unitMonthRevenue, propertyRevenue })
     let propertyExpenses = expenses
       .filter(item => item.property.id === unit.property.id)
       .filter(item => item.category !== "Cash in")
@@ -118,7 +112,6 @@ function PropertiesPage({ f7router, f7route }) {
       unit_year_revenue: currency(unitYearRevenue, { symbol: '€', decimal: '.', separator: ',' }).format(),
       booked_days: `${bookedDays} days`
     }
-    // console.log({ res })
     return res
 
   }
@@ -131,7 +124,6 @@ function PropertiesPage({ f7router, f7route }) {
     let currentView = calendarApi.view
     direction === 'prev' && calendarApi.prev()
     direction === 'next' && calendarApi.next()
-
     setMonth(currentView.currentStart)
   }
   useEffect(() => {
@@ -272,15 +264,6 @@ function PropertiesPage({ f7router, f7route }) {
           }}
         />}
       </Block>
-      {/* <Popup
-        className="newProperty"
-        opened={popupOpen}
-        onPopupClosed={handleClose}
-        onPopupSwipeClose={handleClose}
-        onPopupClose={handleClose}
-      >
-        <AddTenant handleClose={handleClose}/>
-      </Popup> */}
     </Page>
   );
 }
@@ -291,12 +274,61 @@ const Scorecard = (props) => {
   const { type, month, finance } = props
   let monthly, ytd
   let title, backgroundColor
+  const bookings = useFirestoreListener({ collection: "bookings" })
+
+  const [monthlyRevenue, setMonthlyRevenue] = useState(currency(0, { symbol: '€', decimal: '.', separator: ',' }))
+  const [yearlyRevenue, setYearlyRevenue] = useState(currency(0, { symbol: '€', decimal: '.', separator: ',' }))
+
+  useEffect(() => {
+    if (month && bookings) {
+      setMonthlyRevenue(getMonthlyRevenue(month))
+      setYearlyRevenue(getYearlyRevenue())
+    }
+  }, [month, bookings])
+
+  const getMonthlyRevenue = (selectedMonth) => {
+    console.log({ selectedMonth })
+    const monthStartDate = dayjs(selectedMonth).startOf('month');
+    const monthEndDate = dayjs(selectedMonth).endOf('month');
+
+    let revenueForMonth = currency(0);
+
+    bookings.forEach((booking) => {
+      const bookingCheckInDate = dayjs(booking.checkIn.toDate());
+      const bookingCheckOutDate = dayjs(booking.checkOut.toDate());
+      const rent = currency(booking.rent);
+
+      if (
+        bookingCheckInDate.isBefore(monthEndDate) &&
+        bookingCheckOutDate.isAfter(monthStartDate) &&
+        (!bookingCheckOutDate.isBefore(monthStartDate.add(10, 'day')))
+      ) {
+        revenueForMonth = revenueForMonth.add(rent.value);
+      }
+    });
+
+    return revenueForMonth;
+  };
+
+  const getYearlyRevenue = () => {
+    let revenueForYear = currency(0);
+    const year = dayjs(month).year();
+    const months = Array.from({ length: 12 }, (_, index) => dayjs().year(year).month(index).startOf('month'));
+    months.forEach((item) => {
+      const revenue = getMonthlyRevenue(item);
+      revenueForYear = revenueForYear.add(revenue)
+      console.log({ revenue, revenueForYear })
+    })
+
+    return revenueForYear;
+  }
+
   switch (type) {
     case "revenue":
       title = "Revenue"
       backgroundColor = "deeppurple"
-      monthly = finance.monthlyRevenue
-      ytd = finance.ytdRevenue
+      monthly = currency(monthlyRevenue?.value, { symbol: '€', decimal: '.', separator: ',' }).format()
+      ytd = currency(yearlyRevenue?.value, { symbol: '€', decimal: '.', separator: ',' }).format()
       break;
     case "expenses":
       title = "Expenses"
@@ -313,6 +345,7 @@ const Scorecard = (props) => {
     default:
       break;
   }
+  if (!month) return null
   return (
     <Block textColor='white' inset strong className={`bg-color-${backgroundColor} elevation-10`}>
       <h2 style={{ opacity: 0.8 }}>{title}</h2>
