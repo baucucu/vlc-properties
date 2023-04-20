@@ -143,9 +143,6 @@ const ExpensesPage = () => {
     setTotalOut(monthOut)
   }, [currentDates, expenseEvents, cashEvents, bookings, selected])
 
-  useEffect(() => {
-    console.log({ expense })
-  }, [expense])
 
   return (
     <Page>
@@ -429,6 +426,8 @@ function AddExpenses({ handleClosePopup }) {
 
   function handleClose() {
     setFormData([])
+    setRows(0)
+    setRows(1)
     handleClosePopup()
   }
 
@@ -453,14 +452,13 @@ function AddExpenses({ handleClosePopup }) {
         })
         return payload
       })
-    // console.log({ group, payloads })
+    console.log({ group, payloads })
     payloads.map(payload => f7.store.dispatch('createOne', { collectionName: 'expenses', payload }))
-    setFormData([])
     handleClose()
   }
   function handleChange() {
     let data = f7.form.convertToData('#expensesForm')
-    // console.log({ data })
+    console.log({ data })
     let res = Object.keys(data).map(key => {
       let index = key[0]
       let property = key.substring(2, key.length)
@@ -469,6 +467,7 @@ function AddExpenses({ handleClosePopup }) {
     })
     setFormData(res)
   }
+
   useEffect(() => {
     // console.log("formData changed: ", { formData })
     let emptyFields = formData.filter(item => item.value === '')
@@ -501,6 +500,19 @@ function AddExpenses({ handleClosePopup }) {
 const ExpenseRow = ({ index, handleChange }) => {
   const properties = useFirestoreListener({ collection: "properties" })
   const settings = useFirestoreListener({ collection: "settings" })
+  const [formData, setFormData] = useState({
+    amount: 0,
+    date: dayjs().format('DD.MM.YYYY'),
+    property: "",
+    category: 'Cash in',
+  })
+
+  useEffect(() => {
+    handleChange({ prop: "amount", value: formData.amount })
+    handleChange({ prop: "date", value: formData.date })
+    handleChange({ prop: "property", value: formData.property })
+    handleChange({ prop: "category", value: formData.category })
+  }, [formData])
 
   const today = dayjs().format('DD.MM.YYYY')
   return (
@@ -513,11 +525,12 @@ const ExpenseRow = ({ index, handleChange }) => {
               name={index + ".amount"}
               type="number"
               min={0}
+              value={formData.amount}
               label="Amount"
               inner-start={<p>€</p>}
               placeholder="Enter amount"
               required
-              onChange={handleChange}
+              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
             />
           </List>
         </Col>
@@ -525,7 +538,7 @@ const ExpenseRow = ({ index, handleChange }) => {
           <List noHairlines>
             <ListInput
               name={index + ".date"}
-              defaultValue={today}
+              value={formData.date}
               placeholder="Please choose..."
               label="Expense date"
               type='datepicker'
@@ -534,7 +547,7 @@ const ExpenseRow = ({ index, handleChange }) => {
                 dateFormat: 'dd/mm/yyyy'
               }}
               required
-              onChange={handleChange}
+              onCalendarChange={(value) => setFormData({ ...formData, date: value })}
             />
           </List>
         </Col>
@@ -543,11 +556,11 @@ const ExpenseRow = ({ index, handleChange }) => {
             <ListInput
               name={index + ".property"}
               type="select"
-              defaultValue={() => properties[0].docId}
+              value={formData.property}
               placeholder="Please choose..."
               required
               label="Property"
-              onChange={handleChange}
+              onChange={(event, value) => setFormData({ ...formData, property: value })}
             >
               {_.sortBy(properties, item => item.name).map(item => <option key={item.docId} value={item.docId}>{item.name}</option>)}
             </ListInput>
@@ -560,11 +573,11 @@ const ExpenseRow = ({ index, handleChange }) => {
             <ListInput
               name={index + ".category"}
               type="select"
-              defaultValue='Cash in'
+              calue={formData.category}
               placeholder="Please choose..."
               required
               label="Category"
-              onChange={handleChange}
+              onChange={(event, value) => setFormData({ ...formData, category: value })}
             >
               {_.sortBy(settings.filter(item => item.docId === 'expenseCategories')[0]?.values, item => item)
                 .map(category => <option key={category} value={category}>{category}</option>)}
@@ -577,10 +590,11 @@ const ExpenseRow = ({ index, handleChange }) => {
               name={index + ".description"}
               label="Description"
               type="textarea"
+              value={formData.description}
               resizable
               required
               placeholder="Enter description here"
-              onChange={handleChange}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
           </List>
         </Col>
