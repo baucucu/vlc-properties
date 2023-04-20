@@ -339,8 +339,8 @@ const Scorecard = (props) => {
     case "profit":
       title = "Profit"
       backgroundColor = "teal"
-      monthly = finance.monthlyProfit
-      ytd = finance.ytdProfit
+      monthly = monthlyRevenue?.subtract(finance.monthlyExpenses).format()
+      ytd = yearlyRevenue?.subtract(finance.ytdExpenses).format()
       break;
     default:
       break;
