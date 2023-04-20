@@ -46,6 +46,7 @@ function PropertiesPage({ f7router, f7route }) {
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const ytdExpenses = expenses
       .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
+      .filter(item => item.category !== "Cash in")
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const monthlyRevenue = resources
       .reduce((partialSum, a) => partialSum + currency(a.unit_month_revenue).value, 0) || 0
@@ -97,9 +98,13 @@ function PropertiesPage({ f7router, f7route }) {
         }
       }
       if (yearly && item.unit.id === unit.docId) {
-        unitYearRevenue += item.rent * yearly.end.diff(yearly.start, "months")
+        let months = yearly.end.diff(yearly.start, "months")
+        // if (months > 0) months++
+        unitYearRevenue = item.rent * months
+        console.log({ months, unitYearRevenue, item })
       }
     })
+    console.log({ unit, unitYearRevenue, unitMonthRevenue, propertyRevenue })
     let propertyExpenses = expenses
       .filter(item => item.property.id === unit.property.id)
       .filter(item => item.category !== "Cash in")
