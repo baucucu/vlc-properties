@@ -26,7 +26,7 @@ const BookingsPage = () => {
   function handleClose() {
     setPopupOpen(false)
   }
-  function handletenantClose() {
+  function handleTenantPopupClose() {
     setTenantPopupOpen(false)
   }
 
@@ -118,22 +118,25 @@ const BookingsPage = () => {
         onPopupSwipeClose={handleClose}
         onPopupClose={handleClose}
       >
-        <AddBooking handleClose={handleClose} />
+        <AddBooking handleClose={handleClose} setTenantPopupOpen={setTenantPopupOpen} />
       </Popup>
       <Popup
         className="newtenant"
         opened={tenantPopupOpen}
-        onPopupClosed={handletenantClose}
-        onPopupSwipeClose={handletenantClose}
-        onPopupClose={handletenantClose}
+        onPopupClosed={handleTenantPopupClose}
+        onPopupSwipeClose={handleTenantPopupClose}
+        onPopupClose={handleTenantPopupClose}
       >
-        <AddTenant handletenantClose={handletenantClose} />
+        <AddTenant handleTenantPopupClose={handleTenantPopupClose} />
       </Popup>
     </Page>
   );
 }
 
-function AddBooking({ handleClose }) {
+function AddBooking(props) {
+  const { handleTenantPopupClose, setTenantPopupOpen } = props
+  console.log({ props })
+
   const [selectedProperty, setSelectedProperty] = useState()
   const [selectedUnit, setSelectedUnit] = useState()
   const [canSave, setCanSave] = useState(false)
@@ -184,7 +187,7 @@ function AddBooking({ handleClose }) {
       f7.store.dispatch('updateOne', { collectionName: 'tenants', id: data.tenant, payload })
       // f7.store.dispatch('createContract', { booking: ref })
     })
-    handleClose()
+    handleTenantPopupClose()
   }
 
   function handleChange(property, value) {
@@ -207,7 +210,7 @@ function AddBooking({ handleClose }) {
       <Navbar title="Add new booking">
         {canSave && <Button onClick={handleSave}><Icon material='save' /></Button>}
         <NavRight>
-          <Button onClick={handleClose}>
+          <Button onClick={handleTenantPopupClose}>
             <Icon material="close"></Icon>
           </Button>
         </NavRight>
@@ -221,7 +224,7 @@ function AddBooking({ handleClose }) {
                   <option value="" disabled>--Select--</option>
                   {_.sortBy(tenants, item => item.name).map(tenant => (<option key={tenant.docId} value={tenant.docId}>{tenant.name}</option>))}
                 </ListInput>
-                <ListButton onClick={() => { setTenantPopupOpen(true) }}>Add new tenant</ListButton>
+                <ListButton onClick={() => setTenantPopupOpen(true)}>Add new tenant</ListButton>
               </List>
             </Col>
             <Col>
@@ -334,7 +337,7 @@ function AddBooking({ handleClose }) {
   )
 }
 
-function AddTenant({ handletenantClose }) {
+function AddTenant({ handleTenantPopupClose }) {
   const [canSave, setCanSave] = useState(false)
   const [formData, setFormData] = useState({})
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -348,7 +351,7 @@ function AddTenant({ handletenantClose }) {
       uploads
     }
     f7.store.dispatch('createOne', { collectionName: 'tenants', payload })
-    handletenantClose()
+    handleTenantPopupClose()
   }
   function handleChange() {
     let data = f7.form.convertToData('#newBookingtenantForm')
@@ -364,7 +367,7 @@ function AddTenant({ handletenantClose }) {
       <Navbar title="Add new tenant">
         {canSave && <Button onClick={handleSave}><Icon material='save' /></Button>}
         <NavRight>
-          <Button onClick={handletenantClose}>
+          <Button onClick={handleTenantPopupClose}>
             <Icon material="close"></Icon>
           </Button>
         </NavRight>

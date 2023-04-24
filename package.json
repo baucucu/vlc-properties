@@ -1,8 +1,8 @@
 {
-  "name": "vlc-properties",
+  "name": "property-management-spain",
   "private": true,
   "version": "1.0.0",
-  "description": "VLC Properties",
+  "description": "Property Management Spain",
   "repository": "",
   "license": "UNLICENSED",
   "scripts": {

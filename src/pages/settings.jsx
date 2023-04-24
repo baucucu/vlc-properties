@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Page, Navbar, Button, Block, List, ListItem, ListInput, Stepper, Icon, Popup, NavRight, Row, Col, f7 } from 'framework7-react';
 import _ from 'lodash'
-import { createOne, updateOne } from '../utils/firebase';
+import { createOne, updateOne, db } from '../utils/firebase';
 import { doc } from 'firebase/firestore'
-import { db } from '../utils/firebase'
 import useFirestoreListener from "react-firestore-listener"
 
 
@@ -212,7 +211,7 @@ const AddProperty = ({ handleClose }) => {
                 })
                 Promise.all(promises).then(res => {
                     // console.log('units created: ', { res })
-                    const payload = { units: res.map(id => doc(db, 'units/' + id)) }
+                    const payload = { id: ref, units: res.map(id => doc(db, 'units/' + id)) }
                     // console.log({ payload })
                     updateOne({ collectionName: 'properties', id: ref, payload })
                 })

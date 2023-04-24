@@ -107,7 +107,7 @@ async function updateOne({ collectionName, id, payload }) {
 }
 
 async function createOne(collectionName, payload) {
-    console.log({ received: payload })
+    console.log({ received: payload, collection: collectionName })
     const ref = doc(collection(db, collectionName))
     const created = await setDoc(ref, payload)
     return ref.id
