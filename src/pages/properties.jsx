@@ -41,11 +41,11 @@ function PropertiesPage({ f7router, f7route }) {
     // debugger;
     const monthlyExpenses = expenses
       .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('month'), dayjs(month).endOf('month')))
-      .filter(item => !['Cash in', 'Cash payment', 'Commissions'].includes(item.extendedProps.category))
+      .filter(item => !['Cash in', 'Cash payment', 'Commissions'].includes(item.category))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const ytdExpenses = expenses
       .filter(item => dayjs(item?.date?.toDate()).isBetween(dayjs(month).startOf('year'), dayjs(month).endOf('month')))
-      .filter(item => !['Cash in', 'Cash payment', 'Commissions'].includes(item.extendedProps.category))
+      .filter(item => !['Cash in', 'Cash payment', 'Commissions'].includes(item.category))
       .reduce((partialSum, a) => partialSum + a.amount, 0) || 0
     const monthlyRevenue = resources
       .reduce((partialSum, a) => partialSum + currency(a.unit_month_revenue).value, 0) || 0
