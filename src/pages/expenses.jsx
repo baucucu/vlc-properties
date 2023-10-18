@@ -281,7 +281,7 @@ function EditExpense({ handleEditPopupClose, expense }) {
         date: expense.date,
         category: expense.category,
         description: expense.description,
-        amount: expense.amount
+        amount: parseFloat(expense.amount)
       }
       // console.log({ initial: data })
       setFormData(data)
