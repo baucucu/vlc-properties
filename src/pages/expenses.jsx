@@ -501,7 +501,7 @@ const ExpenseRow = ({ index, handleChange }) => {
   const properties = useFirestoreListener({ collection: "properties" })
   const settings = useFirestoreListener({ collection: "settings" })
   const [formData, setFormData] = useState({
-    amount: 0,
+    amount: 0.00,
     date: dayjs().format('DD.MM.YYYY'),
     property: "",
     category: 'Cash in',
@@ -524,6 +524,7 @@ const ExpenseRow = ({ index, handleChange }) => {
             <ListInput
               name={index + ".amount"}
               type="number"
+              step="any"
               min={0}
               value={formData.amount}
               label="Amount"
