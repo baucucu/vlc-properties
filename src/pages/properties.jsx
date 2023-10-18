@@ -50,13 +50,7 @@ function PropertiesPage({ f7router, f7route }) {
     const monthlyRevenue = resources
       .reduce((partialSum, a) => partialSum + currency(a.unit_month_revenue).value, 0) || 0
     const ytdRevenue = resources
-      .reduce((partialSum, a) => {
-        const revenueDate = dayjs(a.revenue_date);
-        if (revenueDate.isBetween(startOfYear, today.endOf('month'))) {
-          return partialSum + currency(a.unit_year_revenue).value;
-        }
-        return partialSum;
-      }, 0) || 0;
+      .reduce((partialSum, a) => partialSum + currency(a.unit_year_revenue).value, 0) || 0
     const monthlyProfit = monthlyRevenue - monthlyExpenses
     const ytdProfit = ytdRevenue - ytdExpenses
     setFinance({
