@@ -301,7 +301,7 @@ function EditExpense({ handleEditPopupClose, expense }) {
       date: new Date(formData.date.seconds * 1000),
       category: formData.category,
       description: formData.description,
-      amount: formData.amount
+      amount: parseFloat(expense.amount)
     }
     // console.log({ saving: data })
     store.dispatch('updateOne', { collectionName: 'expenses', id: expense.docId, payload: data }).then(res => {
