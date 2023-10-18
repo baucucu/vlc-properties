@@ -90,7 +90,7 @@ const ExpensesPage = () => {
         })
       })
     console.log({ evs })
-    setExpenseEvents(evs.filter(item => item.extendedProps.category !== 'Cash in'))
+    setExpenseEvents(evs.filter(item => !['Cash in', 'Cash payment', 'Commissions'].includes(item.extendedProps.category)))
     setCashEvents(evs.filter(item => ['Cash in', 'Cash payment', 'Commissions'].includes(item.extendedProps.category)))
     const ss = f7.smartSelect.get('.smart-select')
     ss.setValue(selected)
