@@ -35,7 +35,7 @@ export default function ContractEmailForm({ contractPopupOpen, handleContractPop
                         <List noHairlines>
                             <ListInput label="Title" type="text" name="title" value={`Rental contract for ${property.name} ${unit.name}`} />
                             <ListInput label="Email" type="textarea" name="body" resizable
-                                value={`Hi ${tenant.name},\n\nPlease sign the contract and send back. Thanks again for booking\n\n\Here is the contract download link: https://docs.google.com/document/d/${contract.id}/export?format=pdf \n\nRegards,\nSteve\nVLC Property Management`}
+                                value={`Hi ${tenant.name},\n\nPlease sign the contract and send back. Thanks again for booking\n\n\Here is the contract download link: https://docs.google.com/document/d/${contract.id}/export?format=pdf \n\nRegards,\nSteve\nCabanyal Flats`}
                             />
                             <Button fill raised onClick={() => handleSend()}>Send</Button>
                         </List>
